@@ -29,7 +29,7 @@ export default async function AdminPage() {
                 {r.title}
               </p>
               <p style={{ fontSize: 12, color: 'var(--muted)' }}>
-                {catMap[r.category_slug] ?? r.category_slug} · {r.time_minutes} min
+                {catMap[r.category_slug] ?? r.category_slug}{r.time_minutes > 0 ? ` · ${r.time_minutes} min` : ''}
               </p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
