@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type { Category, RecipeListItem } from '@/lib/api'
 import { CardGrid, CardList, CardCover } from '@/components/recipe-card'
 
@@ -13,19 +13,25 @@ interface Props {
 }
 
 export function BrowseClient({ categories, initialRecipes, initialCategory }: Props) {
-  const [activeCat, setActiveCat] = useState(initialCategory)
+  const validSlugs = useMemo(() => new Set(categories.map((c) => c.slug)), [categories])
+  const [activeCat, setActiveCat] = useState(
+    initialCategory === 'all' || validSlugs.has(initialCategory) ? initialCategory : 'all'
+  )
   const [layout, setLayout] = useState<Layout>('cover')
 
   useEffect(() => {
-    const saved = localStorage.getItem('browseLayout') as Layout
-    if (saved) setLayout(saved)
+    const saved = localStorage.getItem('browseLayout')
+    if (saved === 'cover' || saved === 'grid' || saved === 'list') setLayout(saved)
   }, [])
 
   const recipes = activeCat === 'all'
     ? initialRecipes
     : initialRecipes.filter((r) => r.category_slug === activeCat)
 
-  const catMap = Object.fromEntries(categories.map((c) => [c.slug, c]))
+  const catMap = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.slug, c])),
+    [categories]
+  )
 
   const setLayoutPersist = (l: Layout) => {
     setLayout(l)
