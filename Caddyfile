@@ -1,3 +1,4 @@
+# Replace api.yourdomain.com with your actual domain before deploying
 api.yourdomain.com {
     reverse_proxy backend:8080
 }
