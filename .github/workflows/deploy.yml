@@ -30,17 +30,14 @@ jobs:
           tags: ghcr.io/mrlmueller/kochbuch-v3-backend:latest
 
       - name: Deploy to server
-        env:
-          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/deploy_key \
-            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" \
-            "echo '$GHCR_TOKEN' | docker login ghcr.io -u mrlmueller --password-stdin \
-            && cd /home/deploy/kochbuch \
-            && docker compose pull backend \
-            && docker compose up -d --no-deps backend"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: 2222
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u mrlmueller --password-stdin
+            cd /home/deploy/kochbuch
+            docker compose pull backend
+            docker compose up -d --no-deps backend
