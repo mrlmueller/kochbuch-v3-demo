@@ -8,21 +8,21 @@ export const revalidate = 60
 async function BrowseContent({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; q?: string }>
 }) {
-  const { category } = await searchParams
+  const { category, q } = await searchParams
   const [categories, recipes] = await Promise.all([
     getCategories(),
-    getRecipes(),
+    getRecipes(q ? { q } : {}),
   ])
 
-  return <BrowseClient categories={categories} initialRecipes={recipes} initialCategory={category ?? 'all'} />
+  return <BrowseClient categories={categories} initialRecipes={recipes} initialCategory={category ?? 'all'} searchQuery={q ?? ''} />
 }
 
 export default function RezeptePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; q?: string }>
 }) {
   return (
     <Suspense fallback={<BrowseSkeleton />}>
