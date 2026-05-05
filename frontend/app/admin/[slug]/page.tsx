@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getCategories, getRecipe } from '@/lib/api'
+import { getCategories, getRecipe } from '@/lib/api.server'
 import { RecipeForm } from '@/app/admin/recipe-form'
 
 export default async function EditRecipePage({ params }: { params: Promise<{ slug: string }> }) {

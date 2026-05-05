@@ -1,4 +1,4 @@
-import { getRecipes, getCategories } from '@/lib/api'
+import { getRecipes, getCategories } from '@/lib/api.server'
 import { AdminRecipeList } from '@/components/admin/recipe-list'
 
 export default async function AdminPage() {

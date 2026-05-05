@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getMe } from '@/lib/api'
+import { getMe } from '@/lib/api.server'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getMe()

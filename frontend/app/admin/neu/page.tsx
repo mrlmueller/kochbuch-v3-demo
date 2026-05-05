@@ -1,4 +1,4 @@
-import { getCategories } from '@/lib/api'
+import { getCategories } from '@/lib/api.server'
 import { RecipeForm } from '@/app/admin/recipe-form'
 
 export default async function NewRecipePage() {

@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { getCategories, getRecipes } from '@/lib/api'
+import { getCategories, getRecipes } from '@/lib/api.server'
 import { BrowseClient } from './browse-client'
 import { BrowseSkeleton } from '@/components/skeleton'
 

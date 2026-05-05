@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { getCategories, getRecipes } from '@/lib/api'
+import { getCategories, getRecipes } from '@/lib/api.server'
 import { CategoryGrid } from '@/components/category-grid'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'

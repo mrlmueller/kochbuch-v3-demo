@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getRecipe, getCategories } from '@/lib/api'
+import { getRecipe, getCategories } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 
 export const revalidate = 60

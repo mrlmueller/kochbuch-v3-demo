@@ -1,4 +1,4 @@
-import { getAdminUsers } from '@/lib/api'
+import { getAdminUsers } from '@/lib/api.server'
 import { AdminUserList } from '@/components/admin/user-list'
 
 export default async function UsersPage() {
