@@ -4,6 +4,8 @@ import { getCategories, getRecipes } from '@/lib/api'
 import { CategoryGrid } from '@/components/category-grid'
 import { CardCompact, CardList } from '@/components/recipe-card'
 
+export const revalidate = 60
+
 export default async function EntdeckenPage() {
   const [categories, allRecipes] = await Promise.all([
     getCategories(),
@@ -15,7 +17,7 @@ export default async function EntdeckenPage() {
   const hearty = allRecipes.filter((r) => r.category_slug === 'hauptgerichte').slice(0, 5)
   const sweet = allRecipes.filter(
     (r) => r.category_slug === 'backen-und-suesses' || r.category_slug === 'snacks'
-  )
+  ).slice(0, 10)
 
   const recipeCounts = categories.reduce<Record<string, number>>((acc, cat) => {
     acc[cat.slug] = allRecipes.filter((r) => r.category_slug === cat.slug).length
@@ -38,8 +40,10 @@ export default async function EntdeckenPage() {
       {featured && (
         <div className="px-5 mb-8">
           <Link href={`/rezept/${featured.slug}`} className="no-underline relative block rounded-[24px] overflow-hidden" style={{ aspectRatio: '4/5', boxShadow: 'var(--card-shadow)' }}>
-            {featured.image_url && (
-              <Image src={featured.image_url} alt={featured.title} fill className="object-cover" sizes="100vw" priority />
+            {featured.image_url ? (
+              <Image src={featured.image_url} alt={featured.title} fill className="object-cover" sizes="calc(100vw - 40px)" priority />
+            ) : (
+              <div className="absolute inset-0" style={{ background: 'var(--border)' }} />
             )}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 50%)' }} />
             <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-xs font-semibold"
@@ -51,8 +55,8 @@ export default async function EntdeckenPage() {
                 {featured.title}
               </h2>
               <p style={{ fontSize: 13, opacity: 0.9 }}>
-                {featured.time_minutes} min
-                {featured.servings ? ` · ${featured.servings}` : ''}
+                {featured.time_minutes > 0 ? `${featured.time_minutes} min` : ''}
+                {featured.servings ? `${featured.time_minutes > 0 ? ' · ' : ''}${featured.servings}` : ''}
               </p>
             </div>
           </Link>
