@@ -1,7 +1,32 @@
 @import "tailwindcss";
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #FAF6EF;
+  --card-bg: #FFFFFF;
+  --text: #2A1F14;
+  --muted: #7A6B5A;
+  --accent: #C2410C;
+  --border: rgba(120, 90, 60, 0.14);
+  --card-shadow: 0 1px 2px rgba(80,50,20,0.04), 0 4px 16px rgba(80,50,20,0.06);
+  --tab-bg: rgba(250, 246, 239, 0.85);
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Manrope', system-ui, sans-serif;
 }
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbars on category/carousel strips */
+.scroll-snap-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.scroll-snap-x::-webkit-scrollbar { display: none; }
