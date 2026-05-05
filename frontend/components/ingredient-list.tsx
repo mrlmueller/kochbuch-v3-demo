@@ -60,13 +60,18 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
 
       {/* Ingredient rows */}
       <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>
-        {ingredients.map((ing, i) => {
+        {ingredients.length === 0 ? (
+          <p style={{ padding: '12px 16px', fontSize: 14, color: 'var(--muted)' }}>Keine Zutaten angegeben.</p>
+        ) : ingredients.map((ing, i) => {
           const isChecked = checked.has(i)
           const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, unitMode)
           return (
             <div
               key={i}
+              role="button"
+              tabIndex={0}
               onClick={() => toggle(i)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggle(i) }}
               className="flex items-center gap-3 px-4 cursor-pointer"
               style={{
                 padding: '12px 16px',

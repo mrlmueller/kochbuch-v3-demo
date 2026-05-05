@@ -17,12 +17,17 @@ export function StepList({ steps }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {steps.map((step, i) => {
+      {steps.length === 0 ? (
+        <p style={{ fontSize: 14, color: 'var(--muted)' }}>Keine Schritte angegeben.</p>
+      ) : steps.map((step, i) => {
         const isChecked = checked.has(i)
         return (
           <div
             key={i}
+            role="button"
+            tabIndex={0}
             onClick={() => toggle(i)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggle(i) }}
             className="flex gap-4 p-4 rounded-2xl cursor-pointer"
             style={{
               background: 'var(--card-bg)',
