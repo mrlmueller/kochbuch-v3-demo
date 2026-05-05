@@ -1,48 +1,60 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"log"
 	"net/http"
-	"time"
+	"os"
+
+	"backend/internal/db"
+	"backend/internal/handlers"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
 )
 
-// HealthResponse defines the structure of our health response
-type HealthResponse struct {
-	Status    string `json:"status"`
-	Timestamp string `json:"timestamp"`
-}
-
-// healthHandler handles GET /health
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	// Only allow GET requests
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	response := HealthResponse{
-		Status:    "ok",
-		Timestamp: time.Now().UTC().Format(time.RFC3339),
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
-
 func main() {
-	mux := http.NewServeMux()
+	_ = godotenv.Load() // load .env if present; ignore error if not
 
-	// Register routes
-	mux.HandleFunc("/health", healthHandler)
+	ctx := context.Background()
+	pool, err := db.NewPool(ctx)
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+	defer pool.Close()
 
-	// Start server
-	addr := ":8080"
-	log.Printf("Server starting on http://localhost%s", addr)
-	log.Printf("Health endpoint: http://localhost%s/health", addr)
+	store := db.NewPostgresStore(pool)
 
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{os.Getenv("ALLOWED_ORIGIN"), "http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Content-Type", "Authorization"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"status":"ok"}`))
+	})
+
+	r.Route("/api", func(r chi.Router) {
+		r.Get("/categories", handlers.ListCategories(store))
+		r.Get("/recipes", handlers.ListRecipes(store))
+		r.Get("/recipes/{slug}", handlers.GetRecipe(store))
+	})
+
+	addr := os.Getenv("SERVER_ADDR")
+	if addr == "" {
+		addr = ":8080"
+	}
+	log.Printf("server listening on %s", addr)
+	if err := http.ListenAndServe(addr, r); err != nil {
+		log.Fatalf("server failed: %v", err)
 	}
 }
