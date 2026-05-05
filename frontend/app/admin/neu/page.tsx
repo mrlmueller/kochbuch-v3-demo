@@ -1,7 +1,7 @@
 import { getCategories } from '@/lib/api'
-import { RecipeForm } from '../recipe-form'
+import { RecipeForm } from '@/app/admin/recipe-form'
 
-export default async function AdminNeuPage() {
+export default async function NewRecipePage() {
   const categories = await getCategories()
   return <RecipeForm categories={categories} mode="create" />
 }

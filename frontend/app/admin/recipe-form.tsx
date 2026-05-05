@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Recipe, Category } from '@/lib/api'
+import { clientSaveRecipe } from '@/lib/api'
 
 interface Props {
   categories: Category[]
@@ -10,167 +11,217 @@ interface Props {
   mode: 'create' | 'edit'
 }
 
-interface IngredientRow {
-  display: string
-  name: string
-}
+const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C', bg: '#FAF6EF' }
 
 export function RecipeForm({ categories, initial, mode }: Props) {
   const router = useRouter()
-  const [isPending, setIsPending] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [saving, setSaving] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
+  const [showJson, setShowJson] = useState(false)
+  const [jsonText, setJsonText] = useState('')
+  const [jsonError, setJsonError] = useState('')
+  const [error, setError] = useState('')
 
+  const [slug, setSlug] = useState(initial?.slug ?? '')
   const [title, setTitle] = useState(initial?.title ?? '')
   const [categorySlug, setCategorySlug] = useState(initial?.category_slug ?? categories[0]?.slug ?? '')
-  const [time, setTime] = useState(initial?.time_minutes?.toString() ?? '')
+  const [time, setTime] = useState(String(initial?.time_minutes ?? 30))
   const [servings, setServings] = useState(initial?.servings ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? '')
-  const [steps, setSteps] = useState<string[]>(initial?.steps ?? [''])
-  const [ingredients, setIngredients] = useState<IngredientRow[]>(
-    initial?.ingredients?.map((i) => ({ display: i.display || `${i.amount} ${i.unit}`, name: i.name })) ??
-    [{ display: '', name: '' }]
+  const [steps, setSteps] = useState<string[]>(initial?.steps?.length ? initial.steps : [''])
+  const [ingredients, setIngredients] = useState(
+    initial?.ingredients?.length
+      ? initial.ingredients.map(i => ({ display: i.display || `${i.amount} ${i.unit}`.trim(), name: i.name }))
+      : [{ display: '', name: '' }]
   )
 
-  const addIngredient = () => setIngredients((p) => [...p, { display: '', name: '' }])
-  const removeIngredient = (i: number) => setIngredients((p) => p.filter((_, j) => j !== i))
-  const updateIngredient = (i: number, field: 'display' | 'name', val: string) =>
-    setIngredients((p) => p.map((ing, j) => j === i ? { ...ing, [field]: val } : ing))
+  const handleImageFile = (file: File | null) => {
+    if (!file || !file.type.startsWith('image/')) return
+    const reader = new FileReader()
+    reader.onload = () => setImageUrl(reader.result as string)
+    reader.readAsDataURL(file)
+  }
 
-  const addStep = () => setSteps((p) => [...p, ''])
-  const removeStep = (i: number) => setSteps((p) => p.filter((_, j) => j !== i))
-  const updateStep = (i: number, val: string) => setSteps((p) => p.map((s, j) => j === i ? val : s))
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault(); setDragOver(false)
+    if (e.dataTransfer.files?.[0]) { handleImageFile(e.dataTransfer.files[0]); return }
+    const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain')
+    if (url && /^https?:\/\//.test(url)) setImageUrl(url)
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsPending(true)
-    const payload = {
-      slug: initial?.slug,
-      title, categorySlug, time: parseInt(time, 10) || 0,
-      servings, notes, imageUrl, steps: steps.filter(Boolean), ingredients,
+  const importJson = () => {
+    setJsonError('')
+    try {
+      const obj = JSON.parse(jsonText)
+      if (obj.title) setTitle(obj.title)
+      if (obj.slug) setSlug(obj.slug)
+      if (obj.category_slug) setCategorySlug(obj.category_slug)
+      if (obj.time_minutes) setTime(String(obj.time_minutes))
+      if (obj.servings) setServings(String(obj.servings))
+      if (obj.notes) setNotes(obj.notes)
+      if (obj.image_url) setImageUrl(obj.image_url)
+      if (Array.isArray(obj.steps) && obj.steps.length) setSteps(obj.steps)
+      if (Array.isArray(obj.ingredients) && obj.ingredients.length) {
+        setIngredients(obj.ingredients.map((i: { display?: string; amount?: number; unit?: string; name?: string }) => ({ display: i.display || `${i.amount ?? ''} ${i.unit ?? ''}`.trim(), name: i.name ?? '' })))
+      }
+      setShowJson(false); setJsonText('')
+    } catch (err: unknown) {
+      setJsonError('JSON ungültig: ' + (err instanceof Error ? err.message : String(err)))
     }
-    // Backend write not yet wired — auth required first
-    console.log('Submit payload:', payload)
-    alert('Backend write not yet wired — see console for payload.')
-    setIsPending(false)
   }
 
-  const fieldStyle = {
-    width: '100%', padding: '10px 14px', borderRadius: 12,
-    border: '1px solid var(--border)', background: 'var(--card-bg)',
-    color: 'var(--text)', fontFamily: 'inherit', fontSize: 15, outline: 'none',
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); setSaving(true); setError('')
+    try {
+      const recipe: Partial<Recipe> = {
+        slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+        title, category_slug: categorySlug, time_minutes: parseInt(time) || 0,
+        servings, notes, image_url: imageUrl,
+        steps: steps.filter(Boolean),
+        ingredients: ingredients.filter(i => i.name).map(i => ({ display: i.display, name: i.name, amount: 0, unit: '' })),
+      }
+      await clientSaveRecipe(recipe, mode === 'create')
+      router.push('/admin')
+      router.refresh()
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+      setSaving(false)
+    }
   }
-  const labelStyle = { fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' as const, letterSpacing: 0.8, marginBottom: 6, display: 'block' }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-5 pt-16 pb-10">
-      <div className="flex items-center justify-between mb-2">
-        <button type="button" onClick={() => router.back()} className="bg-transparent border-none cursor-pointer p-0" style={{ color: 'var(--accent)', fontSize: 15, fontFamily: 'inherit' }}>
-          ← Zurück
-        </button>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
-          {mode === 'create' ? 'Neues Rezept' : 'Bearbeiten'}
+    <form onSubmit={handleSubmit} style={{ maxWidth: 880, margin: '0 auto' }}>
+      {/* Top bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
+        <button type="button" onClick={() => router.back()} style={iconBtn}>←</button>
+        <h1 style={{ flex: 1, fontSize: 28, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, letterSpacing: -0.4, margin: 0 }}>
+          {mode === 'create' ? 'Neues Rezept' : 'Rezept bearbeiten'}
         </h1>
-        <div style={{ width: 60 }} />
+        <button type="button" onClick={() => setShowJson(s => !s)} style={{ ...outlineBtn, color: showJson ? T.accent : T.text, borderColor: showJson ? T.accent : T.border }}>JSON-Import</button>
+        <button type="button" onClick={() => router.back()} style={outlineBtn}>Abbrechen</button>
+        <button type="submit" disabled={saving} style={{ ...outlineBtn, background: T.accent, color: '#fff', border: 'none', opacity: saving ? 0.7 : 1 }}>
+          {saving ? 'Speichern…' : 'Speichern'}
+        </button>
       </div>
 
-      {/* Title */}
-      <div>
-        <label style={labelStyle}>Titel</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} required style={fieldStyle} placeholder="Rezepttitel" />
-      </div>
+      {error && <div style={{ padding: '10px 14px', borderRadius: 10, background: '#FEE2E2', color: T.danger, marginBottom: 16, fontSize: 13 }}>{error}</div>}
 
-      {/* Category + Time */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label style={labelStyle}>Kategorie</label>
-          <select value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)} style={fieldStyle}>
-            {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-          </select>
+      {/* JSON Import panel */}
+      {showJson && (
+        <div style={cardStyle}>
+          <p style={labelStyle}>JSON einfügen — Felder werden überschrieben</p>
+          <textarea value={jsonText} onChange={e => { setJsonText(e.target.value); setJsonError('') }} rows={4} style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 12, resize: 'vertical' }} />
+          {jsonError && <p style={{ color: T.danger, fontSize: 12, margin: '6px 0 0' }}>{jsonError}</p>}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+            <button type="button" onClick={importJson} disabled={!jsonText.trim()} style={{ ...outlineBtn, background: T.accent, color: '#fff', border: 'none' }}>In Formular laden</button>
+          </div>
         </div>
-        <div>
-          <label style={labelStyle}>Zeit (min)</label>
-          <input type="number" value={time} onChange={(e) => setTime(e.target.value)} style={fieldStyle} placeholder="30" />
-        </div>
-      </div>
+      )}
 
-      {/* Servings */}
-      <div>
-        <label style={labelStyle}>Portionen</label>
-        <input value={servings} onChange={(e) => setServings(e.target.value)} style={fieldStyle} placeholder="4 Personen" />
-      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Image */}
+        <section style={cardStyle}>
+          <p style={sectionLabel}>Bild</p>
+          <div onDragOver={e => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={handleDrop}
+            onClick={() => fileRef.current?.click()}
+            style={{ minHeight: 200, borderRadius: 12, border: `2px dashed ${dragOver ? T.accent : T.border}`, background: dragOver ? '#FFF3EE' : T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
+            {imageUrl && /^(https?:\/\/|data:)/.test(imageUrl)
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={imageUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <div style={{ textAlign: 'center', color: T.muted, padding: 24 }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
+                  <p style={{ fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Bild hierher ziehen oder klicken</p>
+                  <p style={{ fontSize: 12, margin: 0 }}>Datei, Bild-Link oder URL</p>
+                </div>
+            }
+            {imageUrl && <button type="button" onClick={e => { e.stopPropagation(); setImageUrl('') }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.9)', cursor: 'pointer', color: T.danger }}>✕</button>}
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => handleImageFile(e.target.files?.[0] ?? null)} />
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <p style={labelStyle}>Oder Bild-URL</p>
+            <input type="text" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…" style={inputStyle} />
+          </div>
+        </section>
 
-      {/* Image URL */}
-      <div>
-        <label style={labelStyle}>Bild-URL (Cloudinary)</label>
-        <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={fieldStyle} placeholder="https://res.cloudinary.com/..." />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {imageUrl && /^https?:\/\//.test(imageUrl) && <img src={imageUrl} alt="Vorschau" className="mt-2 rounded-xl w-full object-cover" style={{ maxHeight: 180 }} />}
-      </div>
-
-      {/* Ingredients */}
-      <div>
-        <label style={labelStyle}>Zutaten</label>
-        <div className="flex flex-col gap-2">
-          {ingredients.map((ing, i) => (
-            <div key={i} className="flex gap-2">
-              <input value={ing.display} onChange={(e) => updateIngredient(i, 'display', e.target.value)}
-                style={{ ...fieldStyle, flex: '0 0 110px' }} placeholder="Menge (z.B. 500 g)" />
-              <input value={ing.name} onChange={(e) => updateIngredient(i, 'name', e.target.value)}
-                style={{ ...fieldStyle, flex: 1 }} placeholder="Zutat" />
-              {ingredients.length > 1 && (
-                <button type="button" onClick={() => removeIngredient(i)}
-                  className="flex-shrink-0 w-9 h-10 rounded-xl flex items-center justify-center cursor-pointer border-none"
-                  style={{ background: 'var(--bg)', color: 'var(--muted)', fontSize: 18 }}>×</button>
-              )}
+        {/* Basics */}
+        <section style={cardStyle}>
+          <p style={sectionLabel}>Basisdaten</p>
+          <div style={{ marginBottom: 12 }}>
+            <p style={labelStyle}>Titel *</p>
+            <input value={title} onChange={e => setTitle(e.target.value)} required placeholder="Rezepttitel" style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <p style={labelStyle}>Slug (URL-ID)</p>
+            <input value={slug} onChange={e => setSlug(e.target.value)} placeholder="wird automatisch generiert" style={inputStyle} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div>
+              <p style={labelStyle}>Kategorie</p>
+              <select value={categorySlug} onChange={e => setCategorySlug(e.target.value)} style={inputStyle}>
+                {categories.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+              </select>
             </div>
-          ))}
-          <button type="button" onClick={addIngredient}
-            className="text-sm font-medium cursor-pointer rounded-xl py-2 border-none"
-            style={{ background: 'var(--bg)', color: 'var(--accent)', fontFamily: 'inherit', border: '1px dashed var(--border)' }}>
-            + Zutat
-          </button>
-        </div>
-      </div>
-
-      {/* Steps */}
-      <div>
-        <label style={labelStyle}>Zubereitung</label>
-        <div className="flex flex-col gap-2">
-          {steps.map((step, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <span className="flex-shrink-0 w-7 h-10 flex items-center justify-center font-bold"
-                style={{ color: 'var(--accent)', fontFamily: 'var(--font-serif)', fontSize: 18 }}>
-                {i + 1}
-              </span>
-              <textarea value={step} onChange={(e) => updateStep(i, e.target.value)} rows={2}
-                style={{ ...fieldStyle, resize: 'vertical', flex: 1 }} placeholder={`Schritt ${i + 1}`} />
-              {steps.length > 1 && (
-                <button type="button" onClick={() => removeStep(i)}
-                  className="flex-shrink-0 w-9 h-10 rounded-xl flex items-center justify-center cursor-pointer border-none mt-0"
-                  style={{ background: 'var(--bg)', color: 'var(--muted)', fontSize: 18 }}>×</button>
-              )}
+            <div>
+              <p style={labelStyle}>Zeit (min)</p>
+              <input type="number" value={time} onChange={e => setTime(e.target.value)} style={inputStyle} />
             </div>
-          ))}
-          <button type="button" onClick={addStep}
-            className="text-sm font-medium cursor-pointer rounded-xl py-2 border-none"
-            style={{ background: 'var(--bg)', color: 'var(--accent)', fontFamily: 'inherit', border: '1px dashed var(--border)' }}>
-            + Schritt
-          </button>
-        </div>
-      </div>
+            <div>
+              <p style={labelStyle}>Portionen</p>
+              <input value={servings} onChange={e => setServings(e.target.value)} placeholder="4 Personen" style={inputStyle} />
+            </div>
+          </div>
+        </section>
 
-      {/* Notes */}
-      <div>
-        <label style={labelStyle}>Tipp (optional)</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-          style={{ ...fieldStyle, resize: 'vertical' }} placeholder="Optionaler Tipp oder Hinweis..." />
-      </div>
+        {/* Ingredients */}
+        <section style={cardStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <p style={sectionLabel}>Zutaten</p>
+            <button type="button" onClick={() => setIngredients(p => [...p, { display: '', name: '' }])} style={addBtnStyle}>+ Zutat</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {ingredients.map((ing, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 32px', gap: 8 }}>
+                <input value={ing.display} onChange={e => setIngredients(p => p.map((x, j) => j === i ? { ...x, display: e.target.value } : x))} placeholder="500 g" style={inputStyle} />
+                <input value={ing.name} onChange={e => setIngredients(p => p.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Mehl" style={inputStyle} />
+                {ingredients.length > 1 && <button type="button" onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} style={{ ...iconBtn, color: T.danger }}>✕</button>}
+              </div>
+            ))}
+          </div>
+        </section>
 
-      <button type="submit" disabled={isPending}
-        className="w-full py-4 rounded-2xl font-semibold text-base cursor-pointer border-none"
-        style={{ background: 'var(--accent)', color: '#fff', fontFamily: 'inherit', opacity: isPending ? 0.7 : 1 }}>
-        {isPending ? 'Speichern…' : mode === 'create' ? 'Rezept erstellen' : 'Änderungen speichern'}
-      </button>
+        {/* Steps */}
+        <section style={cardStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <p style={sectionLabel}>Zubereitung</p>
+            <button type="button" onClick={() => setSteps(p => [...p, ''])} style={addBtnStyle}>+ Schritt</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {steps.map((s, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 32px', gap: 8, alignItems: 'flex-start' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${T.accent}20`, color: T.accent, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>{i + 1}</div>
+                <textarea value={s} onChange={e => setSteps(p => p.map((x, j) => j === i ? e.target.value : x))} rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
+                {steps.length > 1 && <button type="button" onClick={() => setSteps(p => p.filter((_, j) => j !== i))} style={{ ...iconBtn, color: T.danger, marginTop: 4 }}>✕</button>}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Notes */}
+        <section style={cardStyle}>
+          <p style={sectionLabel}>Tipp (optional)</p>
+          <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Hilfreicher Hinweis…" />
+        </section>
+      </div>
     </form>
   )
 }
+
+const cardStyle: React.CSSProperties = { background: '#fff', borderRadius: 14, padding: 18, border: '1px solid rgba(120,90,60,0.16)', boxShadow: '0 1px 2px rgba(80,50,20,0.04), 0 4px 16px rgba(80,50,20,0.06)' }
+const sectionLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: '#7A6B5A', margin: '0 0 12px' }
+const labelStyle: React.CSSProperties = { fontSize: 11, fontWeight: 600, color: '#7A6B5A', margin: '0 0 5px', letterSpacing: 0.3 }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(120,90,60,0.16)', background: '#FAF6EF', fontSize: 14, color: '#2A1F14', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }
+const outlineBtn: React.CSSProperties = { padding: '10px 16px', borderRadius: 10, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', color: '#2A1F14' }
+const iconBtn: React.CSSProperties = { width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#2A1F14', fontFamily: 'inherit' }
+const addBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', color: '#C2410C', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }
