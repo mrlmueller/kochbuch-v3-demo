@@ -16,15 +16,18 @@ export function DetailClient({ recipe, categoryName }: Props) {
   // Screen wake lock — keep screen on while cooking
   useEffect(() => {
     if (!('wakeLock' in navigator)) return
+    let released = false
     let lock: WakeLockSentinel | null = null
-    navigator.wakeLock.request('screen').then((l) => { lock = l }).catch(() => {})
-    return () => { lock?.release() }
+    navigator.wakeLock.request('screen')
+      .then((l) => { if (released) { l.release(); return }; lock = l })
+      .catch(() => {})
+    return () => { released = true; lock?.release() }
   }, [])
 
   return (
     <div className="pb-10">
       {/* Back button + hero image */}
-      <div className="relative" style={{ height: 460 }}>
+      <div className="relative" style={{ height: 460, background: 'var(--border)' }}>
         {recipe.image_url && (
           <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority />
         )}

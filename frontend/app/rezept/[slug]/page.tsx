@@ -15,7 +15,7 @@ export default async function RecipeDetailPage({
     getCategories(),
   ])
 
-  if (!recipe) notFound()
+  if (!recipe) return notFound()
 
   const category = categories.find((c) => c.slug === recipe.category_slug)
   return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} />
