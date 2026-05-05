@@ -11,7 +11,7 @@ export default async function RezeptePage({
   const { category } = await searchParams
   const [categories, recipes] = await Promise.all([
     getCategories(),
-    getRecipes({ category }),
+    getRecipes(),
   ])
 
   return <BrowseClient categories={categories} initialRecipes={recipes} initialCategory={category ?? 'all'} />

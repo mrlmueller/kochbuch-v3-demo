@@ -103,7 +103,8 @@ export function RecipeForm({ categories, initial, mode }: Props) {
       <div>
         <label style={labelStyle}>Bild-URL (Cloudinary)</label>
         <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={fieldStyle} placeholder="https://res.cloudinary.com/..." />
-        {imageUrl && /^https?:\/\//.test(imageUrl) && <img src={imageUrl} alt="" className="mt-2 rounded-xl w-full object-cover" style={{ maxHeight: 180 }} />}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {imageUrl && /^https?:\/\//.test(imageUrl) && <img src={imageUrl} alt="Vorschau" className="mt-2 rounded-xl w-full object-cover" style={{ maxHeight: 180 }} />}
       </div>
 
       {/* Ingredients */}
