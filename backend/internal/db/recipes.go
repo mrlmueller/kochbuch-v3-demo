@@ -73,3 +73,35 @@ func (s *PostgresStore) GetRecipeBySlug(ctx context.Context, slug string) (*mode
 	}
 	return &r, nil
 }
+
+func (s *PostgresStore) CreateRecipe(ctx context.Context, r models.Recipe) error {
+	ingredientsJSON, _ := json.Marshal(r.Ingredients)
+	stepsJSON, _ := json.Marshal(r.Steps)
+	_, err := s.pool.Exec(ctx, `
+		INSERT INTO recipes
+		  (slug, title, category_slug, time_minutes, servings,
+		   ingredients, steps, notes, image_url, image_blurhash)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+		r.Slug, r.Title, r.CategorySlug, r.TimeMinutes, r.Servings,
+		ingredientsJSON, stepsJSON, r.Notes, r.ImageURL, r.ImageBlurhash)
+	return err
+}
+
+func (s *PostgresStore) UpdateRecipe(ctx context.Context, r models.Recipe) error {
+	ingredientsJSON, _ := json.Marshal(r.Ingredients)
+	stepsJSON, _ := json.Marshal(r.Steps)
+	_, err := s.pool.Exec(ctx, `
+		UPDATE recipes SET
+		  title=$2, category_slug=$3, time_minutes=$4, servings=$5,
+		  ingredients=$6, steps=$7, notes=$8, image_url=$9,
+		  image_blurhash=$10, updated_at=now()
+		WHERE slug=$1`,
+		r.Slug, r.Title, r.CategorySlug, r.TimeMinutes, r.Servings,
+		ingredientsJSON, stepsJSON, r.Notes, r.ImageURL, r.ImageBlurhash)
+	return err
+}
+
+func (s *PostgresStore) DeleteRecipe(ctx context.Context, slug string) error {
+	_, err := s.pool.Exec(ctx, `DELETE FROM recipes WHERE slug = $1`, slug)
+	return err
+}
