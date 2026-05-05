@@ -1,8 +1,20 @@
 import { notFound } from 'next/navigation'
-import { getRecipe, getCategories } from '@/lib/api.server'
+import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 
-export const revalidate = 60
+// Cache recipe pages for 1 hour; ISR re-renders in background on first request after expiry
+export const revalidate = 3600
+
+// Pre-generate all current recipe slugs at build time.
+// Falls back to on-demand SSR if the backend is unavailable during build.
+export async function generateStaticParams() {
+  try {
+    const recipes = await getRecipes()
+    return recipes.map((r) => ({ slug: r.slug }))
+  } catch {
+    return []
+  }
+}
 
 export default async function RecipeDetailPage({
   params,
