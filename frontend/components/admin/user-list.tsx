@@ -80,10 +80,17 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: `linear-gradient(135deg, ${T.accent}, #9A340A)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{u.email[0].toUpperCase()}</div>
               <span style={{ fontSize: 14, color: T.text }}>{u.email}</span>
             </div>
-            <button onClick={() => toggleStatus(u)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: u.status === 'active' ? T.success : T.warn }} />
-              {u.status === 'active' ? 'aktiv' : 'deaktiviert'}
-            </button>
+            {u.role === 'admin' ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, background: T.successBg, color: T.success, fontSize: 12, fontWeight: 600 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: T.success }} />
+                aktiv
+              </span>
+            ) : (
+              <button onClick={() => toggleStatus(u)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: u.status === 'active' ? T.success : T.warn }} />
+                {u.status === 'active' ? 'aktiv' : 'deaktiviert'}
+              </button>
+            )}
             <span style={{ fontSize: 13, color: T.muted, fontWeight: 600 }}>{u.role}</span>
             <span style={{ fontSize: 12, color: T.muted }}>{new Date(u.created_at).toLocaleDateString('de-DE')}</span>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
