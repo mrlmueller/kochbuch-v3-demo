@@ -81,3 +81,13 @@ export async function clientSaveRecipe(recipe: Partial<Recipe>, isNew: boolean):
 export async function clientDeleteRecipe(slug: string): Promise<void> {
   await fetch(`${API}/api/recipes/${slug}`, { method: 'DELETE', credentials: 'include' })
 }
+
+export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<RecipeListItem[]> {
+  const params = new URLSearchParams()
+  if (filter.category) params.set('category', filter.category)
+  if (filter.q) params.set('q', filter.q)
+  const qs = params.toString()
+  const res = await fetch(`${API}/api/recipes${qs ? `?${qs}` : ''}`, { credentials: 'include' })
+  if (!res.ok) throw new Error(`getRecipes: ${res.status}`)
+  return res.json()
+}

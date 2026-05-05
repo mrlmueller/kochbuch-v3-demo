@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getRecipes } from '@/lib/api'
+import { clientGetRecipes as getRecipes } from '@/lib/api'
 import type { RecipeListItem } from '@/lib/api'
 import { CardList } from '@/components/recipe-card'
 
