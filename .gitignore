@@ -2,3 +2,5 @@
 /.env
 /Design
 /kochbuch-data
+.claude/
+*.exe
