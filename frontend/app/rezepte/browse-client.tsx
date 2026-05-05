@@ -24,6 +24,24 @@ export function BrowseClient({ categories, initialRecipes, initialCategory }: Pr
     if (saved === 'cover' || saved === 'grid' || saved === 'list') setLayout(saved)
   }, [])
 
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('rezepte-scroll-y')
+      const y = saved ? parseInt(saved, 10) : NaN
+      if (!isNaN(y)) requestAnimationFrame(() => window.scrollTo(0, y))
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const handle = () => {
+      try {
+        sessionStorage.setItem('rezepte-scroll-y', String(Math.round(window.scrollY)))
+      } catch {}
+    }
+    window.addEventListener('scroll', handle, { passive: true })
+    return () => window.removeEventListener('scroll', handle)
+  }, [])
+
   const recipes = activeCat === 'all'
     ? initialRecipes
     : initialRecipes.filter((r) => r.category_slug === activeCat)
