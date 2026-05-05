@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect } from 'react'
 import { getRecipes } from '@/lib/api'
 import type { RecipeListItem } from '@/lib/api'
 import { CardList } from '@/components/recipe-card'
@@ -10,21 +10,31 @@ const SUGGESTIONS = ['Tomaten', 'Pasta', 'Schokolade', 'schnell', 'Knoblauch', '
 export default function SuchePage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<RecipeListItem[]>([])
-  const [isPending, startTransition] = useTransition()
+  const [isSearching, setIsSearching] = useState(false)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     const q = query.trim()
-    if (!q) { setResults([]); return }
+    if (!q) {
+      setResults([])
+      setIsSearching(false)
+      setHasError(false)
+      return
+    }
 
-    const timer = setTimeout(() => {
-      startTransition(async () => {
-        try {
-          const data = await getRecipes({ q })
-          setResults(data)
-        } catch {
-          setResults([])
-        }
-      })
+    setIsSearching(true)
+    setHasError(false)
+    setResults([])
+
+    const timer = setTimeout(async () => {
+      try {
+        const data = await getRecipes({ q })
+        setResults(data)
+      } catch {
+        setHasError(true)
+      } finally {
+        setIsSearching(false)
+      }
     }, 300)
 
     return () => clearTimeout(timer)
@@ -77,7 +87,7 @@ export default function SuchePage() {
         {query && (
           <>
             <p className="mb-3" style={{ fontSize: 13, color: 'var(--muted)' }}>
-              {isPending ? 'Suche…' : `${results.length} Treffer`}
+              {isSearching ? 'Suche…' : hasError ? 'Fehler beim Suchen.' : `${results.length} Treffer`}
             </p>
             <div className="flex flex-col gap-3">
               {results.map((r) => <CardList key={r.slug} recipe={r} />)}
