@@ -35,21 +35,32 @@ export function StepList({ steps }: Props) {
               opacity: isChecked ? 0.5 : 1,
             }}
           >
-            <div className="flex-shrink-0 flex items-center justify-center rounded-full"
-              style={{
-                width: 28, height: 28,
-                background: isChecked ? 'var(--accent)' : 'transparent',
-                border: `1.5px solid var(--accent)`,
-                fontSize: 13, fontWeight: 700,
-                color: isChecked ? '#fff' : 'var(--accent)',
-                fontFamily: 'var(--font-serif)',
-              }}>
-              {isChecked ? (
+            {isChecked ? (
+              <div className="flex-shrink-0 flex items-center justify-center rounded-full"
+                style={{
+                  width: 28, height: 28,
+                  background: 'var(--accent)',
+                  border: `1.5px solid var(--accent)`,
+                }}>
                 <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 6L9 17l-5-5"/>
                 </svg>
-              ) : i + 1}
-            </div>
+              </div>
+            ) : (
+              <span style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: 36,
+                fontStyle: 'italic',
+                fontWeight: 400,
+                color: 'var(--accent)',
+                opacity: 0.35,
+                lineHeight: 1,
+                minWidth: 32,
+                flexShrink: 0,
+              }}>
+                {i + 1}
+              </span>
+            )}
             <p className="flex-1" style={{ fontSize: 14.5, color: 'var(--text)', lineHeight: 1.55, textDecoration: isChecked ? 'line-through' : 'none' }}>
               {step}
             </p>

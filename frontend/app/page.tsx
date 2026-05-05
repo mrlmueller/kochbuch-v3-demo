@@ -5,6 +5,7 @@ import { CategoryGrid } from '@/components/category-grid'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
 import { HomeSkeleton } from '@/components/skeleton'
+import { PersistLastRecipe } from '@/components/persist-last-recipe'
 
 export const revalidate = 60
 
@@ -28,6 +29,7 @@ async function HomeContent() {
 
   return (
     <div className="pb-6">
+      {featured && <PersistLastRecipe slug={featured.slug} />}
       {/* Header */}
       <div className="px-5 pt-16 pb-6">
         <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600 }}>
