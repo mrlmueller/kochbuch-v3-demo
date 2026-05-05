@@ -1,6 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap');
+@theme {
+  --color-background: #FAF6EF;
+  --color-foreground: #2A1F14;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #2A1F14;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #2A1F14;
+  --color-primary: #C2410C;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F0EBE3;
+  --color-secondary-foreground: #2A1F14;
+  --color-muted: #F0EBE3;
+  --color-muted-foreground: #7A6B5A;
+  --color-accent: #F0EBE3;
+  --color-accent-foreground: #2A1F14;
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: rgba(120, 90, 60, 0.14);
+  --color-input: rgba(120, 90, 60, 0.14);
+  --color-ring: #C2410C;
+  --radius: 0.5rem;
+}
 
 :root {
   --bg: #FAF6EF;
