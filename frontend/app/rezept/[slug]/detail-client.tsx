@@ -32,7 +32,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
           <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority blurhash={recipe.image_blurhash} />
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.6) 100%)' }} />
-        <Link href="/rezepte"
+        <Link href="/rezepte" scroll={false}
           className="absolute top-14 left-4 w-10 h-10 rounded-full flex items-center justify-center no-underline"
           style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(10px)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
           <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
