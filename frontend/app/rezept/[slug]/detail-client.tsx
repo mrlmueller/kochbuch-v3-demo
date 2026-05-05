@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Recipe } from '@/lib/api'
 import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
@@ -13,6 +13,8 @@ interface Props {
 }
 
 export function DetailClient({ recipe, categoryName }: Props) {
+  const router = useRouter()
+
   // Screen wake lock — keep screen on while cooking
   useEffect(() => {
     if (!('wakeLock' in navigator)) return
@@ -32,13 +34,15 @@ export function DetailClient({ recipe, categoryName }: Props) {
           <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority blurhash={recipe.image_blurhash} />
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.6) 100%)' }} />
-        <Link href="/rezepte" scroll={false}
-          className="absolute top-14 left-4 w-10 h-10 rounded-full flex items-center justify-center no-underline"
+        <button
+          type="button"
+          onClick={() => window.history.length > 1 ? router.back() : router.push('/rezepte')}
+          className="absolute top-14 left-4 w-10 h-10 rounded-full flex items-center justify-center border-none cursor-pointer"
           style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(10px)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
           <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6"/>
           </svg>
-        </Link>
+        </button>
       </div>
 
       {/* Title block */}
