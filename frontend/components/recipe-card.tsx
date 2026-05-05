@@ -20,7 +20,7 @@ function TimePill({ minutes }: { minutes: number }) {
 }
 
 // 1. GRID — classic card with photo + meta
-export function CardGrid({ recipe, category }: CardProps) {
+export function CardGrid({ recipe }: CardProps) {
   return (
     <Link href={`/rezept/${recipe.slug}`} className="no-underline block rounded-[18px] overflow-hidden"
       style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>

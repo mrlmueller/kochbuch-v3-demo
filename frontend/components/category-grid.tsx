@@ -17,6 +17,7 @@ export function CategoryGrid({ categories, recipeCounts }: Props) {
         return (
           <button
             key={cat.slug}
+            type="button"
             onClick={() => router.push(`/rezepte?category=${cat.slug}`)}
             className="rounded-[18px] p-4 text-left cursor-pointer border-none"
             style={{
