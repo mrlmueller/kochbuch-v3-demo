@@ -15,15 +15,36 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// flexString unmarshals JSON strings OR numbers into a Go string.
+type flexString string
+
+func (f *flexString) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		*f = flexString(s)
+		return nil
+	}
+	var n json.Number
+	if err := json.Unmarshal(data, &n); err == nil {
+		*f = flexString(n.String())
+		return nil
+	}
+	*f = ""
+	return nil
+}
+
 // sourceRecipe matches the JSON shape of the export files.
+// Newer recipes use _firestore_id as the slug; older ones have an explicit slug field.
 type sourceRecipe struct {
-	Slug          string `json:"slug"`
-	Title         string `json:"title"`
-	Category      string `json:"category"`
-	Time          string `json:"time"`
-	Servings      string `json:"servings"`
-	Notes         string `json:"notes"`
-	ImageBlurhash string `json:"image_blurhash"`
+	FirestoreID   string     `json:"_firestore_id"`
+	Slug          string     `json:"slug"`
+	Title         string     `json:"title"`
+	Category      string     `json:"category"`
+	Time          string     `json:"time"`
+	Servings      flexString `json:"servings"`
+	Notes         string     `json:"notes"`
+	ImageURL      string     `json:"image_url"`
+	ImageBlurhash string     `json:"image_blurhash"`
 	Ingredients   []struct {
 		Amount string `json:"amount"`
 		Name   string `json:"name"`
@@ -34,6 +55,13 @@ type sourceRecipe struct {
 			Path string `json:"path"`
 		} `json:"image"`
 	} `json:"_export"`
+}
+
+func (r *sourceRecipe) slug() string {
+	if r.Slug != "" {
+		return r.Slug
+	}
+	return r.FirestoreID
 }
 
 type sourceCategory struct {
@@ -51,7 +79,7 @@ var categoryAccents = map[string]string{
 }
 
 func main() {
-	_ = godotenv.Load("backend/.env")
+	_ = godotenv.Load(".env")
 
 	ctx := context.Background()
 
@@ -62,17 +90,22 @@ func main() {
 	}
 	defer pool.Close()
 
-	// Init Cloudinary
-	cld, err := cloudinary.NewFromParams(
-		os.Getenv("CLOUDINARY_CLOUD_NAME"),
-		os.Getenv("CLOUDINARY_API_KEY"),
-		os.Getenv("CLOUDINARY_API_SECRET"),
-	)
-	if err != nil {
-		log.Fatalf("cloudinary init: %v", err)
+	// Init Cloudinary (optional — skip if credentials are not set)
+	var cld *cloudinary.Cloudinary
+	if os.Getenv("CLOUDINARY_CLOUD_NAME") != "" {
+		cld, err = cloudinary.NewFromParams(
+			os.Getenv("CLOUDINARY_CLOUD_NAME"),
+			os.Getenv("CLOUDINARY_API_KEY"),
+			os.Getenv("CLOUDINARY_API_SECRET"),
+		)
+		if err != nil {
+			log.Fatalf("cloudinary init: %v", err)
+		}
+	} else {
+		log.Println("CLOUDINARY_CLOUD_NAME not set — using source image_url as-is")
 	}
 
-	exportDir := "kochbuch-data/recipes_export_20260505_160450"
+	exportDir := "../kochbuch-data/recipes_export_20260505_160450"
 
 	// 1. Seed categories
 	catData, err := os.ReadFile(filepath.Join(exportDir, "categories.json"))
@@ -118,16 +151,22 @@ func main() {
 			continue
 		}
 
-		// Upload image to Cloudinary
-		imageURL := ""
-		if src.Export.Image.Path != "" {
+		slug := src.slug()
+		if slug == "" {
+			log.Printf("WARN: skipping %s — no slug", f)
+			continue
+		}
+
+		// Upload image to Cloudinary, or fall back to source image_url
+		imageURL := src.ImageURL
+		if cld != nil && src.Export.Image.Path != "" {
 			localPath := filepath.Join(exportDir, src.Export.Image.Path)
 			result, err := cld.Upload.Upload(ctx, localPath, uploader.UploadParams{
 				Folder:   "kochbuch",
-				PublicID: src.Slug,
+				PublicID: slug,
 			})
 			if err != nil {
-				log.Printf("WARN: cloudinary upload %s: %v — skipping image", src.Slug, err)
+				log.Printf("WARN: cloudinary upload %s: %v — using source URL", slug, err)
 			} else {
 				imageURL = result.SecureURL
 			}
@@ -152,11 +191,11 @@ func main() {
 			  SET title=$2, category_slug=$3, time_minutes=$4, servings=$5,
 			      ingredients=$6, steps=$7, notes=$8, image_url=$9,
 			      image_blurhash=$10, updated_at=now()`,
-			src.Slug,
+			slug,
 			src.Title,
 			src.Category,
 			parseTimeMinutes(src.Time),
-			src.Servings,
+			string(src.Servings),
 			ingredientsJSON,
 			stepsJSON,
 			src.Notes,
@@ -164,10 +203,10 @@ func main() {
 			src.ImageBlurhash,
 		)
 		if err != nil {
-			log.Printf("WARN: insert %s: %v", src.Slug, err)
+			log.Printf("WARN: insert %s: %v", slug, err)
 			continue
 		}
-		log.Printf("recipe OK: %s → %s", src.Slug, imageURL)
+		log.Printf("recipe OK: %s → %s", slug, imageURL)
 	}
 
 	log.Println("seed complete")
