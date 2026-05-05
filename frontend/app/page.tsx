@@ -1,8 +1,8 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { getCategories, getRecipes } from '@/lib/api'
 import { CategoryGrid } from '@/components/category-grid'
 import { CardCompact, CardList } from '@/components/recipe-card'
+import { BlurImage } from '@/components/blur-image'
 
 export const revalidate = 60
 
@@ -41,7 +41,7 @@ export default async function EntdeckenPage() {
         <div className="px-5 mb-8">
           <Link href={`/rezept/${featured.slug}`} className="no-underline relative block rounded-[24px] overflow-hidden" style={{ aspectRatio: '4/5', boxShadow: 'var(--card-shadow)' }}>
             {featured.image_url ? (
-              <Image src={featured.image_url} alt={featured.title} fill className="object-cover" sizes="calc(100vw - 40px)" priority />
+              <BlurImage src={featured.image_url} alt={featured.title} fill className="object-cover" sizes="calc(100vw - 40px)" priority blurhash={featured.image_blurhash} />
             ) : (
               <div className="absolute inset-0" style={{ background: 'var(--border)' }} />
             )}

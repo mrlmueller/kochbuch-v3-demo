@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import type { Recipe } from '@/lib/api'
+import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 
@@ -29,7 +29,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
       {/* Back button + hero image */}
       <div className="relative" style={{ height: 460, background: 'var(--border)' }}>
         {recipe.image_url && (
-          <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority blurhash={recipe.image_blurhash} />
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.6) 100%)' }} />
         <Link href="/rezepte"

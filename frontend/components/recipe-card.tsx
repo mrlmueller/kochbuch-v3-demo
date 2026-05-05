@@ -1,6 +1,6 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import type { RecipeListItem, Category } from '@/lib/api'
+import { BlurImage } from '@/components/blur-image'
 
 interface CardProps {
   recipe: RecipeListItem
@@ -26,7 +26,7 @@ export function CardGrid({ recipe }: CardProps) {
       style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>
       <div className="relative" style={{ aspectRatio: '4/3' }}>
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} />
         ) : (
           <div className="w-full h-full" style={{ background: 'var(--border)' }} />
         )}
@@ -48,7 +48,7 @@ export function CardList({ recipe, category }: CardProps) {
       style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>
       <div className="relative flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 92, height: 92 }}>
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="92px" />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="92px" blurhash={recipe.image_blurhash} />
         ) : (
           <div className="w-full h-full" style={{ background: 'var(--border)' }} />
         )}
@@ -74,7 +74,7 @@ export function CardCover({ recipe, category }: CardProps) {
     <Link href={`/rezept/${recipe.slug}`} className="no-underline relative block rounded-[22px] overflow-hidden"
       style={{ aspectRatio: '5/6', boxShadow: 'var(--card-shadow)' }}>
       {recipe.image_url ? (
-        <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" />
+        <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} />
       ) : (
         <div className="absolute inset-0" style={{ background: 'var(--muted)' }} />
       )}
@@ -106,7 +106,7 @@ export function CardCompact({ recipe }: CardProps) {
     <Link href={`/rezept/${recipe.slug}`} className="no-underline flex-shrink-0" style={{ width: 180 }}>
       <div className="relative rounded-2xl overflow-hidden mb-2.5" style={{ width: 180, height: 180, boxShadow: 'var(--card-shadow)' }}>
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="180px" />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="180px" blurhash={recipe.image_blurhash} />
         ) : (
           <div className="w-full h-full" style={{ background: 'var(--border)' }} />
         )}
