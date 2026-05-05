@@ -1,7 +1,23 @@
 import type { Metadata } from 'next'
+import { DM_Serif_Display, Manrope } from 'next/font/google'
 import './globals.css'
 import { TabBar } from '@/components/tab-bar'
 import { DesktopHeader } from '@/components/desktop-header'
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
+  display: 'swap',
+})
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Kochbuch',
@@ -14,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang="de" suppressHydrationWarning className={`${dmSerifDisplay.variable} ${manrope.variable}`}>
       <body>
         {/* Desktop header — hidden below 1024px */}
         <div className="hidden lg:block">
