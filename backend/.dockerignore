@@ -1,0 +1,6 @@
+.env
+*.env
+*.exe
+*.test
+serviceaccount.json
+kochbuch-v3-firebase-adminsdk-*.json

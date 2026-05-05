@@ -1,4 +1,3 @@
-# Replace api.yourdomain.com with your actual domain before deploying
-api.yourdomain.com {
+kochbuch-v2.uk {
     reverse_proxy backend:8080
 }
