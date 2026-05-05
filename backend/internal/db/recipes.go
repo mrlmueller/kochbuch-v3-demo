@@ -28,7 +28,7 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 	}
 	defer rows.Close()
 
-	var recipes []models.RecipeListItem
+	recipes := make([]models.RecipeListItem, 0)
 	for rows.Next() {
 		var r models.RecipeListItem
 		if err := rows.Scan(

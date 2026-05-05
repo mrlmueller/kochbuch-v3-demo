@@ -14,7 +14,7 @@ func (s *PostgresStore) GetCategories(ctx context.Context) ([]models.Category, e
 	}
 	defer rows.Close()
 
-	var cats []models.Category
+	cats := make([]models.Category, 0)
 	for rows.Next() {
 		var c models.Category
 		if err := rows.Scan(&c.Slug, &c.Name, &c.Description, &c.Accent); err != nil {
