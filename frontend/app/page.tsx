@@ -7,7 +7,7 @@ import { HomeSkeleton } from '@/components/skeleton'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
 import type { Category, RecipeListItem } from '@/lib/api'
 
-export const revalidate = 60
+export const revalidate = 300
 
 // ─── Desktop sub-components ─────────────────────────────
 

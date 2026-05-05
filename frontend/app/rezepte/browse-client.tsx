@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import type { Category, RecipeListItem } from '@/lib/api'
+import { clientGetRecipes } from '@/lib/api'
 import { CardGrid, CardList, CardCover } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
 import { FloatingLastRecipe } from '@/components/floating-last-recipe'
@@ -13,8 +15,6 @@ type Sort = 'default' | 'time' | 'name'
 interface Props {
   categories: Category[]
   initialRecipes: RecipeListItem[]
-  initialCategory: string
-  searchQuery?: string
 }
 
 // ─── Desktop card ────────────────────────────────────────
@@ -38,22 +38,19 @@ function DesktopCard({ recipe, categoryName }: { recipe: RecipeListItem; categor
 
 // ─── Desktop browse ──────────────────────────────────────
 
-interface DesktopBrowseProps extends Props {
+interface DesktopBrowseProps {
+  categories: Category[]
+  recipes: RecipeListItem[]
+  activeCat: string
+  setActiveCat: (c: string) => void
+  sort: Sort
+  setSort: (s: Sort) => void
+  searchQuery: string
   lastRecipe: RecipeListItem | null
 }
 
-function DesktopBrowse({ categories, initialRecipes, initialCategory, searchQuery, lastRecipe }: DesktopBrowseProps) {
-  const [activeCat, setActiveCat] = useState(initialCategory === 'all' ? 'all' : initialCategory)
-  const [sort, setSort] = useState<Sort>('default')
-
+function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, setSort, searchQuery, lastRecipe }: DesktopBrowseProps) {
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.slug, c])), [categories])
-
-  const recipes = useMemo(() => {
-    let r = activeCat === 'all' ? initialRecipes : initialRecipes.filter(x => x.category_slug === activeCat)
-    if (sort === 'time') r = [...r].sort((a, b) => a.time_minutes - b.time_minutes)
-    if (sort === 'name') r = [...r].sort((a, b) => a.title.localeCompare(b.title, 'de'))
-    return r
-  }, [activeCat, sort, initialRecipes])
 
   return (
     <main style={{ maxWidth: 1320, margin: '0 auto', padding: '48px 40px 80px' }}>
@@ -68,66 +65,93 @@ function DesktopBrowse({ categories, initialRecipes, initialCategory, searchQuer
             <h1 style={{ fontSize: 48, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1, color: 'var(--text)', margin: 0, lineHeight: 1 }}>Alle Rezepte</h1>
           )}
           <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 10 }}>
-            {recipes.length} {recipes.length === 1 || (recipes.length === 0 && searchQuery) ? 'Treffer' : 'Rezepte'}
+            {recipes.length} {recipes.length === 1 ? 'Treffer' : searchQuery ? 'Treffer' : 'Rezepte'}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, color: 'var(--muted)' }}>Sortieren:</span>
-          <select value={sort} onChange={e => setSort(e.target.value as Sort)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'white', color: 'var(--text)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
-            <option value="default">Empfohlen</option>
-            <option value="time">Zubereitungszeit</option>
-            <option value="name">Alphabetisch</option>
-          </select>
-        </div>
+        {!searchQuery && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>Sortieren:</span>
+            <select value={sort} onChange={e => setSort(e.target.value as Sort)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'white', color: 'var(--text)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
+              <option value="default">Empfohlen</option>
+              <option value="time">Zubereitungszeit</option>
+              <option value="name">Alphabetisch</option>
+            </select>
+          </div>
+        )}
       </div>
 
-      {/* Category pills */}
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
-        {[{ slug: 'all', name: 'Alle' }, ...categories].map(c => {
-          const active = c.slug === activeCat
-          return (
-            <button key={c.slug} onClick={() => setActiveCat(c.slug)} style={{
-              padding: '9px 16px', borderRadius: 999,
-              border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-              background: active ? 'var(--accent)' : 'transparent',
-              color: active ? '#fff' : 'var(--text)',
-              fontSize: 13.5, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
-            }}>{c.name}</button>
-          )
-        })}
-      </div>
+      {!searchQuery && (
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
+          {[{ slug: 'all', name: 'Alle' }, ...categories].map(c => {
+            const active = c.slug === activeCat
+            return (
+              <button key={c.slug} onClick={() => setActiveCat(c.slug)} style={{
+                padding: '9px 16px', borderRadius: 999,
+                border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                background: active ? 'var(--accent)' : 'transparent',
+                color: active ? '#fff' : 'var(--text)',
+                fontSize: 13.5, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
+              }}>{c.name}</button>
+            )
+          })}
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, rowGap: 48 }}>
         {recipes.map(r => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
       </div>
 
-      {/* FloatingLastRecipe for desktop — rendered here so it's inside hidden lg:block */}
       {lastRecipe && <FloatingLastRecipe recipe={lastRecipe} />}
     </main>
   )
 }
 
-// ─── Main export (mobile + desktop) ─────────────────────
+// ─── Main export ─────────────────────────────────────────
 
-export function BrowseClient({ categories, initialRecipes, initialCategory, searchQuery }: Props) {
-  const validSlugs = useMemo(() => new Set(categories.map((c) => c.slug)), [categories])
+export function BrowseClient({ categories, initialRecipes }: Props) {
+  const searchParams = useSearchParams()
+  const urlCategory = searchParams.get('category') ?? 'all'
+  const urlQuery = searchParams.get('q') ?? ''
+
+  const validSlugs = useMemo(() => new Set(categories.map(c => c.slug)), [categories])
   const [activeCat, setActiveCat] = useState(
-    initialCategory === 'all' || validSlugs.has(initialCategory) ? initialCategory : 'all'
+    urlCategory === 'all' || validSlugs.has(urlCategory) ? urlCategory : 'all'
   )
+  const [sort, setSort] = useState<Sort>('default')
   const [layout, setLayout] = useState<Layout>('cover')
   const [lastRecipeSlug, setLastRecipeSlug] = useState<string | null>(null)
+  const [searchResults, setSearchResults] = useState<RecipeListItem[] | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
+
+  // Sync category from URL (e.g. navigating from home page category cards)
+  useEffect(() => {
+    const cat = urlCategory === 'all' || validSlugs.has(urlCategory) ? urlCategory : 'all'
+    setActiveCat(cat)
+  }, [urlCategory, validSlugs])
+
+  // Fetch search results from backend when ?q= changes
+  useEffect(() => {
+    if (!urlQuery) {
+      setSearchResults(null)
+      setIsSearching(false)
+      return
+    }
+    setIsSearching(true)
+    setSearchResults(null)
+    clientGetRecipes({ q: urlQuery })
+      .then(r => { setSearchResults(r); setIsSearching(false) })
+      .catch(() => setIsSearching(false))
+  }, [urlQuery])
 
   useEffect(() => {
-    const saved = localStorage.getItem('browseLayout')
-    if (saved === 'cover' || saved === 'grid' || saved === 'list') setLayout(saved)
+    try {
+      const saved = localStorage.getItem('browseLayout')
+      if (saved === 'cover' || saved === 'grid' || saved === 'list') setLayout(saved as Layout)
+      setLastRecipeSlug(localStorage.getItem('last_recipe'))
+    } catch {}
   }, [])
 
-  // Read last-visited recipe from localStorage (set by PersistLastRecipe)
-  useEffect(() => {
-    try { setLastRecipeSlug(localStorage.getItem('last_recipe')) } catch {}
-  }, [])
-
-  // Scroll position restore — retry after 100 ms so desktop grid has time to render
+  // Scroll position restore — retry after 100 ms so the grid has time to render
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem('rezepte-scroll-y')
@@ -143,39 +167,45 @@ export function BrowseClient({ categories, initialRecipes, initialCategory, sear
   // Scroll position save
   useEffect(() => {
     const handle = () => {
-      try {
-        sessionStorage.setItem('rezepte-scroll-y', String(Math.round(window.scrollY)))
-      } catch {}
+      try { sessionStorage.setItem('rezepte-scroll-y', String(Math.round(window.scrollY))) } catch {}
     }
     window.addEventListener('scroll', handle, { passive: true })
     return () => window.removeEventListener('scroll', handle)
   }, [])
 
-  const recipes = activeCat === 'all'
-    ? initialRecipes
-    : initialRecipes.filter((r) => r.category_slug === activeCat)
-
   const catMap = useMemo(
-    () => Object.fromEntries(categories.map((c) => [c.slug, c])),
+    () => Object.fromEntries(categories.map(c => [c.slug, c])),
     [categories]
   )
 
-  const setLayoutPersist = (l: Layout) => {
+  const setLayoutPersist = useCallback((l: Layout) => {
     setLayout(l)
-    localStorage.setItem('browseLayout', l)
-  }
+    try { localStorage.setItem('browseLayout', l) } catch {}
+  }, [])
+
+  // Derive the recipe list to show
+  const displayRecipes = useMemo(() => {
+    if (searchResults !== null) return searchResults
+    let r = activeCat === 'all' ? initialRecipes : initialRecipes.filter(r => r.category_slug === activeCat)
+    if (sort === 'time') r = [...r].sort((a, b) => a.time_minutes - b.time_minutes)
+    if (sort === 'name') r = [...r].sort((a, b) => a.title.localeCompare(b.title, 'de'))
+    return r
+  }, [searchResults, activeCat, sort, initialRecipes])
 
   const lastRecipe = lastRecipeSlug ? initialRecipes.find(r => r.slug === lastRecipeSlug) ?? null : null
 
   return (
     <>
-      {/* Desktop — FloatingLastRecipe is rendered inside DesktopBrowse */}
+      {/* Desktop */}
       <div className="hidden lg:block">
         <DesktopBrowse
           categories={categories}
-          initialRecipes={initialRecipes}
-          initialCategory={initialCategory}
-          searchQuery={searchQuery}
+          recipes={displayRecipes}
+          activeCat={activeCat}
+          setActiveCat={setActiveCat}
+          sort={sort}
+          setSort={setSort}
+          searchQuery={urlQuery}
           lastRecipe={lastRecipe}
         />
       </div>
@@ -183,74 +213,84 @@ export function BrowseClient({ categories, initialRecipes, initialCategory, sear
       {/* Mobile */}
       <div className="lg:hidden pb-6">
         <div className="px-5 pt-16 pb-1">
-          <h1 style={{ fontSize: 32, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', letterSpacing: -0.5, lineHeight: 1.05 }}>
-            Rezepte
-          </h1>
+          {urlQuery ? (
+            <>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600 }}>Suchergebnisse</p>
+              <h1 style={{ fontSize: 28, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', letterSpacing: -0.5, lineHeight: 1.05 }}>„{urlQuery}"</h1>
+            </>
+          ) : (
+            <h1 style={{ fontSize: 32, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', letterSpacing: -0.5, lineHeight: 1.05 }}>
+              Rezepte
+            </h1>
+          )}
           <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>
-            {recipes.length} {recipes.length === 1 ? 'Rezept' : 'Rezepte'}
+            {isSearching ? 'Suche…' : `${displayRecipes.length} ${displayRecipes.length === 1 || urlQuery ? 'Treffer' : 'Rezepte'}`}
           </p>
         </div>
 
-        <div className="scroll-snap-x flex gap-2 px-5 py-4">
-          {[{ slug: 'all', name: 'Alle' }, ...categories].map((c) => {
-            const active = c.slug === activeCat
-            return (
+        {!urlQuery && (
+          <div className="scroll-snap-x flex gap-2 px-5 py-4">
+            {[{ slug: 'all', name: 'Alle' }, ...categories].map((c) => {
+              const active = c.slug === activeCat
+              return (
+                <button
+                  key={c.slug}
+                  type="button"
+                  onClick={() => setActiveCat(c.slug)}
+                  className="flex-shrink-0 rounded-full px-3.5 py-2 text-sm font-medium cursor-pointer whitespace-nowrap"
+                  style={{
+                    border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                    background: active ? 'var(--accent)' : 'transparent',
+                    color: active ? '#fff' : 'var(--text)',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {c.name}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {!urlQuery && (
+          <div className="flex gap-2 px-5 mb-4">
+            {(['cover', 'grid', 'list'] as Layout[]).map((l) => (
               <button
-                key={c.slug}
+                key={l}
                 type="button"
-                onClick={() => setActiveCat(c.slug)}
-                className="flex-shrink-0 rounded-full px-3.5 py-2 text-sm font-medium cursor-pointer whitespace-nowrap"
+                onClick={() => setLayoutPersist(l)}
+                className="px-3 py-1 rounded-lg text-xs font-semibold capitalize cursor-pointer"
                 style={{
-                  border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                  background: active ? 'var(--accent)' : 'transparent',
-                  color: active ? '#fff' : 'var(--text)',
+                  background: layout === l ? 'var(--accent)' : 'var(--card-bg)',
+                  color: layout === l ? '#fff' : 'var(--muted)',
+                  border: `1px solid ${layout === l ? 'var(--accent)' : 'var(--border)'}`,
                   fontFamily: 'inherit',
                 }}
               >
-                {c.name}
+                {l === 'cover' ? 'Cover' : l === 'grid' ? 'Grid' : 'Liste'}
               </button>
-            )
-          })}
-        </div>
-
-        <div className="flex gap-2 px-5 mb-4">
-          {(['cover', 'grid', 'list'] as Layout[]).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setLayoutPersist(l)}
-              className="px-3 py-1 rounded-lg text-xs font-semibold capitalize cursor-pointer"
-              style={{
-                background: layout === l ? 'var(--accent)' : 'var(--card-bg)',
-                color: layout === l ? '#fff' : 'var(--muted)',
-                border: `1px solid ${layout === l ? 'var(--accent)' : 'var(--border)'}`,
-                fontFamily: 'inherit',
-              }}
-            >
-              {l === 'cover' ? 'Cover' : l === 'grid' ? 'Grid' : 'Liste'}
-            </button>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div className="px-5">
-          {layout === 'grid' && (
-            <div className="grid grid-cols-2 gap-3">
-              {recipes.map((r) => <CardGrid key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
-            </div>
-          )}
-          {layout === 'list' && (
+          {(urlQuery || layout === 'list') && (
             <div className="flex flex-col gap-3">
-              {recipes.map((r) => <CardList key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
+              {displayRecipes.map((r) => <CardList key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
             </div>
           )}
-          {layout === 'cover' && (
+          {!urlQuery && layout === 'grid' && (
             <div className="grid grid-cols-2 gap-3">
-              {recipes.map((r) => <CardCover key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
+              {displayRecipes.map((r) => <CardGrid key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
+            </div>
+          )}
+          {!urlQuery && layout === 'cover' && (
+            <div className="grid grid-cols-2 gap-3">
+              {displayRecipes.map((r) => <CardCover key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
             </div>
           )}
         </div>
 
-        {/* FloatingLastRecipe for mobile — inside lg:hidden so it won't conflict with desktop */}
         {lastRecipe && <FloatingLastRecipe recipe={lastRecipe} />}
       </div>
     </>

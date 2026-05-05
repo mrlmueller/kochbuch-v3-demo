@@ -3,30 +3,28 @@ import { getCategories, getRecipes } from '@/lib/api.server'
 import { BrowseClient } from './browse-client'
 import { BrowseSkeleton } from '@/components/skeleton'
 
-export const revalidate = 60
+// Page is now fully static (ISR 5 min).
+// Category + search filtering is handled client-side via useSearchParams in BrowseClient.
+export const revalidate = 300
 
-async function BrowseContent({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string; q?: string }>
-}) {
-  const { category, q } = await searchParams
+async function BrowseContent() {
   const [categories, recipes] = await Promise.all([
     getCategories(),
-    getRecipes(q ? { q } : {}),
+    getRecipes(),
   ])
 
-  return <BrowseClient categories={categories} initialRecipes={recipes} initialCategory={category ?? 'all'} searchQuery={q ?? ''} />
+  return (
+    // Suspense required because BrowseClient uses useSearchParams()
+    <Suspense fallback={<BrowseSkeleton />}>
+      <BrowseClient categories={categories} initialRecipes={recipes} />
+    </Suspense>
+  )
 }
 
-export default function RezeptePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string; q?: string }>
-}) {
+export default function RezeptePage() {
   return (
     <Suspense fallback={<BrowseSkeleton />}>
-      <BrowseContent searchParams={searchParams} />
+      <BrowseContent />
     </Suspense>
   )
 }
