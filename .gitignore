@@ -4,3 +4,6 @@
 /kochbuch-data
 .claude/
 *.exe
+/firebase.js
+backend/serviceaccount.json
+backend/*adminsdk*.json
