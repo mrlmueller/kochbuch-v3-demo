@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Recipe, Category } from '@/lib/api'
 
@@ -17,7 +17,7 @@ interface IngredientRow {
 
 export function RecipeForm({ categories, initial, mode }: Props) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
 
   const [title, setTitle] = useState(initial?.title ?? '')
   const [categorySlug, setCategorySlug] = useState(initial?.category_slug ?? categories[0]?.slug ?? '')
@@ -42,6 +42,7 @@ export function RecipeForm({ categories, initial, mode }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setIsPending(true)
     const payload = {
       slug: initial?.slug,
       title, categorySlug, time: parseInt(time, 10) || 0,
@@ -50,6 +51,7 @@ export function RecipeForm({ categories, initial, mode }: Props) {
     // Backend write not yet wired — auth required first
     console.log('Submit payload:', payload)
     alert('Backend write not yet wired — see console for payload.')
+    setIsPending(false)
   }
 
   const fieldStyle = {
@@ -101,7 +103,7 @@ export function RecipeForm({ categories, initial, mode }: Props) {
       <div>
         <label style={labelStyle}>Bild-URL (Cloudinary)</label>
         <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={fieldStyle} placeholder="https://res.cloudinary.com/..." />
-        {imageUrl && <img src={imageUrl} alt="" className="mt-2 rounded-xl w-full object-cover" style={{ maxHeight: 180 }} />}
+        {imageUrl && /^https?:\/\//.test(imageUrl) && <img src={imageUrl} alt="" className="mt-2 rounded-xl w-full object-cover" style={{ maxHeight: 180 }} />}
       </div>
 
       {/* Ingredients */}
