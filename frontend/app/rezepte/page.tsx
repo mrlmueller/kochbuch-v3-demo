@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import { getCategories, getRecipes } from '@/lib/api'
 import { BrowseClient } from './browse-client'
+import { BrowseSkeleton } from '@/components/skeleton'
 
 export const revalidate = 60
 
-export default async function RezeptePage({
+async function BrowseContent({
   searchParams,
 }: {
   searchParams: Promise<{ category?: string }>
@@ -15,4 +17,16 @@ export default async function RezeptePage({
   ])
 
   return <BrowseClient categories={categories} initialRecipes={recipes} initialCategory={category ?? 'all'} />
+}
+
+export default function RezeptePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  return (
+    <Suspense fallback={<BrowseSkeleton />}>
+      <BrowseContent searchParams={searchParams} />
+    </Suspense>
+  )
 }

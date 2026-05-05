@@ -1,12 +1,14 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { getCategories, getRecipes } from '@/lib/api'
 import { CategoryGrid } from '@/components/category-grid'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
+import { HomeSkeleton } from '@/components/skeleton'
 
 export const revalidate = 60
 
-export default async function EntdeckenPage() {
+async function HomeContent() {
   const [categories, allRecipes] = await Promise.all([
     getCategories(),
     getRecipes(),
@@ -112,5 +114,13 @@ export default async function EntdeckenPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function EntdeckenPage() {
+  return (
+    <Suspense fallback={<HomeSkeleton />}>
+      <HomeContent />
+    </Suspense>
   )
 }
