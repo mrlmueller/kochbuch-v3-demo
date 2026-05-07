@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
@@ -49,6 +50,19 @@ async function handle(req: NextRequest, ctx: Context): Promise<NextResponse> {
   })
 
   const resBody = await res.text()
+
+  // Invalidate caches after successful recipe mutations so every user sees
+  // fresh data immediately without waiting for a TTL to expire.
+  if (res.ok && backendPath.startsWith('/api/recipes')) {
+    if (req.method === 'POST') {
+      revalidateTag('recipes', 'max')
+    } else if (req.method === 'PUT' || req.method === 'DELETE') {
+      const slug = path[1]
+      if (slug) revalidateTag(`recipe-${slug}`, 'max')
+      revalidateTag('recipes', 'max')
+    }
+  }
+
   return new NextResponse(resBody, {
     status: res.status,
     headers: { 'Content-Type': res.headers.get('content-type') ?? 'application/json' },

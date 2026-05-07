@@ -66,7 +66,7 @@ func main() {
 
 	// Protected routes (require valid session cookie)
 	r.Group(func(r chi.Router) {
-		r.Use(mw.RequireSession(store))
+		r.Use(mw.RequireSession(store, os.Getenv("INTERNAL_TOKEN")))
 
 		r.Get("/api/auth/me", handlers.Me())
 		r.Get("/api/categories", handlers.ListCategories(store))

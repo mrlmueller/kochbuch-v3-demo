@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { getCategories, getRecipes } from '@/lib/api.server'
+import { requireAuth, getCategories, getRecipes } from '@/lib/api.server'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
 import { HomeSkeleton } from '@/components/skeleton'
@@ -169,6 +169,7 @@ function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRe
 // ─── Data fetching ───────────────────────────────────────
 
 async function HomeContent() {
+  await requireAuth()
   const [categories, allRecipes] = await Promise.all([
     getCategories(),
     getRecipes(),

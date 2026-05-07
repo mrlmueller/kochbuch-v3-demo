@@ -43,9 +43,19 @@ func InitFirebase(ctx context.Context) (*auth.Client, error) {
 
 // RequireSession validates the session cookie and injects the User into context.
 // Returns 401 if missing/invalid.
-func RequireSession(store db.Store) func(http.Handler) http.Handler {
+//
+// If internalToken is non-empty and the request carries a matching
+// X-Internal-Token header, the cookie check is bypassed entirely and no user
+// is injected into context. This lets the Vercel SSR layer fetch public
+// read-only data without a user session. RequireAdmin will still reject such
+// requests (nil user → 403), so write endpoints remain protected.
+func RequireSession(store db.Store, internalToken string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if internalToken != "" && r.Header.Get("X-Internal-Token") == internalToken {
+				next.ServeHTTP(w, r)
+				return
+			}
 			cookie, err := r.Cookie("session")
 			if err != nil {
 				jsonErr(w, "unauthorized", http.StatusUnauthorized)

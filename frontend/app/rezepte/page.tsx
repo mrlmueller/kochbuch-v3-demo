@@ -1,11 +1,12 @@
 import { Suspense } from 'react'
-import { getCategories, getRecipes } from '@/lib/api.server'
+import { requireAuth, getCategories, getRecipes } from '@/lib/api.server'
 import { BrowseClient } from './browse-client'
 import { BrowseSkeleton } from '@/components/skeleton'
 
 export const dynamic = 'force-dynamic'
 
 async function BrowseContent() {
+  await requireAuth()
   const [categories, recipes] = await Promise.all([
     getCategories(),
     getRecipes(),

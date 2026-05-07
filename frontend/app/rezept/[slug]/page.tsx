@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
+import { requireAuth, getRecipe, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 
 // Always render dynamically — cookies() requires a request context
@@ -21,6 +21,7 @@ export default async function RecipeDetailPage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  await requireAuth()
   const { slug } = await params
   const [recipe, categories] = await Promise.all([
     getRecipe(slug),
