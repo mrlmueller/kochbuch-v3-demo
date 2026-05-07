@@ -60,16 +60,14 @@ func main() {
 	r.Post("/api/auth/login", handlers.Login(store, firebaseAuth))
 	r.Post("/api/auth/logout", handlers.Logout(store))
 
-	// Public read-only routes
-	r.Get("/api/categories", handlers.ListCategories(store))
-	r.Get("/api/recipes", handlers.ListRecipes(store))
-	r.Get("/api/recipes/{slug}", handlers.GetRecipe(store))
-
 	// Protected routes (require valid session cookie)
 	r.Group(func(r chi.Router) {
 		r.Use(mw.RequireSession(store))
 
 		r.Get("/api/auth/me", handlers.Me())
+		r.Get("/api/categories", handlers.ListCategories(store))
+		r.Get("/api/recipes", handlers.ListRecipes(store))
+		r.Get("/api/recipes/{slug}", handlers.GetRecipe(store))
 
 		// Admin-only (require admin role)
 		r.Group(func(r chi.Router) {
