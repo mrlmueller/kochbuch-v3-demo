@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image, { type ImageProps } from 'next/image'
 import { decode } from 'blurhash'
 
@@ -11,6 +11,13 @@ interface BlurImageProps extends ImageProps {
 export function BlurImage({ blurhash: hash, onLoad, style, ...props }: BlurImageProps) {
   const [loaded, setLoaded] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  // Callback ref on the <img>: if the image is already in the browser cache
+  // it fires its load event before React attaches onLoad, so we'd never see it.
+  // Checking .complete at mount time catches that case.
+  const imgRef = useCallback((img: HTMLImageElement | null) => {
+    if (img?.complete && img.naturalWidth > 0) setLoaded(true)
+  }, [])
 
   useEffect(() => {
     if (!hash || !canvasRef.current) return
@@ -39,11 +46,13 @@ export function BlurImage({ blurhash: hash, onLoad, style, ...props }: BlurImage
       )}
       <Image
         {...props}
+        ref={imgRef}
         style={{ ...style, opacity: loaded ? 1 : 0, transition: 'opacity 0.35s ease' }}
         onLoad={(e) => {
           setLoaded(true)
           onLoad?.(e)
         }}
+        onError={() => setLoaded(true)}
       />
     </>
   )
