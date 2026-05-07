@@ -3,9 +3,7 @@ import { getCategories, getRecipes } from '@/lib/api.server'
 import { BrowseClient } from './browse-client'
 import { BrowseSkeleton } from '@/components/skeleton'
 
-// Page is now fully static (ISR 5 min).
-// Category + search filtering is handled client-side via useSearchParams in BrowseClient.
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 async function BrowseContent() {
   const [categories, recipes] = await Promise.all([

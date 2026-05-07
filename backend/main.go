@@ -44,8 +44,12 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	allowedOrigins := []string{"http://localhost:3000"}
+	if origin := os.Getenv("ALLOWED_ORIGIN"); origin != "" {
+		allowedOrigins = append(allowedOrigins, origin)
+	}
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{os.Getenv("ALLOWED_ORIGIN"), "http://localhost:3000"},
+		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Authorization"},
 		AllowCredentials: true,

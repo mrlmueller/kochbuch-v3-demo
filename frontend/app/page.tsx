@@ -7,7 +7,7 @@ import { HomeSkeleton } from '@/components/skeleton'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
 import type { Category, RecipeListItem } from '@/lib/api'
 
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 // ─── Desktop sub-components ─────────────────────────────
 
