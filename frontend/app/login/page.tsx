@@ -22,6 +22,7 @@ export default function LoginPage() {
   const afterFirebase = async (idToken: string) => {
     const user = await clientLogin(idToken)
     router.push(user.role === 'admin' ? '/admin' : '/')
+    router.refresh()
   }
 
   const handleGoogle = async () => {

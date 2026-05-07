@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -25,7 +24,6 @@ func generateToken() string {
 // Body: {"id_token": "<firebase-id-token>"}
 func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
 		var body struct {
 			IDToken string `json:"id_token"`
 		}
@@ -35,16 +33,13 @@ func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 		}
 
 		token, err := firebaseAuth.VerifyIDToken(r.Context(), body.IDToken)
-		log.Printf("login: VerifyIDToken %v", time.Since(start))
 		if err != nil {
 			http.Error(w, `{"error":"invalid token"}`, http.StatusUnauthorized)
 			return
 		}
 		email, _ := token.Claims["email"].(string)
 
-		t1 := time.Now()
 		user, err := store.GetUserByEmail(r.Context(), email)
-		log.Printf("login: GetUserByEmail %v", time.Since(t1))
 		if err != nil || user == nil {
 			http.Error(w, `{"error":"not authorized"}`, http.StatusForbidden)
 			return
@@ -56,22 +51,17 @@ func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 
 		// Single-session enforcement for non-admin
 		if user.Role != models.RoleAdmin {
-			t2 := time.Now()
 			_ = store.DeleteSessionsByUserID(r.Context(), user.ID)
-			log.Printf("login: DeleteSessions %v", time.Since(t2))
 		}
 
 		sessionToken := generateToken()
 		expires := time.Now().Add(30 * 24 * time.Hour)
-		t3 := time.Now()
 		if err := store.CreateSession(r.Context(), user.ID, sessionToken, expires,
 			r.UserAgent(), r.RemoteAddr); err != nil {
 			http.Error(w, `{"error":"server error"}`, http.StatusInternalServerError)
 			return
 		}
-		log.Printf("login: CreateSession %v", time.Since(t3))
 		_ = store.UpdateLastLogin(r.Context(), user.ID)
-		log.Printf("login: total %v", time.Since(start))
 
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session",
