@@ -54,10 +54,9 @@ export async function clientLogout(): Promise<void> {
 }
 
 export async function clientCreateUser(email: string): Promise<User> {
-  const res = await fetch(`${API}/api/admin/users`, {
+  const res = await fetch('/api/proxy/admin/users', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify({ email }),
   })
   if (!res.ok) throw new Error(await res.text())
@@ -65,10 +64,9 @@ export async function clientCreateUser(email: string): Promise<User> {
 }
 
 export async function clientUpdateUser(id: string, patch: { role?: string; status?: string }): Promise<User> {
-  const res = await fetch(`${API}/api/admin/users/${id}`, {
+  const res = await fetch(`/api/proxy/admin/users/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(patch),
   })
   if (!res.ok) throw new Error(await res.text())
@@ -76,22 +74,21 @@ export async function clientUpdateUser(id: string, patch: { role?: string; statu
 }
 
 export async function clientDeleteUser(id: string): Promise<void> {
-  await fetch(`${API}/api/admin/users/${id}`, { method: 'DELETE', credentials: 'include' })
+  await fetch(`/api/proxy/admin/users/${id}`, { method: 'DELETE' })
 }
 
 export async function clientSaveRecipe(recipe: Partial<Recipe>, isNew: boolean): Promise<void> {
-  const url = isNew ? `${API}/api/recipes` : `${API}/api/recipes/${recipe.slug}`
+  const url = isNew ? '/api/proxy/recipes' : `/api/proxy/recipes/${recipe.slug}`
   const res = await fetch(url, {
     method: isNew ? 'POST' : 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(recipe),
   })
   if (!res.ok) throw new Error(await res.text())
 }
 
 export async function clientDeleteRecipe(slug: string): Promise<void> {
-  await fetch(`${API}/api/recipes/${slug}`, { method: 'DELETE', credentials: 'include' })
+  await fetch(`/api/proxy/recipes/${slug}`, { method: 'DELETE' })
 }
 
 export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<RecipeListItem[]> {
@@ -99,7 +96,7 @@ export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<Recip
   if (filter.category) params.set('category', filter.category)
   if (filter.q) params.set('q', filter.q)
   const qs = params.toString()
-  const res = await fetch(`${API}/api/recipes${qs ? `?${qs}` : ''}`, { credentials: 'include' })
+  const res = await fetch(`/api/proxy/recipes${qs ? `?${qs}` : ''}`)
   if (!res.ok) throw new Error(`getRecipes: ${res.status}`)
   return res.json()
 }
