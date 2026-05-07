@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation'
 import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 
-// Cache recipe pages for 1 hour; ISR re-renders in background on first request after expiry
-export const revalidate = 3600
+// Always render dynamically — cookies() requires a request context
+export const dynamic = 'force-dynamic'
 
 // Pre-generate all current recipe slugs at build time.
 // Falls back to on-demand SSR if the backend is unavailable during build.
