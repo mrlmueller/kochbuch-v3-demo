@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"os"
 	"time"
 
 	"backend/internal/db"
@@ -64,19 +63,22 @@ func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 		}
 		_ = store.UpdateLastLogin(r.Context(), user.ID)
 
-		secure := os.Getenv("APP_ENV") == "production"
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session",
 			Value:    sessionToken,
 			Expires:  expires,
 			HttpOnly: true,
-			Secure:   secure,
-			SameSite: http.SameSiteLaxMode,
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
 			Path:     "/",
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user)
+		type loginResp struct {
+			*models.User
+			SessionToken string `json:"session_token"`
+		}
+		json.NewEncoder(w).Encode(loginResp{User: user, SessionToken: sessionToken})
 	}
 }
 

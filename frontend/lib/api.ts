@@ -34,11 +34,23 @@ export async function clientLogin(idToken: string): Promise<User> {
     body: JSON.stringify({ id_token: idToken }),
   })
   if (!res.ok) throw new Error(await res.text())
-  return res.json()
+  const data = await res.json()
+
+  if (data.session_token) {
+    await fetch('/api/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: data.session_token }),
+    })
+  }
+
+  const { session_token: _t, ...user } = data
+  return user as User
 }
 
 export async function clientLogout(): Promise<void> {
   await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
+  await fetch('/api/session', { method: 'DELETE' })
 }
 
 export async function clientCreateUser(email: string): Promise<User> {
