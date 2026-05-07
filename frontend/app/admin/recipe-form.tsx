@@ -17,6 +17,7 @@ export function RecipeForm({ categories, initial, mode }: Props) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [showJson, setShowJson] = useState(false)
   const [jsonText, setJsonText] = useState('')
@@ -37,11 +38,26 @@ export function RecipeForm({ categories, initial, mode }: Props) {
       : [{ display: '', name: '' }]
   )
 
-  const handleImageFile = (file: File | null) => {
+  const handleImageFile = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return
-    const reader = new FileReader()
-    reader.onload = () => setImageUrl(reader.result as string)
-    reader.readAsDataURL(file)
+    setUploading(true)
+    setError('')
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: form })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string }
+        setError(body.error ?? 'Bild-Upload fehlgeschlagen')
+        return
+      }
+      const { url } = await res.json() as { url: string }
+      setImageUrl(url)
+    } catch {
+      setError('Bild-Upload fehlgeschlagen')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -101,7 +117,7 @@ export function RecipeForm({ categories, initial, mode }: Props) {
         </h1>
         <button type="button" onClick={() => setShowJson(s => !s)} style={{ ...outlineBtn, color: showJson ? T.accent : T.text, borderColor: showJson ? T.accent : T.border }}>JSON-Import</button>
         <button type="button" onClick={() => router.back()} style={outlineBtn}>Abbrechen</button>
-        <button type="submit" disabled={saving} style={{ ...outlineBtn, background: T.accent, color: '#fff', border: 'none', opacity: saving ? 0.7 : 1 }}>
+        <button type="submit" disabled={saving || uploading} style={{ ...outlineBtn, background: T.accent, color: '#fff', border: 'none', opacity: saving || uploading ? 0.7 : 1 }}>
           {saving ? 'Speichern…' : 'Speichern'}
         </button>
       </div>
@@ -125,16 +141,20 @@ export function RecipeForm({ categories, initial, mode }: Props) {
         <section style={cardStyle}>
           <p style={sectionLabel}>Bild</p>
           <div onDragOver={e => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
-            style={{ minHeight: 200, borderRadius: 12, border: `2px dashed ${dragOver ? T.accent : T.border}`, background: dragOver ? '#FFF3EE' : T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
-            {imageUrl && /^(https?:\/\/|data:)/.test(imageUrl)
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={imageUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <div style={{ textAlign: 'center', color: T.muted, padding: 24 }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
-                  <p style={{ fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Bild hierher ziehen oder klicken</p>
-                  <p style={{ fontSize: 12, margin: 0 }}>Datei, Bild-Link oder URL</p>
+            onClick={() => !uploading && fileRef.current?.click()}
+            style={{ minHeight: 200, borderRadius: 12, border: `2px dashed ${dragOver ? T.accent : T.border}`, background: dragOver ? '#FFF3EE' : T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: uploading ? 'wait' : 'pointer', overflow: 'hidden', position: 'relative' }}>
+            {uploading
+              ? <div style={{ textAlign: 'center', color: T.muted, padding: 24 }}>
+                  <p style={{ fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Wird hochgeladen…</p>
                 </div>
+              : imageUrl && /^https?:\/\//.test(imageUrl)
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={imageUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <div style={{ textAlign: 'center', color: T.muted, padding: 24 }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
+                    <p style={{ fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Bild hierher ziehen oder klicken</p>
+                    <p style={{ fontSize: 12, margin: 0 }}>Datei oder Bild-URL</p>
+                  </div>
             }
             {imageUrl && <button type="button" onClick={e => { e.stopPropagation(); setImageUrl('') }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.9)', cursor: 'pointer', color: T.danger }}>✕</button>}
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => handleImageFile(e.target.files?.[0] ?? null)} />
