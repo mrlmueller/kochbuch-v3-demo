@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -23,6 +24,7 @@ func CreateRecipe(store db.Store) http.HandlerFunc {
 			recipe.Slug = slugify(recipe.Title)
 		}
 		if err := store.CreateRecipe(r.Context(), recipe); err != nil {
+			log.Printf("CreateRecipe %q: %v", recipe.Slug, err)
 			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
 			return
 		}
@@ -42,6 +44,7 @@ func UpdateRecipe(store db.Store) http.HandlerFunc {
 		}
 		recipe.Slug = chi.URLParam(r, "slug")
 		if err := store.UpdateRecipe(r.Context(), recipe); err != nil {
+			log.Printf("UpdateRecipe %q: %v", recipe.Slug, err)
 			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
 			return
 		}
