@@ -9,7 +9,6 @@ const INTERNAL_TOKEN = process.env.INTERNAL_SSR_TOKEN ?? ''
 
 // ─── Transport helpers ────────────────────────────────────────────────────────
 
-// Session-authenticated fetch — only for user-specific endpoints (me, admin).
 async function getSession(): Promise<string> {
   const session = (await cookies()).get('session')
   if (!session) redirect('/login')
@@ -23,8 +22,6 @@ async function backendFetch(path: string, session: string): Promise<Response> {
   })
 }
 
-// Internal-token fetch — safe inside unstable_cache (no dynamic APIs).
-// Uses a shared secret so the backend accepts requests without a user session.
 async function backendFetchInternal(path: string): Promise<Response> {
   return fetch(`${API}${path}`, {
     cache: 'no-store',
@@ -34,77 +31,93 @@ async function backendFetchInternal(path: string): Promise<Response> {
 
 // ─── Global cross-request cache ───────────────────────────────────────────────
 //
-// All recipe/category data is identical for every user, so these caches use a
-// single global key (no session). revalidate:false means entries live forever;
-// revalidateTag() in the proxy route invalidates them on admin writes.
+// All recipe/category data is identical for every user — one global cache entry
+// serves all requests. revalidateTag() in the proxy route busts entries on
+// admin writes. A finite revalidate TTL acts as a safety net so a bad entry
+// (e.g. from a misconfigured deploy) can never be cached forever.
+//
+// Errors are thrown (not returned as []) so that unstable_cache does NOT store
+// the failure. The public wrappers catch and return graceful fallbacks instead.
+// Key suffix -v2 orphans any poisoned entries from earlier deploys.
 
 const _cachedCategories = unstable_cache(
   async (): Promise<Category[]> => {
     const res = await backendFetchInternal('/api/categories')
-    if (!res.ok) return []
+    if (!res.ok) throw new Error(`categories: ${res.status}`)
     return res.json()
   },
-  ['categories'],
-  { revalidate: false, tags: ['categories'] },
+  ['categories-v2'],
+  { revalidate: 3600, tags: ['categories'] },
 )
 
 const _cachedRecipes = unstable_cache(
   async (category: string): Promise<RecipeListItem[]> => {
     const qs = category ? `?category=${encodeURIComponent(category)}` : ''
     const res = await backendFetchInternal(`/api/recipes${qs}`)
-    if (!res.ok) return []
+    if (!res.ok) throw new Error(`recipes: ${res.status}`)
     return res.json()
   },
-  ['recipes'],
-  { revalidate: false, tags: ['recipes'] },
+  ['recipes-v2'],
+  { revalidate: 300, tags: ['recipes'] },
 )
 
-// Per-slug factory: each slug gets its own unstable_cache entry with a
-// dedicated tag so updates/deletes can invalidate exactly one recipe.
 function _makeCachedRecipe(slug: string) {
   return unstable_cache(
     async (): Promise<Recipe | null> => {
       const res = await backendFetchInternal(`/api/recipes/${slug}`)
       if (res.status === 404) return null
-      if (!res.ok) return null
+      if (!res.ok) throw new Error(`recipe ${slug}: ${res.status}`)
       return res.json()
     },
-    ['recipe', slug],
-    { revalidate: false, tags: ['recipes', `recipe-${slug}`] },
+    ['recipe-v2', slug],
+    { revalidate: 300, tags: ['recipes', `recipe-${slug}`] },
   )
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 //
-// React.cache() deduplicates calls within a single server render so two
-// components calling getCategories() share one cache lookup per request.
-//
-// Pages MUST call requireAuth() before these functions — the data functions
-// themselves no longer validate the session.
+// React.cache() deduplicates within a single render. Errors from the
+// unstable_cache callbacks are caught here so pages never crash — they just
+// show empty content and retry on the next request.
 
 export async function requireAuth(): Promise<void> {
   await getSession()
 }
 
 export const getCategories = cache(async (): Promise<Category[]> => {
-  return _cachedCategories()
+  try {
+    return await _cachedCategories()
+  } catch {
+    return []
+  }
 })
 
 export const getRecipes = cache(async (filter: RecipeFilter = {}): Promise<RecipeListItem[]> => {
   if (filter.q) {
-    // Search: not cached — too many unique permutations.
-    const qs = new URLSearchParams()
-    qs.set('q', filter.q)
-    if (filter.category) qs.set('category', filter.category)
-    const res = await backendFetchInternal(`/api/recipes?${qs}`)
-    if (!res.ok) return []
-    return res.json()
+    try {
+      const qs = new URLSearchParams()
+      qs.set('q', filter.q)
+      if (filter.category) qs.set('category', filter.category)
+      const res = await backendFetchInternal(`/api/recipes?${qs}`)
+      if (!res.ok) return []
+      return res.json()
+    } catch {
+      return []
+    }
   }
-  return _cachedRecipes(filter.category ?? '')
+  try {
+    return await _cachedRecipes(filter.category ?? '')
+  } catch {
+    return []
+  }
 })
 
 export const getRecipe = cache(async (slug: string): Promise<Recipe | null> => {
-  return _makeCachedRecipe(slug)()
+  try {
+    return await _makeCachedRecipe(slug)()
+  } catch {
+    return null
+  }
 })
 
 // ─── Auth / admin — never cached ─────────────────────────────────────────────
@@ -116,8 +129,6 @@ export async function getMe(): Promise<User | null> {
     if (!res.ok) return null
     return res.json()
   } catch {
-    // getSession() throws a redirect when the cookie is absent;
-    // return null so callers receive a graceful result.
     return null
   }
 }
