@@ -122,6 +122,16 @@ export const getRecipe = cache(async (slug: string): Promise<Recipe | null> => {
 
 // ─── Auth / admin — never cached ─────────────────────────────────────────────
 
+// Session-authenticated category fetch for admin pages. Bypasses the
+// internal-token cache so admin forms always have valid options regardless
+// of whether INTERNAL_SSR_TOKEN is configured.
+export async function getAdminCategories(): Promise<Category[]> {
+  const session = await getSession()
+  const res = await backendFetch('/api/categories', session)
+  if (!res.ok) return []
+  return res.json()
+}
+
 export async function getMe(): Promise<User | null> {
   try {
     const session = await getSession()
