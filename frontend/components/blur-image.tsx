@@ -8,9 +8,16 @@ interface BlurImageProps extends ImageProps {
   blurhash?: string | null
 }
 
+// Firebase Storage has no width-transform endpoint, so the custom loader
+// can't honor `width` for these URLs. Bypass the optimizer for them.
+function isFirebaseStorage(src: ImageProps['src']): boolean {
+  return typeof src === 'string' && src.includes('firebasestorage.googleapis.com')
+}
+
 export function BlurImage({ blurhash: hash, onLoad, style, ...props }: BlurImageProps) {
   const [loaded, setLoaded] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const unoptimized = isFirebaseStorage(props.src)
 
   // Callback ref on the <img>: if the image is already in the browser cache
   // it fires its load event before React attaches onLoad, so we'd never see it.
@@ -47,6 +54,7 @@ export function BlurImage({ blurhash: hash, onLoad, style, ...props }: BlurImage
       <Image
         {...props}
         ref={imgRef}
+        unoptimized={unoptimized}
         style={{ ...style, opacity: loaded ? 1 : 0, transition: 'opacity 0.35s ease' }}
         onLoad={(e) => {
           setLoaded(true)
