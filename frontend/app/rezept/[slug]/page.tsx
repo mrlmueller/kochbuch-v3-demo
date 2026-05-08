@@ -4,7 +4,7 @@ import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 import RecipeLoading from './loading'
 
-export const unstable_instant = { prefetch: 'static' as const }
+export const unstable_instant = { prefetch: 'static' }
 
 // Pre-generate all current recipe slugs at build time.
 // Falls back to on-demand SSR if the backend is unavailable during build.

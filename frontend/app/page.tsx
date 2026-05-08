@@ -5,7 +5,7 @@ import { BlurImage } from '@/components/blur-image'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
 import type { Category, RecipeListItem } from '@/lib/api'
 
-export const unstable_instant = { prefetch: 'static' as const }
+export const unstable_instant = { prefetch: 'static' }
 
 // ─── Desktop sub-components ─────────────────────────────
 
