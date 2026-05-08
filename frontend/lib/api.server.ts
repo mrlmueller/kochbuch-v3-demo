@@ -32,45 +32,64 @@ async function backendFetchInternal(path: string): Promise<Response> {
 //
 // Same data for every authenticated user. proxy.ts gates the route at the
 // edge; these calls use the internal SSR token. Tags match the
-// revalidateTag() calls in app/api/proxy/[...path]/route.ts so admin writes
-// bust entries immediately. cacheLife('weeks') is just an upper bound.
+// revalidateTag() calls in app/api/proxy/[...path]/route.ts (recipes,
+// recipe-<slug>) so admin writes bust entries immediately. Categories has
+// no mutation path through the app today; the tag is reserved for the day
+// admin category CRUD is added. cacheLife('weeks') is just an upper bound.
+//
+// The cached inner functions throw on backend errors so the failure is NOT
+// stored as a cache entry — a transient hiccup would otherwise poison the
+// entry for weeks. The exported wrappers catch and return graceful fallbacks
+// outside the cache boundary.
 
-export async function getCategories(): Promise<Category[]> {
+async function _getCategoriesCached(): Promise<Category[]> {
   'use cache'
   cacheTag('categories')
   cacheLife('weeks')
+  const res = await backendFetchInternal('/api/categories')
+  if (!res.ok) throw new Error(`categories: ${res.status}`)
+  return res.json()
+}
+
+export async function getCategories(): Promise<Category[]> {
   try {
-    const res = await backendFetchInternal('/api/categories')
-    if (!res.ok) throw new Error(`categories: ${res.status}`)
-    return res.json()
+    return await _getCategoriesCached()
   } catch {
     return []
   }
 }
 
-export async function getRecipes(category: string = ''): Promise<RecipeListItem[]> {
+async function _getRecipesCached(category: string): Promise<RecipeListItem[]> {
   'use cache'
   cacheTag('recipes')
   cacheLife('weeks')
+  const qs = category ? `?category=${encodeURIComponent(category)}` : ''
+  const res = await backendFetchInternal(`/api/recipes${qs}`)
+  if (!res.ok) throw new Error(`recipes: ${res.status}`)
+  return res.json()
+}
+
+export async function getRecipes(category: string = ''): Promise<RecipeListItem[]> {
   try {
-    const qs = category ? `?category=${encodeURIComponent(category)}` : ''
-    const res = await backendFetchInternal(`/api/recipes${qs}`)
-    if (!res.ok) throw new Error(`recipes: ${res.status}`)
-    return res.json()
+    return await _getRecipesCached(category)
   } catch {
     return []
   }
 }
 
-export async function getRecipe(slug: string): Promise<Recipe | null> {
+async function _getRecipeCached(slug: string): Promise<Recipe | null> {
   'use cache'
   cacheTag('recipes', `recipe-${slug}`)
   cacheLife('weeks')
+  const res = await backendFetchInternal(`/api/recipes/${slug}`)
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`recipe ${slug}: ${res.status}`)
+  return res.json()
+}
+
+export async function getRecipe(slug: string): Promise<Recipe | null> {
   try {
-    const res = await backendFetchInternal(`/api/recipes/${slug}`)
-    if (res.status === 404) return null
-    if (!res.ok) throw new Error(`recipe ${slug}: ${res.status}`)
-    return res.json()
+    return await _getRecipeCached(slug)
   } catch {
     return null
   }
