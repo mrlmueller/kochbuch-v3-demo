@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getMe } from '@/lib/api.server'
 
+export const unstable_instant = false
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getMe()
   if (!user || user.role !== 'admin') redirect('/')
