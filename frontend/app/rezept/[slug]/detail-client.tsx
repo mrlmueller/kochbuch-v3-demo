@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Recipe } from '@/lib/api'
 import { BlurImage } from '@/components/blur-image'
@@ -8,6 +8,81 @@ import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+
+const MOBILE_HERO_HEIGHT = 460
+
+function useStretchyHero() {
+  const heroRef = useRef<HTMLDivElement>(null)
+  const imgWrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const imgWrap = imgWrapRef.current
+    if (!hero || !imgWrap) return
+    if (window.matchMedia('(min-width: 1024px)').matches) return
+
+    let touchStartY: number | null = null
+    let stretching = false
+
+    const settleHero = () => {
+      hero.style.transition = 'height 0.5s cubic-bezier(0.32, 0.72, 0, 1)'
+      hero.style.height = `${MOBILE_HERO_HEIGHT}px`
+    }
+
+    const onScroll = () => {
+      if (stretching) return
+      const y = Math.max(0, window.scrollY)
+      const scale = Math.min(1.18, 1 + y / 2400)
+      imgWrap.style.transform = `scale(${scale})`
+    }
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (window.scrollY > 0) return
+      touchStartY = e.touches[0].clientY
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (touchStartY === null) return
+      if (window.scrollY > 0) { touchStartY = null; return }
+
+      const delta = e.touches[0].clientY - touchStartY
+      if (delta <= 0) {
+        if (stretching) { stretching = false; settleHero() }
+        return
+      }
+
+      e.preventDefault()
+      stretching = true
+      // Logarithmic damping — feels like iOS rubber band
+      const damped = Math.min(MOBILE_HERO_HEIGHT, Math.log(1 + delta / 8) * 60)
+      hero.style.transition = ''
+      hero.style.height = `${MOBILE_HERO_HEIGHT + damped}px`
+      imgWrap.style.transition = ''
+      imgWrap.style.transform = 'scale(1)'
+    }
+
+    const onTouchEnd = () => {
+      touchStartY = null
+      if (stretching) { stretching = false; settleHero() }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    document.addEventListener('touchstart', onTouchStart, { passive: true })
+    document.addEventListener('touchmove', onTouchMove, { passive: false })
+    document.addEventListener('touchend', onTouchEnd, { passive: true })
+    document.addEventListener('touchcancel', onTouchEnd, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('touchstart', onTouchStart)
+      document.removeEventListener('touchmove', onTouchMove)
+      document.removeEventListener('touchend', onTouchEnd)
+      document.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [])
+
+  return { heroRef, imgWrapRef }
+}
 
 interface Props {
   recipe: Recipe
@@ -208,6 +283,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
 
 export function DetailClient({ recipe, categoryName }: Props) {
   const router = useRouter()
+  const { heroRef, imgWrapRef } = useStretchyHero()
 
   // Screen wake lock — keep screen on while cooking
   useEffect(() => {
@@ -231,11 +307,13 @@ export function DetailClient({ recipe, categoryName }: Props) {
 
       {/* Mobile */}
       <div className="lg:hidden pb-10">
-        <div className="relative" style={{ height: 460, background: 'var(--border)' }}>
-          {recipe.image_url && (
-            <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority blurhash={recipe.image_blurhash} />
-          )}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.6) 100%)' }} />
+        <div ref={heroRef} className="relative overflow-hidden" style={{ height: MOBILE_HERO_HEIGHT, background: 'var(--border)' }}>
+          <div ref={imgWrapRef} className="absolute inset-0" style={{ transformOrigin: 'top center', willChange: 'transform' }}>
+            {recipe.image_url && (
+              <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority blurhash={recipe.image_blurhash} />
+            )}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.6) 100%)' }} />
+          </div>
           <button
             type="button"
             onClick={() => window.history.length > 1 ? router.back() : router.push('/rezepte')}
