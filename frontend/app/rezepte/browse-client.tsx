@@ -19,12 +19,12 @@ interface Props {
 
 // ─── Desktop card ────────────────────────────────────────
 
-function DesktopCard({ recipe, categoryName }: { recipe: RecipeListItem; categoryName: string }) {
+function DesktopCard({ recipe, categoryName, priority }: { recipe: RecipeListItem; categoryName: string; priority?: boolean }) {
   return (
     <Link href={`/rezept/${recipe.slug}`} style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}>
       <div style={{ aspectRatio: '4/5', borderRadius: 4, overflow: 'hidden', marginBottom: 14, position: 'relative', background: 'var(--border)' }}>
         {recipe.image_url && (
-          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} priority={priority} />
         )}
       </div>
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 6 }}>{categoryName}</div>
@@ -98,7 +98,7 @@ function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, set
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, rowGap: 48 }}>
-        {recipes.map(r => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
+        {recipes.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
       </div>
 
       {lastRecipe && <FloatingLastRecipe recipe={lastRecipe} />}
@@ -276,17 +276,17 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
         <div className="px-5">
           {(urlQuery || layout === 'list') && (
             <div className="flex flex-col gap-3">
-              {displayRecipes.map((r) => <CardList key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
+              {displayRecipes.map((r, i) => <CardList key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
             </div>
           )}
           {!urlQuery && layout === 'grid' && (
             <div className="grid grid-cols-2 gap-3">
-              {displayRecipes.map((r) => <CardGrid key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
+              {displayRecipes.map((r, i) => <CardGrid key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
             </div>
           )}
           {!urlQuery && layout === 'cover' && (
             <div className="grid grid-cols-2 gap-3">
-              {displayRecipes.map((r) => <CardCover key={r.slug} recipe={r} category={catMap[r.category_slug]} />)}
+              {displayRecipes.map((r, i) => <CardCover key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@ import { BlurImage } from '@/components/blur-image'
 interface CardProps {
   recipe: RecipeListItem
   category?: Category
+  priority?: boolean
 }
 
 // Shared meta pill
@@ -20,13 +21,13 @@ function TimePill({ minutes }: { minutes: number }) {
 }
 
 // 1. GRID — classic card with photo + meta
-export function CardGrid({ recipe }: CardProps) {
+export function CardGrid({ recipe, priority }: CardProps) {
   return (
     <Link href={`/rezept/${recipe.slug}`} className="no-underline block rounded-[18px] overflow-hidden"
       style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>
       <div className="relative" style={{ aspectRatio: '4/3' }}>
         {recipe.image_url ? (
-          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} priority={priority} />
         ) : (
           <div className="w-full h-full" style={{ background: 'var(--border)' }} />
         )}
@@ -42,13 +43,13 @@ export function CardGrid({ recipe }: CardProps) {
 }
 
 // 2. LIST — horizontal photo + text
-export function CardList({ recipe, category }: CardProps) {
+export function CardList({ recipe, category, priority }: CardProps) {
   return (
     <Link href={`/rezept/${recipe.slug}`} className="no-underline flex gap-3 p-3 rounded-2xl"
       style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>
       <div className="relative flex-shrink-0 rounded-xl overflow-hidden" style={{ width: 92, height: 92 }}>
         {recipe.image_url ? (
-          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="92px" blurhash={recipe.image_blurhash} />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="92px" blurhash={recipe.image_blurhash} priority={priority} />
         ) : (
           <div className="w-full h-full" style={{ background: 'var(--border)' }} />
         )}
@@ -69,12 +70,12 @@ export function CardList({ recipe, category }: CardProps) {
 }
 
 // 3. COVER — full-bleed cinematic card
-export function CardCover({ recipe, category }: CardProps) {
+export function CardCover({ recipe, category, priority }: CardProps) {
   return (
     <Link href={`/rezept/${recipe.slug}`} className="no-underline relative block rounded-[22px] overflow-hidden"
       style={{ aspectRatio: '5/6', boxShadow: 'var(--card-shadow)' }}>
       {recipe.image_url ? (
-        <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} />
+        <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} priority={priority} />
       ) : (
         <div className="absolute inset-0" style={{ background: 'var(--muted)' }} />
       )}
@@ -101,12 +102,12 @@ export function CardCover({ recipe, category }: CardProps) {
 }
 
 // 4. COMPACT — for carousels
-export function CardCompact({ recipe }: CardProps) {
+export function CardCompact({ recipe, priority }: CardProps) {
   return (
     <Link href={`/rezept/${recipe.slug}`} className="no-underline flex-shrink-0" style={{ width: 180 }}>
       <div className="relative rounded-2xl overflow-hidden mb-2.5" style={{ width: 180, height: 180, boxShadow: 'var(--card-shadow)' }}>
         {recipe.image_url ? (
-          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="180px" blurhash={recipe.image_blurhash} />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="180px" blurhash={recipe.image_blurhash} priority={priority} />
         ) : (
           <div className="w-full h-full" style={{ background: 'var(--border)' }} />
         )}

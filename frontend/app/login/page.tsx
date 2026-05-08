@@ -20,8 +20,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   const afterFirebase = async (idToken: string) => {
-    const user = await clientLogin(idToken)
-    router.push(user.role === 'admin' ? '/admin' : '/')
+    await clientLogin(idToken)
+    router.push('/')
     router.refresh()
   }
 

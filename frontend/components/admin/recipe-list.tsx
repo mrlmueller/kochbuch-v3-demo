@@ -18,6 +18,8 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const [cat, setCat] = useState('all')
   const [sort, setSort] = useState('name')
   const [confirmSlug, setConfirmSlug] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.slug, c])), [categories])
 
@@ -34,10 +36,19 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
   }, [recipes, query, cat, sort])
 
   const handleDelete = async (slug: string) => {
-    await clientDeleteRecipe(slug)
-    setRecipes(r => r.filter(x => x.slug !== slug))
-    setConfirmSlug(null)
-    router.refresh()
+    setDeleting(true)
+    setError('')
+    try {
+      await clientDeleteRecipe(slug)
+      setRecipes(r => r.filter(x => x.slug !== slug))
+      setConfirmSlug(null)
+      router.refresh()
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Rezept konnte nicht gelöscht werden')
+      setConfirmSlug(null)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C' }
@@ -56,6 +67,14 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
           textDecoration: 'none', boxShadow: '0 1px 3px rgba(194,65,12,0.3)',
         }}>+ Neues Rezept</Link>
       </div>
+
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 14px', borderRadius: 10, background: '#FEE2E2', color: T.danger, marginBottom: 16, fontSize: 13 }}>
+          <span>{error}</span>
+          <button type="button" onClick={() => setError('')} aria-label="Fehler schließen"
+            style={{ width: 22, height: 22, borderRadius: 6, border: 'none', background: 'transparent', color: T.danger, cursor: 'pointer', fontSize: 16, lineHeight: 1, fontFamily: 'inherit' }}>×</button>
+        </div>
+      )}
 
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
@@ -101,8 +120,8 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
             <h2 style={{ fontSize: 20, fontFamily: "'DM Serif Display', Georgia, serif", margin: '0 0 10px' }}>Rezept löschen?</h2>
             <p style={{ fontSize: 14, color: T.muted, margin: '0 0 20px' }}>„{recipes.find(r => r.slug === confirmSlug)?.title}" wird unwiderruflich entfernt.</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmSlug(null)} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, cursor: 'pointer', fontFamily: 'inherit' }}>Abbrechen</button>
-              <button onClick={() => handleDelete(confirmSlug)} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: T.danger, color: '#fff', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Löschen</button>
+              <button onClick={() => setConfirmSlug(null)} disabled={deleting} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}>Abbrechen</button>
+              <button onClick={() => handleDelete(confirmSlug)} disabled={deleting} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: T.danger, color: '#fff', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}>{deleting ? 'Lösche…' : 'Löschen'}</button>
             </div>
           </div>
         </div>

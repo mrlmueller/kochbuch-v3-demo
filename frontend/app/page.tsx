@@ -27,13 +27,13 @@ function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) 
   )
 }
 
-function DesktopCard({ recipe, categoryName }: { recipe: RecipeListItem; categoryName: string }) {
+function DesktopCard({ recipe, categoryName, priority }: { recipe: RecipeListItem; categoryName: string; priority?: boolean }) {
   return (
     <Link href={`/rezept/${recipe.slug}`} style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}>
       <div style={{ aspectRatio: '4/5', borderRadius: 4, overflow: 'hidden', marginBottom: 14, position: 'relative', background: 'var(--border)', transition: 'transform 0.4s ease' }}
         className="dh-card">
         {recipe.image_url && (
-          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} priority={priority} />
         )}
       </div>
       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 6 }}>{categoryName}</div>
@@ -45,12 +45,12 @@ function DesktopCard({ recipe, categoryName }: { recipe: RecipeListItem; categor
   )
 }
 
-function DesktopCardWide({ recipe, categoryName }: { recipe: RecipeListItem; categoryName: string }) {
+function DesktopCardWide({ recipe, categoryName, priority }: { recipe: RecipeListItem; categoryName: string; priority?: boolean }) {
   return (
     <Link href={`/rezept/${recipe.slug}`} style={{ textDecoration: 'none', display: 'flex', gap: 22, alignItems: 'center' }}>
       <div style={{ width: 200, height: 200, flexShrink: 0, borderRadius: 4, overflow: 'hidden', position: 'relative', background: 'var(--border)' }}>
         {recipe.image_url && (
-          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="200px" blurhash={recipe.image_blurhash} />
+          <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="200px" blurhash={recipe.image_blurhash} priority={priority} />
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -143,7 +143,7 @@ function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRe
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '64px 40px 0' }}>
           <SectionHead title="Schnell gemacht" subtitle="Unter 25 Minuten" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginTop: 24 }}>
-            {quick.map(r => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
+            {quick.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
           </div>
         </section>
       )}
@@ -153,7 +153,7 @@ function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRe
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '80px 40px 0' }}>
           <SectionHead title="Herzhaft & sättigend" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, marginTop: 24 }}>
-            {hearty.map(r => <DesktopCardWide key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
+            {hearty.map((r, i) => <DesktopCardWide key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
           </div>
         </section>
       )}
@@ -163,7 +163,7 @@ function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRe
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '80px 40px 80px' }}>
           <SectionHead title="Süßes & Snacks" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 24 }}>
-            {sweet.map(r => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
+            {sweet.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
           </div>
         </section>
       )}
@@ -249,7 +249,7 @@ export default async function EntdeckenPage() {
               </div>
             </div>
             <div className="scroll-snap-x flex gap-3 px-5">
-              {quick.map((r) => <CardCompact key={r.slug} recipe={r} />)}
+              {quick.map((r, i) => <CardCompact key={r.slug} recipe={r} priority={i === 0} />)}
             </div>
           </div>
         )}
@@ -278,7 +278,7 @@ export default async function EntdeckenPage() {
               Herzhaft & sättigend
             </h2>
             <div className="flex flex-col gap-3">
-              {hearty.map((r) => <CardList key={r.slug} recipe={r} />)}
+              {hearty.map((r, i) => <CardList key={r.slug} recipe={r} priority={i === 0} />)}
             </div>
           </div>
         )}
@@ -290,7 +290,7 @@ export default async function EntdeckenPage() {
               Süßes & Snacks
             </h2>
             <div className="scroll-snap-x flex gap-3 px-5">
-              {sweet.map((r) => <CardCompact key={r.slug} recipe={r} />)}
+              {sweet.map((r, i) => <CardCompact key={r.slug} recipe={r} priority={i === 0} />)}
             </div>
           </div>
         )}

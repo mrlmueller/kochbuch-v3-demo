@@ -61,8 +61,10 @@ export async function clientLogin(idToken: string): Promise<User> {
 }
 
 export async function clientLogout(): Promise<void> {
-  await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
-  await fetch('/api/session', { method: 'DELETE' })
+  const res = await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' })
+  await throwIfError(res)
+  const sessionRes = await fetch('/api/session', { method: 'DELETE' })
+  await throwIfError(sessionRes)
 }
 
 export async function clientCreateUser(email: string): Promise<User> {
@@ -86,7 +88,8 @@ export async function clientUpdateUser(id: string, patch: { role?: string; statu
 }
 
 export async function clientDeleteUser(id: string): Promise<void> {
-  await fetch(`/api/proxy/admin/users/${id}`, { method: 'DELETE' })
+  const res = await fetch(`/api/proxy/admin/users/${id}`, { method: 'DELETE' })
+  await throwIfError(res)
 }
 
 export async function clientSaveRecipe(recipe: Partial<Recipe>, isNew: boolean): Promise<void> {
@@ -100,7 +103,8 @@ export async function clientSaveRecipe(recipe: Partial<Recipe>, isNew: boolean):
 }
 
 export async function clientDeleteRecipe(slug: string): Promise<void> {
-  await fetch(`/api/proxy/recipes/${slug}`, { method: 'DELETE' })
+  const res = await fetch(`/api/proxy/recipes/${slug}`, { method: 'DELETE' })
+  await throwIfError(res)
 }
 
 export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<RecipeListItem[]> {

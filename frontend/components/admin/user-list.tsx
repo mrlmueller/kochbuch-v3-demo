@@ -12,6 +12,9 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
   const [newEmail, setNewEmail] = useState('')
   const [addError, setAddError] = useState('')
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [pendingToggleId, setPendingToggleId] = useState<string | null>(null)
 
   const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C', success: '#15803D', successBg: '#DCFCE7', warnBg: '#FEF3C7', warn: '#92400E' }
 
@@ -34,14 +37,31 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
   }
 
   const toggleStatus = async (u: User) => {
-    const updated = await clientUpdateUser(u.id, { role: u.role, status: u.status === 'active' ? 'deactivated' : 'active' })
-    setUsers(p => p.map(x => x.id === u.id ? updated : x))
+    setPendingToggleId(u.id)
+    setError('')
+    try {
+      const updated = await clientUpdateUser(u.id, { role: u.role, status: u.status === 'active' ? 'deactivated' : 'active' })
+      setUsers(p => p.map(x => x.id === u.id ? updated : x))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Status konnte nicht geändert werden')
+    } finally {
+      setPendingToggleId(null)
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await clientDeleteUser(id)
-    setUsers(p => p.filter(x => x.id !== id))
-    setConfirmId(null)
+    setDeleting(true)
+    setError('')
+    try {
+      await clientDeleteUser(id)
+      setUsers(p => p.filter(x => x.id !== id))
+      setConfirmId(null)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Benutzer konnte nicht gelöscht werden')
+      setConfirmId(null)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const counts = { all: users.length, active: users.filter(u => u.status === 'active').length, deactivated: users.filter(u => u.status === 'deactivated').length }
@@ -57,6 +77,14 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
           + Benutzer hinzufügen
         </button>
       </div>
+
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 14px', borderRadius: 10, background: '#FEE2E2', color: T.danger, marginBottom: 16, fontSize: 13 }}>
+          <span>{error}</span>
+          <button type="button" onClick={() => setError('')} aria-label="Fehler schließen"
+            style={{ width: 22, height: 22, borderRadius: 6, border: 'none', background: 'transparent', color: T.danger, cursor: 'pointer', fontSize: 16, lineHeight: 1, fontFamily: 'inherit' }}>×</button>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="E-Mail suchen…" style={{ flex: '1 1 240px', padding: '10px 14px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, fontSize: 14, fontFamily: 'inherit', color: T.text }} />
@@ -86,7 +114,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
                 aktiv
               </span>
             ) : (
-              <button onClick={() => toggleStatus(u)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => toggleStatus(u)} disabled={pendingToggleId === u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 12, fontWeight: 600, cursor: pendingToggleId === u.id ? 'wait' : 'pointer', opacity: pendingToggleId === u.id ? 0.6 : 1, fontFamily: 'inherit' }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: u.status === 'active' ? T.success : T.warn }} />
                 {u.status === 'active' ? 'aktiv' : 'deaktiviert'}
               </button>
@@ -123,8 +151,8 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
             <h2 style={{ fontSize: 20, fontFamily: "'DM Serif Display', Georgia, serif", margin: '0 0 10px' }}>Benutzer löschen?</h2>
             <p style={{ fontSize: 14, color: T.muted, margin: '0 0 20px' }}>„{users.find(u => u.id === confirmId)?.email}" wird unwiderruflich entfernt.</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmId(null)} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, cursor: 'pointer', fontFamily: 'inherit' }}>Abbrechen</button>
-              <button onClick={() => handleDelete(confirmId)} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: T.danger, color: '#fff', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Löschen</button>
+              <button onClick={() => setConfirmId(null)} disabled={deleting} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}>Abbrechen</button>
+              <button onClick={() => handleDelete(confirmId)} disabled={deleting} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: T.danger, color: '#fff', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}>{deleting ? 'Lösche…' : 'Löschen'}</button>
             </div>
           </div>
         </div>
