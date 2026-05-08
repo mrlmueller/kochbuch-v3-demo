@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"backend/internal/backup"
 	"backend/internal/db"
 	"backend/internal/handlers"
 	mw "backend/internal/middleware"
@@ -34,6 +35,12 @@ func main() {
 	}
 	defer pool.Close()
 	store := db.NewPostgresStore(pool)
+
+	// Weekly recipe backups to GitHub. Skips if env vars are missing.
+	go backup.RunWeekly(ctx, store,
+		os.Getenv("BACKUP_GITHUB_OWNER"),
+		os.Getenv("BACKUP_GITHUB_REPO"),
+		os.Getenv("BACKUP_GITHUB_TOKEN"))
 
 	// Firebase Auth client (optional in dev if GOOGLE_APPLICATION_CREDENTIALS not set)
 	firebaseAuth, err := mw.InitFirebase(ctx)

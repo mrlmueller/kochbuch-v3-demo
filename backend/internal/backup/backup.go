@@ -107,3 +107,62 @@ func pushToGitHub(ctx context.Context, owner, repo, token, filename string, cont
 	respBody, _ := io.ReadAll(resp.Body)
 	return fmt.Errorf("github status %d: %s", resp.StatusCode, string(respBody))
 }
+
+// nextSundayUTC returns the next Sunday at 03:00 UTC strictly after `now`.
+// Pure function — easy to unit test.
+func nextSundayUTC(now time.Time) time.Time {
+	now = now.UTC()
+	target := time.Date(now.Year(), now.Month(), now.Day(), 3, 0, 0, 0, time.UTC)
+	// Days until next Sunday (Sunday == 0): 7 if today's already past 03:00 UTC and is Sunday, else (7 - weekday) % 7
+	daysUntilSunday := (7 - int(now.Weekday())) % 7
+	if daysUntilSunday == 0 && !now.Before(target) {
+		daysUntilSunday = 7
+	}
+	return target.AddDate(0, 0, daysUntilSunday)
+}
+
+// RunWeekly is the long-lived goroutine entry point. Skips silently if
+// either env var is missing (so dev environments don't try to push).
+// Errors during a backup are logged; the loop continues and tries again
+// next Sunday.
+func RunWeekly(ctx context.Context, store db.Store, owner, repo, token string) {
+	if owner == "" || repo == "" || token == "" {
+		fmt.Println("[backup] disabled: BACKUP_GITHUB_REPO or BACKUP_GITHUB_TOKEN not set")
+		return
+	}
+	fmt.Printf("[backup] enabled, target=%s/%s, next run=%s\n", owner, repo, nextSundayUTC(time.Now()).Format(time.RFC3339))
+
+	for {
+		next := nextSundayUTC(time.Now())
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(time.Until(next)):
+		}
+
+		if err := runOnce(ctx, store, owner, repo, token); err != nil {
+			fmt.Printf("[backup] run failed: %v\n", err)
+		}
+	}
+}
+
+func runOnce(ctx context.Context, store db.Store, owner, repo, token string) error {
+	snap, err := collectSnapshot(ctx, store)
+	if err != nil {
+		return fmt.Errorf("collect: %w", err)
+	}
+	body, err := marshalSnapshot(snap)
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+
+	date := snap.ExportedAt.Format("2006-01-02")
+	filename := fmt.Sprintf("recipes-%s.json", date)
+	message := fmt.Sprintf("weekly backup %s (%d recipes, %d categories)", date, snap.RecipeCount, snap.CategoryCount)
+
+	if err := pushToGitHub(ctx, owner, repo, token, filename, body, message); err != nil {
+		return fmt.Errorf("push: %w", err)
+	}
+	fmt.Printf("[backup] pushed %s (%d recipes, %d categories, %d bytes)\n", filename, snap.RecipeCount, snap.CategoryCount, len(body))
+	return nil
+}
