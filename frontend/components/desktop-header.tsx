@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Logo } from '@/components/logo'
 
 export function DesktopHeader() {
   const pathname = usePathname()
@@ -35,9 +36,12 @@ export function DesktopHeader() {
         height: 72, display: 'flex', alignItems: 'center', gap: 40,
       }}>
         {/* Logo */}
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 7 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)' }}>Mein</span>
-          <span style={{ fontSize: 22, fontFamily: 'var(--font-serif)', color: 'var(--text)', letterSpacing: -0.4, lineHeight: 1 }}>Kochbuch</span>
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Logo size={30} />
+          <span style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)' }}>Mein</span>
+            <span style={{ fontSize: 22, fontFamily: 'var(--font-serif)', color: 'var(--text)', letterSpacing: -0.4, lineHeight: 1 }}>Kochbuch</span>
+          </span>
         </Link>
 
         {/* Nav */}

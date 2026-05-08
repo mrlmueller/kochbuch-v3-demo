@@ -3,9 +3,12 @@
 /Design
 /kochbuch-data
 .claude/
+.superpowers/
 *.exe
 /firebase.js
 backend/serviceaccount.json
 backend/*adminsdk*.json
 
 /Design-2
+/docs
+/backend/kochbuch-backend

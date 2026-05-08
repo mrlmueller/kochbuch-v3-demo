@@ -3,6 +3,7 @@ import { DM_Serif_Display, Manrope } from 'next/font/google'
 import './globals.css'
 import { TabBar } from '@/components/tab-bar'
 import { DesktopHeader } from '@/components/desktop-header'
+import { Logo } from '@/components/logo'
 
 const dmSerifDisplay = DM_Serif_Display({
   subsets: ['latin'],
@@ -53,7 +54,10 @@ export default function RootLayout({
         {/* Desktop footer */}
         <footer className="hidden lg:block" style={{ borderTop: '1px solid var(--border)', marginTop: 80, padding: '40px 40px 60px', color: 'var(--muted)', fontSize: 13 }}>
           <div style={{ maxWidth: 1320, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)' }}>Mein Kochbuch</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)' }}>
+              <Logo size={22} />
+              Mein Kochbuch
+            </div>
           </div>
         </footer>
         {/* Mobile tab bar — hidden above 1024px */}
