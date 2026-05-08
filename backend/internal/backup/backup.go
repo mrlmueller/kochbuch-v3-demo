@@ -1,9 +1,13 @@
 package backup
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"time"
 
 	"backend/internal/db"
@@ -61,4 +65,45 @@ func collectSnapshot(ctx context.Context, store db.Store) (*Snapshot, error) {
 // indentation so commits diff cleanly in GitHub.
 func marshalSnapshot(s *Snapshot) ([]byte, error) {
 	return json.MarshalIndent(s, "", "  ")
+}
+
+// pushToGitHub PUTs a file to a private repo via the Contents API.
+// owner/repo example: "mrlmueller/kochbuch-backups". token is a fine-grained
+// PAT with contents:write on that repo only. Returns an error if the file
+// already exists at that path (we never overwrite — date-based filenames make
+// collisions extremely unlikely).
+func pushToGitHub(ctx context.Context, owner, repo, token, filename string, content []byte, message string) error {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", owner, repo, filename)
+
+	body, err := json.Marshal(map[string]string{
+		"message": message,
+		"content": base64.StdEncoding.EncodeToString(content),
+		"branch":  "main",
+	})
+	if err != nil {
+		return fmt.Errorf("marshal request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("new request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("github request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusOK {
+		return nil
+	}
+
+	respBody, _ := io.ReadAll(resp.Body)
+	return fmt.Errorf("github status %d: %s", resp.StatusCode, string(respBody))
 }
