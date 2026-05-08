@@ -80,12 +80,12 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
         {filtered.map((r, i) => {
           const c = catMap[r.category_slug]
           return (
-            <div key={r.slug} style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 80px 110px', alignItems: 'center', padding: '12px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none' }}>
+            <div key={r.slug} onClick={() => router.push(`/admin/${r.slug}`)} style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 80px 110px', alignItems: 'center', padding: '12px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none', cursor: 'pointer' }}>
               <div style={{ width: 44, height: 44, borderRadius: 8, background: r.image_url ? `url(${r.image_url}) center/cover` : '#eee' }} />
               <p style={{ fontSize: 15, fontWeight: 600, color: T.text, fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>{r.title}</p>
-              {c && <span style={{ display: 'inline-block', padding: '3px 9px', borderRadius: 999, background: `${c.accent}20`, color: c.accent, fontSize: 11, fontWeight: 600 }}>{c.name}</span>}
+              {c && <span style={{ display: 'inline-block', justifySelf: 'start', padding: '3px 9px', borderRadius: 999, background: `${c.accent}20`, color: c.accent, fontSize: 11, fontWeight: 600 }}>{c.name}</span>}
               <p style={{ fontSize: 13, color: T.text, margin: 0 }}>{r.time_minutes} min</p>
-              <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                 <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)}>✎</Link>
                 <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)}>✕</button>
               </div>
