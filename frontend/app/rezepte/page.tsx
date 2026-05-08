@@ -1,12 +1,11 @@
 import { Suspense } from 'react'
-import { requireAuth, getCategories, getRecipes } from '@/lib/api.server'
+import { getCategories, getRecipes } from '@/lib/api.server'
 import { BrowseClient } from './browse-client'
-import { BrowseSkeleton } from '@/components/skeleton'
+import RezepteLoading from './loading'
 
-export const dynamic = 'force-dynamic'
+export const unstable_instant = { prefetch: 'static' as const }
 
-async function BrowseContent() {
-  await requireAuth()
+export default async function RezeptePage() {
   const [categories, recipes] = await Promise.all([
     getCategories(),
     getRecipes(),
@@ -14,16 +13,8 @@ async function BrowseContent() {
 
   return (
     // Suspense required because BrowseClient uses useSearchParams()
-    <Suspense fallback={<BrowseSkeleton />}>
+    <Suspense fallback={<RezepteLoading />}>
       <BrowseClient categories={categories} initialRecipes={recipes} />
-    </Suspense>
-  )
-}
-
-export default function RezeptePage() {
-  return (
-    <Suspense fallback={<BrowseSkeleton />}>
-      <BrowseContent />
     </Suspense>
   )
 }
