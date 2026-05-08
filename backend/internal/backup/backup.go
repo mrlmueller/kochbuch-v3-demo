@@ -122,12 +122,12 @@ func nextSundayUTC(now time.Time) time.Time {
 }
 
 // RunWeekly is the long-lived goroutine entry point. Skips silently if
-// either env var is missing (so dev environments don't try to push).
-// Errors during a backup are logged; the loop continues and tries again
-// next Sunday.
+// any env var is missing (so dev environments don't try to push). Errors
+// during a backup are logged; the loop continues and tries again next
+// Sunday.
 func RunWeekly(ctx context.Context, store db.Store, owner, repo, token string) {
 	if owner == "" || repo == "" || token == "" {
-		fmt.Println("[backup] disabled: BACKUP_GITHUB_REPO or BACKUP_GITHUB_TOKEN not set")
+		fmt.Println("[backup] disabled: BACKUP_GITHUB_OWNER, BACKUP_GITHUB_REPO, or BACKUP_GITHUB_TOKEN not set")
 		return
 	}
 	fmt.Printf("[backup] enabled, target=%s/%s, next run=%s\n", owner, repo, nextSundayUTC(time.Now()).Format(time.RFC3339))
