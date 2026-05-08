@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getMe } from '@/lib/api.server'
+import { AdminBackupButton } from '@/components/admin/backup-button'
 
 export const unstable_instant = false
 
@@ -30,6 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           } />
         </nav>
         <div style={{ padding: '0 6px', borderTop: '1px solid rgba(120,90,60,0.12)', paddingTop: 16 }}>
+          <AdminBackupButton />
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#7A6B5A', textDecoration: 'none', fontWeight: 500 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Zur App

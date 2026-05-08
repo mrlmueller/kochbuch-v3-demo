@@ -116,3 +116,16 @@ export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<Recip
   if (!res.ok) throw new Error(`getRecipes: ${res.status}`)
   return res.json()
 }
+
+export interface BackupResult {
+  filename: string
+  recipe_count: number
+  category_count: number
+  bytes: number
+}
+
+export async function clientTriggerBackup(): Promise<BackupResult> {
+  const res = await fetch('/api/proxy/admin/backup', { method: 'POST' })
+  await throwIfError(res)
+  return res.json()
+}

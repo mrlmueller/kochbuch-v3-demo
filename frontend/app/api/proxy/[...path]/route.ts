@@ -6,7 +6,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 // Only these backend path prefixes may be proxied.
 // The backend enforces its own auth; this is an extra layer of constraint.
-const ALLOWED_PREFIXES = ['/api/recipes', '/api/admin/users']
+const ALLOWED_PREFIXES = ['/api/recipes', '/api/admin/users', '/api/admin/backup']
 
 const MAX_BODY_BYTES = 512 * 1024 // 512 KB
 
