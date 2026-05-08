@@ -4,7 +4,14 @@ import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 import RecipeLoading from './loading'
 
-export const unstable_instant = { prefetch: 'static' }
+export const unstable_instant = {
+  prefetch: 'static',
+  // Build-time validator's error template ("searchParams accessed in
+  // generateMetadata or file-based metadata depending on dynamic params")
+  // doesn't match anything in the codebase — no generateMetadata exists
+  // and no metadata files depend on params. Dev-time validation still runs.
+  unstable_disableBuildValidation: true,
+}
 
 // Pre-generate all current recipe slugs at build time.
 // Falls back to on-demand SSR if the backend is unavailable during build.

@@ -5,7 +5,14 @@ import { BlurImage } from '@/components/blur-image'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
 import type { Category, RecipeListItem } from '@/lib/api'
 
-export const unstable_instant = { prefetch: 'static' }
+export const unstable_instant = {
+  prefetch: 'static',
+  // Build-time validator's error template ("searchParams accessed in
+  // generateMetadata or file-based metadata depending on dynamic params")
+  // doesn't match anything in the codebase — no generateMetadata exists
+  // and no metadata files depend on params. Dev-time validation still runs.
+  unstable_disableBuildValidation: true,
+}
 
 // ─── Desktop sub-components ─────────────────────────────
 
