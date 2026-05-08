@@ -90,6 +90,7 @@ func main() {
 			r.Post("/api/admin/users", handlers.CreateUser(store))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
 			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(store))
+			r.Post("/api/admin/backup", handlers.TriggerBackup(store))
 		})
 	})
 

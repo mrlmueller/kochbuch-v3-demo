@@ -140,29 +140,46 @@ func RunWeekly(ctx context.Context, store db.Store, owner, repo, token string) {
 		case <-time.After(time.Until(next)):
 		}
 
-		if err := runOnce(ctx, store, owner, repo, token); err != nil {
+		if _, err := RunOnce(ctx, store, owner, repo, token, "weekly"); err != nil {
 			fmt.Printf("[backup] run failed: %v\n", err)
 		}
 	}
 }
 
-func runOnce(ctx context.Context, store db.Store, owner, repo, token string) error {
+// Result describes a successful backup run. Returned to the manual-trigger
+// HTTP handler so the admin UI can show the file name + counts.
+type Result struct {
+	Filename      string `json:"filename"`
+	RecipeCount   int    `json:"recipe_count"`
+	CategoryCount int    `json:"category_count"`
+	Bytes         int    `json:"bytes"`
+}
+
+// RunOnce collects, marshals, and pushes a snapshot. The kind argument is
+// embedded in the commit message ("weekly" for the cron, "manual" for the
+// admin button) so the GitHub history shows where each backup originated.
+func RunOnce(ctx context.Context, store db.Store, owner, repo, token, kind string) (*Result, error) {
 	snap, err := collectSnapshot(ctx, store)
 	if err != nil {
-		return fmt.Errorf("collect: %w", err)
+		return nil, fmt.Errorf("collect: %w", err)
 	}
 	body, err := marshalSnapshot(snap)
 	if err != nil {
-		return fmt.Errorf("marshal: %w", err)
+		return nil, fmt.Errorf("marshal: %w", err)
 	}
 
 	date := snap.ExportedAt.Format("2006-01-02")
 	filename := fmt.Sprintf("recipes-%s.json", date)
-	message := fmt.Sprintf("weekly backup %s (%d recipes, %d categories)", date, snap.RecipeCount, snap.CategoryCount)
+	message := fmt.Sprintf("%s backup %s (%d recipes, %d categories)", kind, date, snap.RecipeCount, snap.CategoryCount)
 
 	if err := pushToGitHub(ctx, owner, repo, token, filename, body, message); err != nil {
-		return fmt.Errorf("push: %w", err)
+		return nil, fmt.Errorf("push: %w", err)
 	}
-	fmt.Printf("[backup] pushed %s (%d recipes, %d categories, %d bytes)\n", filename, snap.RecipeCount, snap.CategoryCount, len(body))
-	return nil
+	fmt.Printf("[backup] pushed %s (%s, %d recipes, %d categories, %d bytes)\n", filename, kind, snap.RecipeCount, snap.CategoryCount, len(body))
+	return &Result{
+		Filename:      filename,
+		RecipeCount:   snap.RecipeCount,
+		CategoryCount: snap.CategoryCount,
+		Bytes:         len(body),
+	}, nil
 }
