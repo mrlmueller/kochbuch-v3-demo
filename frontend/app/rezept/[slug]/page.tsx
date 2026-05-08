@@ -1,9 +1,10 @@
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { requireAuth, getRecipe, getCategories, getRecipes } from '@/lib/api.server'
+import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
+import RecipeLoading from './loading'
 
-// Always render dynamically — cookies() requires a request context
-export const dynamic = 'force-dynamic'
+export const unstable_instant = { prefetch: 'static' as const }
 
 // Pre-generate all current recipe slugs at build time.
 // Falls back to on-demand SSR if the backend is unavailable during build.
@@ -16,13 +17,7 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function RecipeDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
-  await requireAuth()
-  const { slug } = await params
+async function RecipeContent({ slug }: { slug: string }) {
   const [recipe, categories] = await Promise.all([
     getRecipe(slug),
     getCategories(),
@@ -32,4 +27,16 @@ export default async function RecipeDetailPage({
 
   const category = categories.find((c) => c.slug === recipe.category_slug)
   return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} />
+}
+
+export default async function RecipeDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  return (
+    <Suspense fallback={<RecipeLoading />}>
+      {params.then(({ slug }) => <RecipeContent slug={slug} />)}
+    </Suspense>
+  )
 }
