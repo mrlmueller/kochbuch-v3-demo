@@ -1,13 +1,11 @@
-import { Suspense } from 'react'
 import Link from 'next/link'
-import { requireAuth, getCategories, getRecipes } from '@/lib/api.server'
+import { getCategories, getRecipes } from '@/lib/api.server'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
-import { HomeSkeleton } from '@/components/skeleton'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
 import type { Category, RecipeListItem } from '@/lib/api'
 
-export const dynamic = 'force-dynamic'
+export const unstable_instant = { prefetch: 'static' as const }
 
 // ─── Desktop sub-components ─────────────────────────────
 
@@ -166,10 +164,7 @@ function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRe
   )
 }
 
-// ─── Data fetching ───────────────────────────────────────
-
-async function HomeContent() {
-  await requireAuth()
+export default async function EntdeckenPage() {
   const [categories, allRecipes] = await Promise.all([
     getCategories(),
     getRecipes(),
@@ -294,13 +289,5 @@ async function HomeContent() {
         )}
       </div>
     </>
-  )
-}
-
-export default function EntdeckenPage() {
-  return (
-    <Suspense fallback={<HomeSkeleton />}>
-      <HomeContent />
-    </Suspense>
   )
 }
