@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { DM_Serif_Display, Manrope } from 'next/font/google'
 import './globals.css'
 import { TabBar } from '@/components/tab-bar'
@@ -22,6 +22,17 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: 'Kochbuch',
   description: 'Mein persönliches Kochbuch',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Kochbuch',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#FAF6EF',
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
