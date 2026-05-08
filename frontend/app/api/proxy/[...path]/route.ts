@@ -49,7 +49,11 @@ async function handle(req: NextRequest, ctx: Context): Promise<NextResponse> {
     cache: 'no-store',
   })
 
-  const resBody = await res.text()
+  // 204/205/304 are null-body statuses — Response constructor throws if any
+  // body (including '') is passed alongside them. Read the body only when
+  // the status allows one.
+  const isNullBody = res.status === 204 || res.status === 205 || res.status === 304
+  const resBody = isNullBody ? null : await res.text()
 
   // Invalidate caches after successful recipe mutations so every user sees
   // fresh data immediately without waiting for a TTL to expire.
