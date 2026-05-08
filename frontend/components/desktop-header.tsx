@@ -73,7 +73,7 @@ export function DesktopHeader() {
             type="text" value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Rezept oder Zutat suchen…"
-            style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 13.5, color: 'var(--text)', fontFamily: 'inherit' }}
+            style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'var(--text)', fontFamily: 'inherit' }}
           />
           {q && (
             <button type="button" onClick={() => setQ('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 16, padding: 0, lineHeight: 1 }}>×</button>

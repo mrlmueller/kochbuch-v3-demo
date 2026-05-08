@@ -57,7 +57,7 @@ export default function SuchePage() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rezept oder Zutat..."
             className="flex-1 bg-transparent border-none outline-none text-base"
-            style={{ color: 'var(--text)', fontFamily: 'inherit', fontSize: 15 }}
+            style={{ color: 'var(--text)', fontFamily: 'inherit', fontSize: 16 }}
           />
           {query && (
             <button type="button" onClick={() => setQuery('')} className="text-lg leading-none cursor-pointer bg-transparent border-none p-0"
