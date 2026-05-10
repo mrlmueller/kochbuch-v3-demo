@@ -13,13 +13,16 @@ type Ingredient struct {
 
 // RecipeListItem is returned by GET /api/recipes (no ingredients/steps).
 type RecipeListItem struct {
-	Slug          string `json:"slug"`
-	Title         string `json:"title"`
-	CategorySlug  string `json:"category_slug"`
-	TimeMinutes   int    `json:"time_minutes"`
-	Servings      string `json:"servings"`
-	ImageURL      string `json:"image_url"`
-	ImageBlurhash string `json:"image_blurhash"`
+	Slug          string  `json:"slug"`
+	Title         string  `json:"title"`
+	CategorySlug  string  `json:"category_slug"`
+	TimeMinutes   int     `json:"time_minutes"`
+	Servings      string  `json:"servings"`
+	ImageURL      string  `json:"image_url"`
+	ImageBlurhash string  `json:"image_blurhash"`
+	OwnerID       *string `json:"owner_id,omitempty"`
+	OwnerEmail    string  `json:"owner_email,omitempty"`
+	IsMine        bool    `json:"is_mine,omitempty"`
 }
 
 // Recipe is the full record returned by GET /api/recipes/{slug}.
@@ -34,6 +37,9 @@ type Recipe struct {
 	Notes         string       `json:"notes"`
 	ImageURL      string       `json:"image_url"`
 	ImageBlurhash string       `json:"image_blurhash"`
+	OwnerID       *string      `json:"owner_id,omitempty"`
+	OwnerEmail    string       `json:"owner_email,omitempty"`
+	IsMine        bool         `json:"is_mine,omitempty"`
 	CreatedAt     time.Time    `json:"created_at"`
 	UpdatedAt     time.Time    `json:"updated_at"`
 }
