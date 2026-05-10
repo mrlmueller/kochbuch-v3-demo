@@ -4,8 +4,6 @@ import { useState } from 'react'
 import type { Ingredient } from '@/lib/api'
 import { formatIngredientAmount, parseServings } from '@/lib/utils'
 
-type UnitMode = 'metric' | 'imperial' | 'cups'
-
 interface Props {
   ingredients: Ingredient[]
   servingsRaw: string
@@ -14,7 +12,6 @@ interface Props {
 export function IngredientList({ ingredients, servingsRaw }: Props) {
   const baseServings = parseServings(servingsRaw)
   const [scale, setScale] = useState(1)
-  const [unitMode, setUnitMode] = useState<UnitMode>('metric')
   const [checked, setChecked] = useState<Set<number>>(new Set())
 
   const toggle = (i: number) => {
@@ -46,16 +43,6 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
           </div>
           <span style={{ fontSize: 12, color: 'var(--muted)' }}>Pers.</span>
         </div>
-        <select
-          value={unitMode}
-          onChange={(e) => setUnitMode(e.target.value as UnitMode)}
-          className="text-xs font-semibold rounded-lg px-2 py-1 cursor-pointer"
-          style={{ color: 'var(--text)', fontFamily: 'inherit', border: '1px solid var(--border)', background: 'var(--bg)' }}
-        >
-          <option value="metric">g · ml</option>
-          <option value="imperial">oz · fl oz</option>
-          <option value="cups">cups</option>
-        </select>
       </div>
 
       {/* Ingredient rows */}
@@ -64,7 +51,7 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
           <p style={{ padding: '12px 16px', fontSize: 14, color: 'var(--muted)' }}>Keine Zutaten angegeben.</p>
         ) : ingredients.map((ing, i) => {
           const isChecked = checked.has(i)
-          const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, unitMode)
+          const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, 'metric')
           return (
             <div
               key={i}
