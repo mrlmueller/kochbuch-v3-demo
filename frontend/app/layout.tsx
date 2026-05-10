@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import { DM_Serif_Display, Manrope } from 'next/font/google'
 import './globals.css'
 import { TabBar } from '@/components/tab-bar'
@@ -44,9 +45,13 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning className={`${dmSerifDisplay.variable} ${manrope.variable}`}>
       <body>
-        {/* Desktop header — hidden below 1024px */}
+        {/* Desktop header — hidden below 1024px. Suspense lets Next 16's
+            Cache Components prerender the static shell of dynamic pages
+            without waiting on usePathname() inside the header. */}
         <div className="hidden lg:block">
-          <DesktopHeader />
+          <Suspense fallback={null}>
+            <DesktopHeader />
+          </Suspense>
         </div>
         <main className="pb-24 lg:pb-0 min-h-screen" style={{ background: 'var(--bg)' }}>
           {children}
@@ -60,9 +65,12 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
-        {/* Mobile tab bar — hidden above 1024px */}
+        {/* Mobile tab bar — hidden above 1024px. Wrapped in Suspense for
+            the same reason as DesktopHeader above. */}
         <div className="lg:hidden">
-          <TabBar />
+          <Suspense fallback={null}>
+            <TabBar />
+          </Suspense>
         </div>
       </body>
     </html>

@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { PendingJobs } from './pending-jobs'
 
+export const unstable_instant = false
+
 export default function NeuPage() {
   return (
     <main style={{ maxWidth: 600, margin: '0 auto', padding: '32px 20px 96px' }}>

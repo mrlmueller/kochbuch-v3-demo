@@ -14,13 +14,18 @@ export const unstable_instant = {
 }
 
 // Pre-generate all current recipe slugs at build time.
-// Falls back to on-demand SSR if the backend is unavailable during build.
+// Falls back to a single placeholder slug if the backend is unavailable —
+// Next 16's Cache Components requires generateStaticParams to return at
+// least one entry; the placeholder route will 404 at runtime if anyone
+// hits it. Real recipe pages are still rendered on demand for non-prebuilt
+// slugs via the default dynamicParams behaviour.
 export async function generateStaticParams() {
   try {
     const recipes = await getRecipes()
+    if (recipes.length === 0) return [{ slug: '__none__' }]
     return recipes.map((r) => ({ slug: r.slug }))
   } catch {
-    return []
+    return [{ slug: '__none__' }]
   }
 }
 

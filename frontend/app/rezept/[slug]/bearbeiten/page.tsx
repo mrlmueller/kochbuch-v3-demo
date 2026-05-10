@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { getCategories, getRecipe } from '@/lib/api.server'
 import { EditClient } from './edit-client'
 
+export const unstable_instant = false
+
 export default async function BearbeitenPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const [categories, recipe] = await Promise.all([getCategories(), getRecipe(slug)])
