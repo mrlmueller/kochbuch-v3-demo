@@ -3,6 +3,7 @@ import { getCategories, getRecipes } from '@/lib/api.server'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+import { dailyPick, dailyShuffle } from '@/lib/daily-shuffle'
 import type { Category, RecipeListItem } from '@/lib/api'
 
 export const unstable_instant = {
@@ -66,10 +67,10 @@ function DesktopCardWide({ recipe, categoryName, priority }: { recipe: RecipeLis
 }
 
 function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRecipes: RecipeListItem[] }) {
-  const featured = allRecipes[0]
-  const quick = allRecipes.filter(r => r.time_minutes > 0 && r.time_minutes <= 25).slice(0, 4)
-  const hearty = allRecipes.filter(r => r.category_slug === 'hauptgerichte').slice(0, 4)
-  const sweet = allRecipes.filter(r => r.category_slug === 'backen-und-suesses' || r.category_slug === 'snacks').slice(0, 3)
+  const featured = dailyPick(allRecipes, 'featured')
+  const quick = dailyShuffle(allRecipes.filter(r => r.time_minutes > 0 && r.time_minutes <= 25), 'quick').slice(0, 4)
+  const hearty = dailyShuffle(allRecipes.filter(r => r.category_slug === 'hauptgerichte'), 'hearty').slice(0, 4)
+  const sweet = dailyShuffle(allRecipes.filter(r => r.category_slug === 'backen-und-suesses' || r.category_slug === 'snacks'), 'sweet').slice(0, 3)
   const catMap = Object.fromEntries(categories.map(c => [c.slug, c]))
 
   return (
@@ -85,7 +86,7 @@ function DesktopHome({ categories, allRecipes }: { categories: Category[]; allRe
               {featured?.title}
             </h1>
             <div style={{ display: 'flex', gap: 28, marginBottom: 36, color: 'var(--muted)', fontSize: 13.5 }}>
-              {featured?.time_minutes > 0 && <span>{featured.time_minutes} Minuten</span>}
+              {featured && featured.time_minutes > 0 && <span>{featured.time_minutes} Minuten</span>}
               {featured?.servings && <span>{featured.servings}</span>}
             </div>
             {featured && (
@@ -177,11 +178,12 @@ export default async function EntdeckenPage() {
     getRecipes(),
   ])
 
-  const featured = allRecipes[0]
-  const quick = allRecipes.filter((r) => r.time_minutes > 0 && r.time_minutes <= 20)
-  const hearty = allRecipes.filter((r) => r.category_slug === 'hauptgerichte').slice(0, 5)
-  const sweet = allRecipes.filter(
-    (r) => r.category_slug === 'backen-und-suesses' || r.category_slug === 'snacks'
+  const featured = dailyPick(allRecipes, 'featured')
+  const quick = dailyShuffle(allRecipes.filter((r) => r.time_minutes > 0 && r.time_minutes <= 20), 'quick')
+  const hearty = dailyShuffle(allRecipes.filter((r) => r.category_slug === 'hauptgerichte'), 'hearty').slice(0, 5)
+  const sweet = dailyShuffle(
+    allRecipes.filter((r) => r.category_slug === 'backen-und-suesses' || r.category_slug === 'snacks'),
+    'sweet',
   ).slice(0, 10)
 
   const recipeCounts = categories.reduce<Record<string, number>>((acc, cat) => {
