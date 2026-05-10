@@ -37,6 +37,17 @@ func (s *PostgresStore) GetUserByEmail(ctx context.Context, email string) (*mode
 	return &u, err
 }
 
+func (s *PostgresStore) GetUserByID(ctx context.Context, id string) (*models.User, error) {
+	var u models.User
+	err := s.pool.QueryRow(ctx,
+		`SELECT id, email, role, status, created_at, last_login FROM users WHERE id = $1`, id).
+		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	return &u, err
+}
+
 func (s *PostgresStore) CreateUser(ctx context.Context, email string, role models.Role) (*models.User, error) {
 	var u models.User
 	err := s.pool.QueryRow(ctx,
