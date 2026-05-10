@@ -66,7 +66,9 @@ async function _getRecipesCached(category: string): Promise<RecipeListItem[]> {
   const qs = category ? `?category=${encodeURIComponent(category)}` : ''
   const res = await backendFetchInternal(`/api/recipes${qs}`)
   if (!res.ok) throw new Error(`recipes: ${res.status}`)
-  return res.json()
+  const data = await res.json()
+  // Backend wraps in {items, meta}; old shape was a plain array. Tolerate both.
+  return Array.isArray(data) ? data : (data.items ?? [])
 }
 
 export async function getRecipes(category: string = ''): Promise<RecipeListItem[]> {

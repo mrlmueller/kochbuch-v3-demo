@@ -139,7 +139,7 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     setIsSearching(true)
     setSearchResults(null)
     clientGetRecipes({ q: urlQuery })
-      .then(r => { setSearchResults(r); setIsSearching(false) })
+      .then(r => { setSearchResults(r.items); setIsSearching(false) })
       .catch(() => setIsSearching(false))
   }, [urlQuery])
 
