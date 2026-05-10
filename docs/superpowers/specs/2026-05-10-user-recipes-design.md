@@ -116,6 +116,8 @@ type Recipe struct {
 }
 ```
 
+`IsMine` is **set by the server in the response, not stored** — it's `true` when the row's `OwnerID` matches the caller's user id. The handler computes it before serialization on every list and detail response. `OwnerEmail` is joined from `users` only in admin views.
+
 ## AI pipeline
 
 ### Provider interface (`internal/ai/extractor.go`)
@@ -186,10 +188,10 @@ queued ──► running ──► ready ─────► consumed   (user sav
                   └──► failed        │
                   └──► cancelled (user deletes pending job)
 
-ready, but never consumed ──TTL──► auto-deleted after 30 days
+any terminal state (ready/consumed/failed/cancelled) ──TTL──► auto-deleted after 30 days
 ```
 
-The 30-day cleanup is a small `go` ticker started alongside the worker pool.
+The 30-day cleanup is a small `go` ticker started alongside the worker pool. Applies to every row whose `finished_at < now() - 30 days` (or `created_at` for `cancelled` rows that never started).
 
 ### API endpoints
 
@@ -202,12 +204,15 @@ The 30-day cleanup is a small `go` ticker started alongside the worker pool.
 
 ### Rate limits / cost ceilings (server-side, enforced on POST)
 
+All checks happen in a **single transaction** alongside the job insert, so two simultaneous requests can't both pass:
+
 1. Reject if `count(ai_jobs WHERE user_id=$me AND status IN ('queued','running')) ≥ 3`.
 2. Reject if global `count(ai_jobs WHERE status IN ('queued','running')) ≥ 50`.
-3. Increment `ai_usage_daily(user_id, today)`. Reject if `count > 20`.
-4. Worker concurrency: `AI_WORKERS=2` (env-tunable).
+3. Read `ai_usage_daily(user_id, day=current UTC date)` — reject if `count ≥ 20`. Otherwise upsert with `count = count + 1`.
+4. Insert the `ai_jobs` row.
+5. Worker concurrency: `AI_WORKERS=2` (env-tunable).
 
-429 responses include `{"error": "...", "retry_after_seconds": <n>}`.
+The daily counter is keyed by **UTC date** (cheap, no per-user timezone tracking). 429 responses include `{"error": "...", "retry_after_seconds": <n>}`.
 
 ### Logging
 
