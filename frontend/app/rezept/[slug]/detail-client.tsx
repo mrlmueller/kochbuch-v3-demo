@@ -216,7 +216,6 @@ function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
   const router = useRouter()
   const baseServings = parseServings(recipe.servings)
   const [scale, setScale] = useState(1)
-  const [unitMode, setUnitMode] = useState<'metric' | 'imperial' | 'cups'>('metric')
   const [checkedIngs, setCheckedIngs] = useState<Set<number>>(new Set())
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set())
 
@@ -280,15 +279,6 @@ function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
                   </button>
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Einheiten</div>
-                <select value={unitMode} onChange={e => setUnitMode(e.target.value as typeof unitMode)}
-                  style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'white', color: 'var(--text)', fontSize: 14, fontFamily: 'inherit', cursor: 'pointer' }}>
-                  <option value="metric">g · ml</option>
-                  <option value="imperial">oz · fl oz</option>
-                  <option value="cups">cups</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -315,7 +305,7 @@ function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
             </div>
             <div>
               {recipe.ingredients.map((ing, i) => {
-                const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, unitMode)
+                const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, 'metric')
                 const isChecked = checkedIngs.has(i)
                 return (
                   <div
