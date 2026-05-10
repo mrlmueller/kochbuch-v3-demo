@@ -37,11 +37,16 @@ func CreateRecipe(store db.Store) http.HandlerFunc {
 			return
 		}
 		if user.Role == models.RoleAdmin {
-			recipe.OwnerID = nil
+			recipe.OwnerID = nil // admin recipes are globally visible
 		} else {
 			uid := user.ID
-			recipe.OwnerID = &uid
+			recipe.OwnerID = &uid // user recipes are private to the user
 		}
+		// created_by always records who actually clicked Save, regardless
+		// of role — this is what powers Bearbeiten/Löschen on the detail
+		// page and the "Meine Rezepte" filter.
+		creator := user.ID
+		recipe.CreatedBy = &creator
 		if recipe.Slug == "" {
 			recipe.Slug = slugify(recipe.Title)
 		}
