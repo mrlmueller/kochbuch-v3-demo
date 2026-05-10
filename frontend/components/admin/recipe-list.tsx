@@ -11,11 +11,14 @@ interface Props {
   categories: Category[]
 }
 
+type OwnerFilter = 'all' | 'global' | 'user'
+
 export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const router = useRouter()
   const [recipes, setRecipes] = useState(initial)
   const [query, setQuery] = useState('')
   const [cat, setCat] = useState('all')
+  const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>('all')
   const [sort, setSort] = useState('name')
   const [confirmSlug, setConfirmSlug] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -26,14 +29,16 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const filtered = useMemo(() => {
     let r = [...recipes]
     if (cat !== 'all') r = r.filter(x => x.category_slug === cat)
+    if (ownerFilter === 'global') r = r.filter(x => !x.owner_id)
+    else if (ownerFilter === 'user') r = r.filter(x => !!x.owner_id)
     if (query.trim()) {
       const q = query.toLowerCase()
-      r = r.filter(x => x.title.toLowerCase().includes(q))
+      r = r.filter(x => x.title.toLowerCase().includes(q) || (x.owner_email ?? '').toLowerCase().includes(q))
     }
     if (sort === 'name') r.sort((a, b) => a.title.localeCompare(b.title))
     else if (sort === 'time') r.sort((a, b) => a.time_minutes - b.time_minutes)
     return r
-  }, [recipes, query, cat, sort])
+  }, [recipes, query, cat, ownerFilter, sort])
 
   const handleDelete = async (slug: string) => {
     setDeleting(true)
@@ -76,9 +81,24 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
         </div>
       )}
 
+      {/* Owner filter chips */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        {(['all', 'global', 'user'] as OwnerFilter[]).map(f => (
+          <button key={f} type="button" onClick={() => setOwnerFilter(f)} style={{
+            padding: '7px 14px', borderRadius: 999,
+            border: `1px solid ${ownerFilter === f ? T.accent : T.border}`,
+            background: ownerFilter === f ? T.accent : 'transparent',
+            color: ownerFilter === f ? '#fff' : T.text,
+            fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            {f === 'all' ? 'Alle' : f === 'global' ? 'Global (Admin)' : 'Nutzer-Rezepte'}
+          </button>
+        ))}
+      </div>
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
-        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Rezept suchen…"
+        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Rezept oder Eigentümer suchen…"
           style={{ flex: '1 1 240px', padding: '10px 14px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, fontSize: 14, fontFamily: 'inherit', color: T.text }} />
         <select value={cat} onChange={e => setCat(e.target.value)} style={selStyle}>
           <option value="all">Alle Kategorien</option>
@@ -92,17 +112,18 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
 
       {/* Table */}
       <div style={{ background: T.surface, borderRadius: 14, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 80px 110px', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: 1.2, textTransform: 'uppercase', background: '#FBF7F1' }}>
-          <div /><div>Name</div><div>Kategorie</div><div>Zeit</div><div style={{ textAlign: 'right' }}>Aktionen</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 1.2fr 80px 110px', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: 1.2, textTransform: 'uppercase', background: '#FBF7F1' }}>
+          <div /><div>Name</div><div>Kategorie</div><div>Eigentümer</div><div>Zeit</div><div style={{ textAlign: 'right' }}>Aktionen</div>
         </div>
         {filtered.length === 0 && <p style={{ padding: 40, textAlign: 'center', color: T.muted }}>Keine Rezepte gefunden.</p>}
         {filtered.map((r, i) => {
           const c = catMap[r.category_slug]
           return (
-            <div key={r.slug} onClick={() => router.push(`/admin/${r.slug}`)} style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 80px 110px', alignItems: 'center', padding: '12px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none', cursor: 'pointer' }}>
+            <div key={r.slug} onClick={() => router.push(`/admin/${r.slug}`)} style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 1.2fr 80px 110px', alignItems: 'center', padding: '12px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none', cursor: 'pointer' }}>
               <div style={{ width: 44, height: 44, borderRadius: 8, background: r.image_url ? `url(${r.image_url}) center/cover` : '#eee' }} />
               <p style={{ fontSize: 15, fontWeight: 600, color: T.text, fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>{r.title}</p>
               {c && <span style={{ display: 'inline-block', justifySelf: 'start', padding: '3px 9px', borderRadius: 999, background: `${c.accent}20`, color: c.accent, fontSize: 11, fontWeight: 600 }}>{c.name}</span>}
+              <p style={{ fontSize: 12, color: r.owner_email ? T.text : T.muted, margin: 0, fontStyle: r.owner_email ? 'normal' : 'italic' }}>{r.owner_email || 'Global'}</p>
               <p style={{ fontSize: 13, color: T.text, margin: 0 }}>{r.time_minutes} min</p>
               <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                 <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)}>✎</Link>

@@ -123,3 +123,11 @@ export async function getAdminUsers(): Promise<User[]> {
   if (!res.ok) throw new Error(`getAdminUsers: ${res.status}`)
   return res.json()
 }
+
+export async function getAdminRecipes(filter?: 'all' | 'global' | 'user'): Promise<RecipeListItem[]> {
+  const session = await getSession()
+  const qs = filter && filter !== 'all' ? `?filter=${filter}` : ''
+  const res = await backendFetch(`/api/admin/recipes${qs}`, session)
+  if (!res.ok) return []
+  return res.json()
+}
