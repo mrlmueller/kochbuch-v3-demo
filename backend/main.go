@@ -80,12 +80,15 @@ func main() {
 		r.Get("/api/recipes", handlers.ListRecipes(store))
 		r.Get("/api/recipes/{slug}", handlers.GetRecipe(store))
 
+		// Recipe writes — any authed user; ownership is enforced inside.
+		r.Post("/api/recipes", handlers.CreateRecipe(store))
+		r.Put("/api/recipes/{slug}", handlers.UpdateRecipe(store))
+		r.Delete("/api/recipes/{slug}", handlers.DeleteRecipe(store))
+
 		// Admin-only (require admin role)
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireAdmin)
-			r.Post("/api/recipes", handlers.CreateRecipe(store))
-			r.Put("/api/recipes/{slug}", handlers.UpdateRecipe(store))
-			r.Delete("/api/recipes/{slug}", handlers.DeleteRecipe(store))
+			r.Get("/api/admin/recipes", handlers.ListAdminRecipes(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
 			r.Post("/api/admin/users", handlers.CreateUser(store))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
