@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
+	"backend/internal/cloudinary"
 	"backend/internal/db"
 	mw "backend/internal/middleware"
 	"backend/internal/models"
@@ -94,8 +97,25 @@ func UpdateRecipe(store db.Store) http.HandlerFunc {
 			writeDbError(w, err)
 			return
 		}
+		// If the image was replaced or cleared, clean up the previous one.
+		if existing.ImageURL != "" && existing.ImageURL != recipe.ImageURL {
+			cleanupCloudinaryAsync(slug, existing.ImageURL)
+		}
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+// cleanupCloudinaryAsync fires a Cloudinary destroy in the background so
+// the caller's request isn't blocked by the upstream round-trip. Detached
+// from the request context for the same reason.
+func cleanupCloudinaryAsync(slug, imageURL string) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := cloudinary.DeleteImageFromURL(ctx, imageURL); err != nil {
+			log.Printf("cloudinary cleanup %q: %v", slug, err)
+		}
+	}()
 }
 
 // DELETE /api/recipes/{slug}
@@ -103,7 +123,7 @@ func DeleteRecipe(store db.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user := mw.UserFromContext(r.Context())
 		slug := chi.URLParam(r, "slug")
-		_, canEdit, hidden, err := recipeAccess(r.Context(), store, slug, user)
+		existing, canEdit, hidden, err := recipeAccess(r.Context(), store, slug, user)
 		if err != nil {
 			writeDbError(w, err)
 			return
@@ -120,6 +140,9 @@ func DeleteRecipe(store db.Store) http.HandlerFunc {
 			log.Printf("DeleteRecipe %q: %v", slug, err)
 			writeDbError(w, err)
 			return
+		}
+		if existing != nil && existing.ImageURL != "" {
+			cleanupCloudinaryAsync(slug, existing.ImageURL)
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}
