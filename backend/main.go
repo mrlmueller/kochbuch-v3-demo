@@ -110,6 +110,7 @@ func main() {
 		r.Get("/api/categories", handlers.ListCategories(store))
 		r.Get("/api/recipes", handlers.ListRecipes(store))
 		r.Get("/api/recipes/{slug}", handlers.GetRecipe(store))
+		r.Get("/api/image-search", handlers.ImageSearch())
 
 		// Recipe writes — any authed user; ownership is enforced inside.
 		r.Post("/api/recipes", handlers.CreateRecipe(store))

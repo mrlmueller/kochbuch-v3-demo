@@ -205,3 +205,21 @@ export async function clientConsumeAIJob(id: string): Promise<void> {
   const res = await fetch(`/api/proxy/ai-jobs/${id}/consume`, { method: 'POST' })
   await throwIfError(res)
 }
+
+// ─── Image search (Google CSE proxy) ───────────────────────
+
+export interface ImageSearchResult {
+  url: string
+  thumb: string
+  title: string
+  width: number
+  height: number
+  source_url: string
+}
+
+export async function clientImageSearch(q: string): Promise<ImageSearchResult[]> {
+  const res = await fetch(`/api/proxy/image-search?q=${encodeURIComponent(q)}`)
+  await throwIfError(res)
+  const data = await res.json() as { items: ImageSearchResult[] }
+  return data.items ?? []
+}

@@ -12,6 +12,7 @@ const ALLOWED_PREFIXES = [
   '/api/admin/recipes',
   '/api/admin/backup',
   '/api/ai-jobs',
+  '/api/image-search',
 ]
 
 const MAX_BODY_BYTES = 512 * 1024 // 512 KB

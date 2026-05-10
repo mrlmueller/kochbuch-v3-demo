@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Recipe, Category } from '@/lib/api'
 import { clientSaveRecipe } from '@/lib/api'
+import { ImageSearchPicker } from '@/components/image-search-picker'
 
 export type RecipeFormMode = 'create' | 'edit' | 'review-ai'
 
@@ -26,6 +27,7 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [showJson, setShowJson] = useState(false)
   const [jsonText, setJsonText] = useState('')
   const [jsonError, setJsonError] = useState('')
@@ -157,7 +159,24 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Image */}
         <section style={cardStyle}>
-          <p style={sectionLabel}>Bild</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <p style={{ ...sectionLabel, margin: 0 }}>Bild</p>
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '8px 14px', borderRadius: 999, border: 'none',
+                background: T.accent, color: '#fff',
+                fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+              }}>
+              <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx={11} cy={11} r={7} />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              Bild suchen
+            </button>
+          </div>
 
           {/* AI-review mode: pick from uploaded options */}
           {mode === 'review-ai' && imageOptions && imageOptions.length > 1 && (
@@ -275,6 +294,13 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
           <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Hilfreicher Hinweis…" />
         </section>
       </div>
+
+      <ImageSearchPicker
+        open={searchOpen}
+        initialQuery={title}
+        onClose={() => setSearchOpen(false)}
+        onPick={url => setImageUrl(url)}
+      />
     </form>
   )
 }

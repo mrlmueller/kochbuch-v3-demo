@@ -16,6 +16,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'upload not configured' }, { status: 503 })
   }
 
+  const contentType = req.headers.get('content-type') ?? ''
+
+  // JSON mode: { url } — Cloudinary fetches the remote image itself.
+  // Used by the search-picker so external images get re-hosted under
+  // our Cloudinary account (stable URLs, image optimization).
+  if (contentType.includes('application/json')) {
+    let body: { url?: string }
+    try { body = await req.json() } catch { return NextResponse.json({ error: 'invalid json' }, { status: 400 }) }
+    const remoteUrl = body.url ?? ''
+    if (!/^https?:\/\//.test(remoteUrl)) {
+      return NextResponse.json({ error: 'invalid url' }, { status: 400 })
+    }
+    return uploadToCloudinary(remoteUrl)
+  }
+
+  // Multipart mode: form file upload from the dropzone / file picker.
   let form: FormData
   try {
     form = await req.formData()
@@ -31,6 +47,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'file too large (max 10 MB)' }, { status: 413 })
   }
 
+  return uploadToCloudinary(file)
+}
+
+async function uploadToCloudinary(source: Blob | string): Promise<NextResponse> {
   const timestamp = Math.round(Date.now() / 1000)
   // Params must be sorted alphabetically, without api_key/file/resource_type
   const paramsToSign = `folder=recipes&timestamp=${timestamp}`
@@ -40,7 +60,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     .digest('hex')
 
   const upload = new FormData()
-  upload.set('file', file)
+  upload.set('file', source)
   upload.set('folder', 'recipes')
   upload.set('timestamp', String(timestamp))
   upload.set('api_key', KEY)
