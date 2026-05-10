@@ -13,6 +13,8 @@ interface Props {
 
 type OwnerFilter = 'all' | 'global' | 'user'
 
+const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C' }
+
 export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const router = useRouter()
   const [recipes, setRecipes] = useState(initial)
@@ -56,21 +58,17 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
     }
   }
 
-  const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C' }
-
   return (
     <>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
+      <div className="adm-header">
         <div>
-          <h1 style={{ fontSize: 32, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, lineHeight: 1.05, letterSpacing: -0.5, margin: 0 }}>Rezepte</h1>
+          <h1 style={{ fontSize: 28, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, lineHeight: 1.05, letterSpacing: -0.5, margin: 0 }}>Rezepte</h1>
           <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>{filtered.length} von {recipes.length}</p>
         </div>
-        <Link href="/admin/neu" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 16px',
-          borderRadius: 10, background: T.accent, color: '#fff', fontSize: 14, fontWeight: 600,
-          textDecoration: 'none', boxShadow: '0 1px 3px rgba(194,65,12,0.3)',
-        }}>+ Neues Rezept</Link>
+        <Link href="/admin/neu" className="adm-cta">
+          <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Neues Rezept
+        </Link>
       </div>
 
       {error && (
@@ -82,10 +80,10 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
       )}
 
       {/* Owner filter chips */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, overflowX: 'auto', paddingBottom: 2 }}>
         {(['all', 'global', 'user'] as OwnerFilter[]).map(f => (
           <button key={f} type="button" onClick={() => setOwnerFilter(f)} style={{
-            padding: '7px 14px', borderRadius: 999,
+            padding: '7px 14px', borderRadius: 999, whiteSpace: 'nowrap',
             border: `1px solid ${ownerFilter === f ? T.accent : T.border}`,
             background: ownerFilter === f ? T.accent : 'transparent',
             color: ownerFilter === f ? '#fff' : T.text,
@@ -99,7 +97,7 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Rezept oder Eigentümer suchen…"
-          style={{ flex: '1 1 240px', padding: '10px 14px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, fontSize: 14, fontFamily: 'inherit', color: T.text }} />
+          style={{ flex: '1 1 200px', minWidth: 0, padding: '10px 14px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, fontSize: 14, fontFamily: 'inherit', color: T.text }} />
         <select value={cat} onChange={e => setCat(e.target.value)} style={selStyle}>
           <option value="all">Alle Kategorien</option>
           {categories.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}
@@ -110,24 +108,51 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
         </select>
       </div>
 
-      {/* Table */}
-      <div style={{ background: T.surface, borderRadius: 14, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 1.2fr 80px 110px', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: 1.2, textTransform: 'uppercase', background: '#FBF7F1' }}>
+      {/* Desktop table */}
+      <div className="adm-table">
+        <div className="adm-row adm-head">
           <div /><div>Name</div><div>Kategorie</div><div>Eigentümer</div><div>Zeit</div><div style={{ textAlign: 'right' }}>Aktionen</div>
         </div>
         {filtered.length === 0 && <p style={{ padding: 40, textAlign: 'center', color: T.muted }}>Keine Rezepte gefunden.</p>}
         {filtered.map((r, i) => {
           const c = catMap[r.category_slug]
           return (
-            <div key={r.slug} onClick={() => router.push(`/admin/${r.slug}`)} style={{ display: 'grid', gridTemplateColumns: '56px 2fr 1fr 1.2fr 80px 110px', alignItems: 'center', padding: '12px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none', cursor: 'pointer' }}>
+            <div key={r.slug} onClick={() => router.push(`/admin/${r.slug}`)} className="adm-row" style={{ borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none', cursor: 'pointer' }}>
               <div style={{ width: 44, height: 44, borderRadius: 8, background: r.image_url ? `url(${r.image_url}) center/cover` : '#eee' }} />
               <p style={{ fontSize: 15, fontWeight: 600, color: T.text, fontFamily: "'DM Serif Display', Georgia, serif", margin: 0 }}>{r.title}</p>
               {c && <span style={{ display: 'inline-block', justifySelf: 'start', padding: '3px 9px', borderRadius: 999, background: `${c.accent}20`, color: c.accent, fontSize: 11, fontWeight: 600 }}>{c.name}</span>}
               <p style={{ fontSize: 12, color: r.owner_email ? T.text : T.muted, margin: 0, fontStyle: r.owner_email ? 'normal' : 'italic' }}>{r.owner_email || 'Global'}</p>
               <p style={{ fontSize: 13, color: T.text, margin: 0 }}>{r.time_minutes} min</p>
               <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)}>✎</Link>
-                <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)}>✕</button>
+                <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)} aria-label="Bearbeiten">✎</Link>
+                <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)} aria-label="Löschen">✕</button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Mobile card list */}
+      <div className="adm-cards">
+        {filtered.length === 0 && <p style={{ padding: 32, textAlign: 'center', color: T.muted }}>Keine Rezepte gefunden.</p>}
+        {filtered.map(r => {
+          const c = catMap[r.category_slug]
+          return (
+            <div key={r.slug} className="adm-card">
+              <Link href={`/admin/${r.slug}`} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'inherit', flex: 1, minWidth: 0 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 10, background: r.image_url ? `url(${r.image_url}) center/cover` : '#eee', flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: T.text, fontFamily: "'DM Serif Display', Georgia, serif", margin: '0 0 4px', lineHeight: 1.25 }}>{r.title}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {c && <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 999, background: `${c.accent}20`, color: c.accent, fontSize: 10, fontWeight: 600 }}>{c.name}</span>}
+                    <span style={{ fontSize: 11, color: T.muted }}>{r.time_minutes} min</span>
+                    <span style={{ fontSize: 11, color: r.owner_email ? T.text : T.muted, fontStyle: r.owner_email ? 'normal' : 'italic' }}>· {r.owner_email || 'Global'}</span>
+                  </div>
+                </div>
+              </Link>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)} aria-label="Bearbeiten">✎</Link>
+                <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)} aria-label="Löschen">✕</button>
               </div>
             </div>
           )
@@ -147,9 +172,61 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
           </div>
         </div>
       )}
+
+      <style>{`
+        .adm-header {
+          display: flex; justify-content: space-between; align-items: flex-end;
+          margin-bottom: 24px; gap: 16px; flex-wrap: wrap;
+        }
+        .adm-cta {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 10px 16px; border-radius: 10px;
+          background: #C2410C; color: #fff; font-size: 14px; font-weight: 600;
+          text-decoration: none;
+          box-shadow: 0 1px 3px rgba(194,65,12,0.3);
+        }
+        .adm-table {
+          background: #fff;
+          border-radius: 14px;
+          border: 1px solid rgba(120,90,60,0.16);
+          overflow: hidden;
+        }
+        .adm-row {
+          display: grid;
+          grid-template-columns: 56px 2fr 1fr 1.2fr 80px 110px;
+          align-items: center;
+          padding: 12px 16px;
+        }
+        .adm-head {
+          padding: 10px 16px;
+          border-bottom: 1px solid rgba(120,90,60,0.16);
+          font-size: 11px; font-weight: 700; color: #7A6B5A;
+          letter-spacing: 1.2px; text-transform: uppercase;
+          background: #FBF7F1;
+        }
+        .adm-cards { display: none; }
+
+        @media (max-width: 768px) {
+          .adm-table { display: none; }
+          .adm-cards {
+            display: flex; flex-direction: column; gap: 10px;
+          }
+          .adm-card {
+            display: flex; gap: 10px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid rgba(120,90,60,0.16);
+            align-items: center;
+          }
+          .adm-cta {
+            padding: 9px 13px; font-size: 13px;
+          }
+        }
+      `}</style>
     </>
   )
 }
 
-const selStyle: React.CSSProperties = { padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', fontSize: 14, fontFamily: 'inherit', color: '#2A1F14', cursor: 'pointer' }
+const selStyle: React.CSSProperties = { flex: '0 0 auto', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', fontSize: 14, fontFamily: 'inherit', color: '#2A1F14', cursor: 'pointer' }
 const iconBtnStyle = (color: string): React.CSSProperties => ({ width: 30, height: 30, borderRadius: 8, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', color, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, textDecoration: 'none', fontFamily: 'inherit' })

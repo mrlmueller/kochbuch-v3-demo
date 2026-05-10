@@ -16,6 +16,7 @@ import (
 	"backend/internal/db"
 	"backend/internal/models"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -91,12 +92,18 @@ func main() {
 		if updated.IsZero() {
 			updated = created
 		}
+		// owner_id / created_by reference users(id). If the snapshot was made
+		// against a different DB, those UUIDs may not resolve here — drop the
+		// reference to NULL in that case rather than failing the import.
+		ownerID := resolveUserRef(ctx, pool, r.OwnerID)
+		createdBy := resolveUserRef(ctx, pool, r.CreatedBy)
+
 		_, err = pool.Exec(ctx, `
 			INSERT INTO recipes
 			  (slug, title, category_slug, time_minutes, servings,
-			   ingredients, steps, notes, image_url, image_blurhash, owner_id,
+			   ingredients, steps, notes, image_url, image_blurhash, owner_id, created_by,
 			   created_at, updated_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
 			ON CONFLICT (slug) DO UPDATE SET
 				title          = EXCLUDED.title,
 				category_slug  = EXCLUDED.category_slug,
@@ -108,9 +115,10 @@ func main() {
 				image_url      = EXCLUDED.image_url,
 				image_blurhash = EXCLUDED.image_blurhash,
 				owner_id       = EXCLUDED.owner_id,
+				created_by     = EXCLUDED.created_by,
 				updated_at     = now()`,
 			r.Slug, r.Title, r.CategorySlug, r.TimeMinutes, r.Servings,
-			ingredientsJSON, stepsJSON, r.Notes, r.ImageURL, r.ImageBlurhash, r.OwnerID,
+			ingredientsJSON, stepsJSON, r.Notes, r.ImageURL, r.ImageBlurhash, ownerID, createdBy,
 			created, updated,
 		)
 		if err != nil {
@@ -119,4 +127,19 @@ func main() {
 	}
 	log.Printf("done: %d categories, %d recipes restored", len(snap.Categories), len(snap.Recipes))
 	fmt.Println("OK")
+}
+
+// resolveUserRef returns the input UUID if a user with that id exists in the
+// current DB, else nil. Lets us tolerate snapshots taken against a different
+// DB where user UUIDs don't match.
+func resolveUserRef(ctx context.Context, pool *pgxpool.Pool, ref *string) *string {
+	if ref == nil || *ref == "" {
+		return nil
+	}
+	var exists bool
+	err := pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM users WHERE id = $1)`, *ref).Scan(&exists)
+	if err != nil || !exists {
+		return nil
+	}
+	return ref
 }
