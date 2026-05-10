@@ -2,7 +2,11 @@ package ai
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"backend/internal/db"
@@ -114,17 +118,63 @@ func (p *WorkerPool) handle(ctx context.Context, job *models.AIJob) {
 		extractor.Provider(), extractor.Model(), job.ID, job.UserID,
 		time.Since(start).Milliseconds(), res.InputTokens, res.OutputTokens, cost)
 
-	payload := map[string]any{
+	_ = p.store.SetAIJobReady(ctx, job.ID, toRecipePayload(res))
+}
+
+// toRecipePayload converts the AI's prompt-shape Result into the partial
+// Recipe shape the frontend RecipeForm expects (category_slug, time_minutes,
+// servings as text, ingredients with display/name/amount/unit). The frontend
+// review screen consumes this directly.
+func toRecipePayload(res Result) map[string]any {
+	ingredients := make([]map[string]any, 0, len(res.Ingredients))
+	for _, ing := range res.Ingredients {
+		ingredients = append(ingredients, map[string]any{
+			"display": ing.Amount,
+			"name":    ing.Name,
+			"amount":  0,
+			"unit":    "",
+		})
+	}
+	servings := ""
+	if res.Servings > 0 {
+		if res.Servings == 1 {
+			servings = "1 Person"
+		} else {
+			servings = fmt.Sprintf("%d Personen", res.Servings)
+		}
+	}
+	return map[string]any{
 		"title":         res.Title,
-		"category_slug": res.CategorySlug,
-		"time_minutes":  res.TimeMinutes,
-		"servings":      res.Servings,
-		"ingredients":   res.Ingredients,
+		"category_slug": res.Category,
+		"time_minutes":  parseTimeToMinutes(res.Time),
+		"servings":      servings,
+		"ingredients":   ingredients,
 		"steps":         res.Steps,
 		"notes":         res.Notes,
-		"confidence":    res.Confidence,
 	}
-	_ = p.store.SetAIJobReady(ctx, job.ID, payload)
+}
+
+// parseTimeToMinutes parses German duration strings into minutes.
+// Examples: "30 Minuten" → 30, "1 Stunde 10 Minuten" → 70, "1,5 Stunden" → 90,
+// "2 Stunden" → 120. Returns 0 if nothing recognised.
+var (
+	timeHoursRe   = regexp.MustCompile(`(\d+(?:[.,]\d+)?)\s*(?:Stunde|Stunden|Std|h)`)
+	timeMinutesRe = regexp.MustCompile(`(\d+(?:[.,]\d+)?)\s*(?:Minute|Minuten|Min|min)`)
+)
+
+func parseTimeToMinutes(s string) int {
+	total := 0.0
+	if m := timeHoursRe.FindStringSubmatch(s); len(m) == 2 {
+		if v, err := strconv.ParseFloat(strings.ReplaceAll(m[1], ",", "."), 64); err == nil {
+			total += v * 60
+		}
+	}
+	if m := timeMinutesRe.FindStringSubmatch(s); len(m) == 2 {
+		if v, err := strconv.ParseFloat(strings.ReplaceAll(m[1], ",", "."), 64); err == nil {
+			total += v
+		}
+	}
+	return int(total)
 }
 
 func (p *WorkerPool) cleanupLoop(ctx context.Context) {

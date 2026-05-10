@@ -20,11 +20,16 @@ import (
 // A public food image (Pexels — pasta with tomato sauce).
 const sampleImage = "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=640"
 
+var sampleCategories = []string{
+	"hauptgerichte",
+	"grundrezepte-und-saucen",
+	"backen-und-suesses",
+	"snacks",
+}
+
 func main() {
 	_ = godotenv.Load("backend/.env")
 	_ = godotenv.Load(".env")
-
-	categories := []string{"hauptgang", "vorspeise", "dessert", "fruehstueck", "beilage", "suppe", "salat"}
 
 	keys := []string{
 		"claude:claude-haiku-4-5",
@@ -45,7 +50,7 @@ func main() {
 		res, err := ext.Extract(ctx, ai.Request{
 			ImageURLs:  []string{sampleImage},
 			Locale:     "de",
-			Categories: categories,
+			Categories: sampleCategories,
 		})
 		elapsed := time.Since(start)
 		cancel()
@@ -54,8 +59,8 @@ func main() {
 			continue
 		}
 		fmt.Printf("  title: %s\n", res.Title)
-		fmt.Printf("  category: %s\n", res.CategorySlug)
-		fmt.Printf("  time: %d min, servings: %s\n", res.TimeMinutes, res.Servings)
+		fmt.Printf("  category: %s\n", res.Category)
+		fmt.Printf("  time: %s, servings: %d\n", res.Time, res.Servings)
 		fmt.Printf("  ingredients: %d, steps: %d\n", len(res.Ingredients), len(res.Steps))
 		if len(res.Ingredients) > 0 {
 			names := make([]string, 0, len(res.Ingredients))

@@ -38,7 +38,7 @@ func (e *claudeExtractor) Extract(ctx context.Context, req Request) (Result, err
 	}
 
 	content := []anthropic.ContentBlockParamUnion{
-		anthropic.NewTextBlock(PromptTemplate(req.Categories)),
+		anthropic.NewTextBlock(Prompt(req.Categories)),
 	}
 	for _, u := range req.ImageURLs {
 		content = append(content, anthropic.NewImageBlock(anthropic.URLImageSourceParam{URL: u}))

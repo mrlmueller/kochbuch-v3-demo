@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"backend/internal/ai"
-	"backend/internal/models"
 )
 
 type dish struct {
@@ -54,7 +53,14 @@ func main() {
 		"claude:claude-sonnet-4-6",
 	}
 
-	categories := []string{"hauptgang", "vorspeise", "dessert", "fruehstueck", "beilage", "suppe", "salat"}
+	// Categories should match the DB seed. For an offline eval we hardcode
+	// them; the runtime worker pulls them live from the DB.
+	categories := []string{
+		"hauptgerichte",
+		"grundrezepte-und-saucen",
+		"backen-und-suesses",
+		"snacks",
+	}
 
 	lines := []string{
 		"| dish | model | title_match | ingr_jaccard | steps_ok | latency_ms | cost_usd |",
@@ -133,7 +139,7 @@ func main() {
 	fmt.Printf("→ written to %s\n", outPath)
 }
 
-func ingredientNames(items []models.Ingredient) []string {
+func ingredientNames(items []ai.AIIngredient) []string {
 	out := make([]string, 0, len(items))
 	for _, i := range items {
 		out = append(out, strings.ToLower(strings.TrimSpace(i.Name)))

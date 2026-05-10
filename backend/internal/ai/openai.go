@@ -38,7 +38,7 @@ func (e *openaiExtractor) Extract(ctx context.Context, req Request) (Result, err
 	}
 
 	parts := []openai.ChatCompletionContentPartUnionParam{
-		{OfText: &openai.ChatCompletionContentPartTextParam{Text: PromptTemplate(req.Categories)}},
+		{OfText: &openai.ChatCompletionContentPartTextParam{Text: Prompt(req.Categories)}},
 	}
 	for _, u := range req.ImageURLs {
 		parts = append(parts, openai.ChatCompletionContentPartUnionParam{
