@@ -37,8 +37,9 @@ async function RecipeContent({ slug }: { slug: string }) {
   if (!recipe) return notFound()
 
   const category = categories.find((c) => c.slug === recipe.category_slug)
-  const isMine = !!me && !!recipe.owner_id && recipe.owner_id === me.id
-  const canEdit = isMine || me?.role === 'admin'
+  // Edit/delete on the public recipe page is owner-only. Admins manage
+  // global recipes through /admin instead.
+  const canEdit = !!me && !!recipe.owner_id && recipe.owner_id === me.id
   return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} canEdit={canEdit} />
 }
 
