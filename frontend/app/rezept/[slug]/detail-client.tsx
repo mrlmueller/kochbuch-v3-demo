@@ -14,7 +14,6 @@ import { PersistLastRecipe } from '@/components/persist-last-recipe'
 function OwnerActions({ recipe }: { recipe: Recipe }) {
   const router = useRouter()
   const [deleting, setDeleting] = useState(false)
-  if (!recipe.is_mine) return null
   async function onDelete() {
     if (!confirm('Dieses Rezept wirklich löschen? Das lässt sich nicht rückgängig machen.')) return
     setDeleting(true)
@@ -121,11 +120,12 @@ function useStretchyHero() {
 interface Props {
   recipe: Recipe
   categoryName: string
+  canEdit?: boolean
 }
 
 // ─── Desktop detail ──────────────────────────────────────
 
-function DesktopDetail({ recipe, categoryName }: Props) {
+function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
   const router = useRouter()
   const baseServings = parseServings(recipe.servings)
   const [scale, setScale] = useState(1)
@@ -168,7 +168,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
             <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 14px', lineHeight: 1 }}>
               {recipe.title}
             </h1>
-            {recipe.is_mine && <div style={{ marginBottom: 16 }}><OwnerActions recipe={recipe} /></div>}
+            {canEdit && <div style={{ marginBottom: 16 }}><OwnerActions recipe={recipe} /></div>}
 
             <div style={{ display: 'flex', gap: 36, paddingTop: 28, borderTop: '1px solid var(--border)' }}>
               {recipe.time_minutes > 0 && (
@@ -316,7 +316,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
 
 // ─── Main export ─────────────────────────────────────────
 
-export function DetailClient({ recipe, categoryName }: Props) {
+export function DetailClient({ recipe, categoryName, canEdit }: Props) {
   const router = useRouter()
   const { heroRef, imgWrapRef } = useStretchyHero()
 
@@ -337,7 +337,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
 
       {/* Desktop */}
       <div className="hidden lg:block">
-        <DesktopDetail recipe={recipe} categoryName={categoryName} />
+        <DesktopDetail recipe={recipe} categoryName={categoryName} canEdit={canEdit} />
       </div>
 
       {/* Mobile */}
@@ -370,7 +370,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
             {recipe.title}
           </h1>
           <div style={{ width: 32, height: 1, background: 'var(--accent)', margin: '0 auto 14px' }} />
-          {recipe.is_mine && <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerActions recipe={recipe} /></div>}
+          {canEdit && <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerActions recipe={recipe} /></div>}
         </div>
 
         <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>

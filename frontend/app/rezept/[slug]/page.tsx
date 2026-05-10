@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
+import { getRecipe, getCategories, getRecipes, getMe } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 import RecipeLoading from './loading'
 
@@ -25,15 +25,21 @@ export async function generateStaticParams() {
 }
 
 async function RecipeContent({ slug }: { slug: string }) {
-  const [recipe, categories] = await Promise.all([
+  // The recipe itself is fetched through the cached internal-token path
+  // (same content for everyone), so its `is_mine` flag is always false
+  // there. Ownership is computed below from the live session.
+  const [recipe, categories, me] = await Promise.all([
     getRecipe(slug),
     getCategories(),
+    getMe(),
   ])
 
   if (!recipe) return notFound()
 
   const category = categories.find((c) => c.slug === recipe.category_slug)
-  return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} />
+  const isMine = !!me && !!recipe.owner_id && recipe.owner_id === me.id
+  const canEdit = isMine || me?.role === 'admin'
+  return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} canEdit={canEdit} />
 }
 
 export default async function RecipeDetailPage({
