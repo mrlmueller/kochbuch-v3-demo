@@ -10,6 +10,7 @@ const ALLOWED_PREFIXES = [
   '/api/recipes',
   '/api/admin/users',
   '/api/admin/recipes',
+  '/api/admin/ai-stats',
   '/api/admin/backup',
   '/api/ai-jobs',
   '/api/image-search',

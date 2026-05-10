@@ -118,7 +118,7 @@ func (p *WorkerPool) handle(ctx context.Context, job *models.AIJob) {
 		extractor.Provider(), extractor.Model(), job.ID, job.UserID,
 		time.Since(start).Milliseconds(), res.InputTokens, res.OutputTokens, cost)
 
-	_ = p.store.SetAIJobReady(ctx, job.ID, toRecipePayload(res))
+	_ = p.store.SetAIJobReady(ctx, job.ID, toRecipePayload(res), res.InputTokens, res.OutputTokens, cost)
 }
 
 // toRecipePayload converts the AI's prompt-shape Result into the partial

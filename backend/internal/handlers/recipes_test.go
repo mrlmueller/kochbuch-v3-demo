@@ -144,9 +144,10 @@ func TestGetRecipe_ownRecipe_setsIsMine(t *testing.T) {
 	uid := "u1"
 	store := &db.MockStore{
 		Recipe: &models.Recipe{
-			Slug:    "mine",
-			Title:   "Mine",
-			OwnerID: &uid,
+			Slug:      "mine",
+			Title:     "Mine",
+			OwnerID:   &uid,
+			CreatedBy: &uid,
 		},
 	}
 

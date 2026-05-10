@@ -84,7 +84,8 @@ func (s *PostgresStore) CreateAIJob(
 }
 
 const aiJobCols = `id, user_id, status, provider, model, image_urls,
-    recipe_json, error, attempts, created_at, started_at, finished_at`
+    recipe_json, error, attempts, input_tokens, output_tokens, cost_usd,
+    created_at, started_at, finished_at`
 
 type rowScanner interface {
 	Scan(dest ...any) error
@@ -97,6 +98,7 @@ func scanAIJobRow(r rowScanner) (*models.AIJob, error) {
 	if err := r.Scan(
 		&j.ID, &j.UserID, &j.Status, &j.Provider, &j.Model,
 		&images, &recipeJSON, &errStr, &j.Attempts,
+		&j.InputTokens, &j.OutputTokens, &j.CostUSD,
 		&j.CreatedAt, &j.StartedAt, &j.FinishedAt,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -179,14 +181,20 @@ func (s *PostgresStore) ClaimNextAIJob(ctx context.Context) (*models.AIJob, erro
 	return s.GetAIJob(ctx, id)
 }
 
-func (s *PostgresStore) SetAIJobReady(ctx context.Context, id string, recipeJSON map[string]any) error {
+func (s *PostgresStore) SetAIJobReady(ctx context.Context, id string, recipeJSON map[string]any, inTokens, outTokens int, costUSD float64) error {
 	rj, err := json.Marshal(recipeJSON)
 	if err != nil {
 		return err
 	}
 	_, err = s.pool.Exec(ctx, `
-		UPDATE ai_jobs SET status='ready', recipe_json=$2, finished_at=now()
-		WHERE id = $1`, id, rj)
+		UPDATE ai_jobs SET
+			status='ready',
+			recipe_json=$2,
+			input_tokens=$3,
+			output_tokens=$4,
+			cost_usd=$5,
+			finished_at=now()
+		WHERE id = $1`, id, rj, inTokens, outTokens, costUSD)
 	return err
 }
 
@@ -279,4 +287,119 @@ func (s *PostgresStore) GetTodayAIUsage(ctx context.Context, userID string) (int
 		return 0, err
 	}
 	return n, nil
+}
+
+// GetAIStats aggregates AI-job usage for the admin Kosten page. One DB
+// round-trip per bucket but each is cheap (count + sum over a single
+// indexed table).
+func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error) {
+	out := &models.AIStats{GeneratedAt: time.Now().UTC()}
+
+	now := time.Now().UTC()
+	cut7 := now.AddDate(0, 0, -7)
+	cut30 := now.AddDate(0, 0, -30)
+
+	if err := s.scanBucket(ctx, &out.Totals, ""); err != nil {
+		return nil, fmt.Errorf("totals: %w", err)
+	}
+	if err := s.scanBucket(ctx, &out.Last7d, "AND created_at >= $1", cut7); err != nil {
+		return nil, fmt.Errorf("last7d: %w", err)
+	}
+	if err := s.scanBucket(ctx, &out.Last30d, "AND created_at >= $1", cut30); err != nil {
+		return nil, fmt.Errorf("last30d: %w", err)
+	}
+
+	// Per-model breakdown (only successful jobs — failures had no cost).
+	rows, err := s.pool.Query(ctx, `
+		SELECT provider, model,
+		       COUNT(*),
+		       COALESCE(SUM(input_tokens), 0),
+		       COALESCE(SUM(output_tokens), 0),
+		       COALESCE(SUM(cost_usd), 0)
+		FROM ai_jobs
+		WHERE status IN ('ready', 'consumed')
+		GROUP BY provider, model
+		ORDER BY SUM(cost_usd) DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("by_model: %w", err)
+	}
+	for rows.Next() {
+		var m models.AIStatsByModel
+		if err := rows.Scan(&m.Provider, &m.Model, &m.Jobs, &m.InputTokens, &m.OutputTokens, &m.CostUSD); err != nil {
+			rows.Close()
+			return nil, fmt.Errorf("scan by_model: %w", err)
+		}
+		out.ByModel = append(out.ByModel, m)
+	}
+	rows.Close()
+
+	// Per-user breakdown joined with email.
+	rows, err = s.pool.Query(ctx, `
+		SELECT j.user_id, COALESCE(u.email, ''),
+		       COUNT(*),
+		       COALESCE(SUM(j.cost_usd), 0),
+		       MAX(j.created_at)
+		FROM ai_jobs j
+		LEFT JOIN users u ON u.id = j.user_id
+		WHERE j.status IN ('ready', 'consumed')
+		GROUP BY j.user_id, u.email
+		ORDER BY SUM(j.cost_usd) DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("by_user: %w", err)
+	}
+	for rows.Next() {
+		var u models.AIStatsByUser
+		var last time.Time
+		if err := rows.Scan(&u.UserID, &u.Email, &u.Jobs, &u.CostUSD, &last); err != nil {
+			rows.Close()
+			return nil, fmt.Errorf("scan by_user: %w", err)
+		}
+		if !last.IsZero() {
+			u.LastUsedAt = &last
+		}
+		out.ByUser = append(out.ByUser, u)
+	}
+	rows.Close()
+
+	// Recent 25 jobs across all users (any status).
+	rows, err = s.pool.Query(ctx, `
+		SELECT j.id, COALESCE(u.email, ''), j.provider, j.model, j.status,
+		       j.input_tokens, j.output_tokens, j.cost_usd, j.created_at
+		FROM ai_jobs j
+		LEFT JOIN users u ON u.id = j.user_id
+		ORDER BY j.created_at DESC
+		LIMIT 25`)
+	if err != nil {
+		return nil, fmt.Errorf("recent: %w", err)
+	}
+	for rows.Next() {
+		var it models.AIStatsRecentItem
+		if err := rows.Scan(&it.JobID, &it.UserEmail, &it.Provider, &it.Model, &it.Status,
+			&it.InputTokens, &it.OutputTokens, &it.CostUSD, &it.CreatedAt); err != nil {
+			rows.Close()
+			return nil, fmt.Errorf("scan recent: %w", err)
+		}
+		out.Recent = append(out.Recent, it)
+	}
+	rows.Close()
+
+	return out, nil
+}
+
+// scanBucket counts and sums ai_jobs filtered by `extraWhere` (which must
+// start with "AND " — see GetAIStats callers). status='failed' rows have
+// zero cost, so summing cost_usd is correct.
+func (s *PostgresStore) scanBucket(ctx context.Context, b *models.AIStatsBucket, extraWhere string, args ...any) error {
+	q := `
+		SELECT COUNT(*),
+		       COUNT(*) FILTER (WHERE status IN ('ready', 'consumed')),
+		       COUNT(*) FILTER (WHERE status = 'failed'),
+		       COALESCE(SUM(input_tokens), 0),
+		       COALESCE(SUM(output_tokens), 0),
+		       COALESCE(SUM(cost_usd), 0)
+		FROM ai_jobs
+		WHERE 1=1 ` + extraWhere
+	return s.pool.QueryRow(ctx, q, args...).Scan(
+		&b.Jobs, &b.SuccessJobs, &b.FailedJobs, &b.InputTokens, &b.OutputTokens, &b.CostUSD,
+	)
 }

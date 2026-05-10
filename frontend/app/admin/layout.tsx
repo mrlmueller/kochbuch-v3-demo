@@ -24,6 +24,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <NavLink href="/admin/users" label="Benutzer" icon={
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
           } />
+          <NavLink href="/admin/kosten" label="KI-Kosten" icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          } />
         </nav>
         <div style={{ padding: '0 6px', borderTop: '1px solid rgba(120,90,60,0.12)', paddingTop: 16 }}>
           <AdminBackupButton />
@@ -49,6 +52,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <nav style={{ display: 'flex', overflowX: 'auto', gap: 4, padding: '10px 12px', borderBottom: '1px solid rgba(120,90,60,0.16)', background: '#FBF7F1' }}>
           <MobileNavLink href="/admin" label="Rezepte" />
           <MobileNavLink href="/admin/users" label="Benutzer" />
+          <MobileNavLink href="/admin/kosten" label="KI-Kosten" />
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
             <AdminBackupButton />
           </div>

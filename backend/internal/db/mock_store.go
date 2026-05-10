@@ -114,7 +114,12 @@ func (m *MockStore) ClaimNextAIJob(_ context.Context) (*models.AIJob, error) {
 	return m.NextAIJob, m.Err
 }
 
-func (m *MockStore) SetAIJobReady(_ context.Context, _ string, _ map[string]any) error { return m.Err }
+func (m *MockStore) SetAIJobReady(_ context.Context, _ string, _ map[string]any, _, _ int, _ float64) error {
+	return m.Err
+}
+func (m *MockStore) GetAIStats(_ context.Context) (*models.AIStats, error) {
+	return &models.AIStats{}, m.Err
+}
 func (m *MockStore) SetAIJobFailed(_ context.Context, _ string, _ string) error        { return m.Err }
 func (m *MockStore) RequeueAIJob(_ context.Context, _ string) error                    { return m.Err }
 func (m *MockStore) DeleteAIJob(_ context.Context, _, _ string) error                  { return m.Err }

@@ -52,7 +52,7 @@ type Store interface {
 	GetAIJob(ctx context.Context, id string) (*models.AIJob, error)
 	ListUserAIJobs(ctx context.Context, userID string, since time.Time) ([]models.AIJob, error)
 	ClaimNextAIJob(ctx context.Context) (*models.AIJob, error)
-	SetAIJobReady(ctx context.Context, id string, recipeJSON map[string]any) error
+	SetAIJobReady(ctx context.Context, id string, recipeJSON map[string]any, inTokens, outTokens int, costUSD float64) error
 	SetAIJobFailed(ctx context.Context, id string, errMsg string) error
 	RequeueAIJob(ctx context.Context, id string) error
 	DeleteAIJob(ctx context.Context, id, ownerID string) error
@@ -62,4 +62,5 @@ type Store interface {
 	CountActiveAIJobs(ctx context.Context, userID string) (int, error)
 	CountActiveAIJobsGlobal(ctx context.Context) (int, error)
 	GetTodayAIUsage(ctx context.Context, userID string) (int, error)
+	GetAIStats(ctx context.Context) (*models.AIStats, error)
 }

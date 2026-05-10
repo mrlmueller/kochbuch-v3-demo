@@ -155,6 +155,62 @@ export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<ListR
   return data
 }
 
+// ─── Admin AI stats ──────────────────────────────────────
+
+export interface AIStatsBucket {
+  jobs: number
+  success_jobs: number
+  failed_jobs: number
+  input_tokens: number
+  output_tokens: number
+  cost_usd: number
+}
+
+export interface AIStatsByModel {
+  provider: string
+  model: string
+  jobs: number
+  input_tokens: number
+  output_tokens: number
+  cost_usd: number
+}
+
+export interface AIStatsByUser {
+  user_id: string
+  email: string
+  jobs: number
+  cost_usd: number
+  last_used_at?: string
+}
+
+export interface AIStatsRecentItem {
+  job_id: string
+  user_email: string
+  provider: string
+  model: string
+  status: string
+  input_tokens: number
+  output_tokens: number
+  cost_usd: number
+  created_at: string
+}
+
+export interface AIStats {
+  generated_at: string
+  totals: AIStatsBucket
+  last_7d: AIStatsBucket
+  last_30d: AIStatsBucket
+  by_model: AIStatsByModel[]
+  by_user: AIStatsByUser[]
+  recent: AIStatsRecentItem[]
+}
+
+export async function clientGetAIStats(): Promise<AIStats> {
+  const res = await fetch('/api/proxy/admin/ai-stats')
+  await throwIfError(res)
+  return res.json()
+}
+
 export interface BackupResult {
   filename: string
   recipe_count: number
