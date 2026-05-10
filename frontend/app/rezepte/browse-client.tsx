@@ -56,8 +56,12 @@ interface DesktopBrowseProps {
 function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, setSort, searchQuery, lastRecipe, myRecipeCount }: DesktopBrowseProps) {
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.slug, c])), [categories])
 
-  const chipDescriptors: { slug: string; name: string }[] = [{ slug: 'all', name: 'Alle' }, ...categories]
+  // "Meine Rezepte" sits right after "Alle" so it's the first thing users
+  // see when they scroll the chip row, and only when the user actually
+  // has own recipes.
+  const chipDescriptors: { slug: string; name: string }[] = [{ slug: 'all', name: 'Alle' }]
   if (myRecipeCount > 0) chipDescriptors.push({ slug: MINE, name: 'Meine Rezepte' })
+  chipDescriptors.push(...categories)
 
   return (
     <main style={{ maxWidth: 1320, margin: '0 auto', padding: '48px 40px 80px' }}>
@@ -220,8 +224,10 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
 
   const lastRecipe = lastRecipeSlug ? baseList.find(r => r.slug === lastRecipeSlug) ?? null : null
 
-  const chipDescriptors: { slug: string; name: string }[] = [{ slug: 'all', name: 'Alle' }, ...categories]
+  // Mobile chip strip: "Meine Rezepte" right after "Alle".
+  const chipDescriptors: { slug: string; name: string }[] = [{ slug: 'all', name: 'Alle' }]
   if (myRecipeCount > 0) chipDescriptors.push({ slug: MINE, name: 'Meine Rezepte' })
+  chipDescriptors.push(...categories)
 
   return (
     <>
