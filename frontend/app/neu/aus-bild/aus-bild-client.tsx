@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { clientCreateAIJob } from '@/lib/api'
+import { prepareImageForUpload } from '@/lib/image-prep'
 
 const MODEL_OPTIONS = [
   { provider: 'openai', model: 'gpt-5.4-mini', label: 'GPT-5.4 mini (Standard)' },
@@ -27,10 +28,13 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
     } catch {}
   }, [])
 
-  async function uploadOne(file: File) {
+  async function uploadOne(rawFile: File) {
     setUploading(true)
     setError('')
     try {
+      // iOS HEIC photos (especially ones with printed text) routinely blow
+      // past the server's size limit. Normalize to JPEG <=2048px first.
+      const file = await prepareImageForUpload(rawFile)
       const form = new FormData()
       form.append('file', file)
       const res = await fetch('/api/upload', { method: 'POST', body: form })

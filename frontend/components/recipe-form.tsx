@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Recipe, Category } from '@/lib/api'
 import { clientSaveRecipe } from '@/lib/api'
+import { prepareImageForUpload } from '@/lib/image-prep'
 import { ImageSearchPicker } from '@/components/image-search-picker'
 
 export type RecipeFormMode = 'create' | 'edit' | 'review-ai'
@@ -47,11 +48,14 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
       : [{ display: '', name: '' }]
   )
 
-  const handleImageFile = async (file: File | null) => {
-    if (!file || !file.type.startsWith('image/')) return
+  const handleImageFile = async (raw: File | null) => {
+    if (!raw || !raw.type.startsWith('image/')) return
     setUploading(true)
     setError('')
     try {
+      // Normalize HEIC/large JPEGs to a <=2048px JPEG so the server's
+      // upload cap is irrelevant and Cloudinary always gets a clean blob.
+      const file = await prepareImageForUpload(raw)
       const form = new FormData()
       form.append('file', file)
       const res = await fetch('/api/upload', { method: 'POST', body: form })
@@ -62,8 +66,8 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
       }
       const { url } = await res.json() as { url: string }
       setImageUrl(url)
-    } catch {
-      setError('Bild-Upload fehlgeschlagen')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Bild-Upload fehlgeschlagen')
     } finally {
       setUploading(false)
     }
