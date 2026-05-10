@@ -22,6 +22,7 @@ type RecipeListItem struct {
 	ImageBlurhash string  `json:"image_blurhash"`
 	OwnerID       *string `json:"owner_id,omitempty"`
 	OwnerEmail    string  `json:"owner_email,omitempty"`
+	CreatedBy     *string `json:"created_by,omitempty"`
 	IsMine        bool    `json:"is_mine,omitempty"`
 }
 
@@ -39,6 +40,7 @@ type Recipe struct {
 	ImageBlurhash string       `json:"image_blurhash"`
 	OwnerID       *string      `json:"owner_id,omitempty"`
 	OwnerEmail    string       `json:"owner_email,omitempty"`
+	CreatedBy     *string      `json:"created_by,omitempty"`
 	IsMine        bool         `json:"is_mine,omitempty"`
 	CreatedAt     time.Time    `json:"created_at"`
 	UpdatedAt     time.Time    `json:"updated_at"`

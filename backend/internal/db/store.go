@@ -11,6 +11,7 @@ type RecipeFilter struct {
 	Category  string
 	Query     string
 	OwnerID   *string // nil = no filter; "" sentinel = global only; "<uuid>" = that user only
+	CreatorID *string // when set, restrict to recipes whose created_by matches
 	ViewerID  string  // who is asking (used to populate IsMine; "" = anonymous/internal)
 	AdminView bool    // when true, no owner-visibility filter is applied
 	Limit     int

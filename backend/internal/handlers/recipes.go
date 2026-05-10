@@ -47,8 +47,12 @@ func ListRecipes(s db.Store) http.HandlerFunc {
 			ViewerID: user.ID,
 		}
 		if r.URL.Query().Get("owner") == "me" {
+			// "owner=me" actually means "recipes I created" (created_by),
+			// not "recipes I privately own" (owner_id). This way admin
+			// sees their own creations under Meine Rezepte even though
+			// admin recipes are global by owner_id.
 			uid := user.ID
-			f.OwnerID = &uid
+			f.CreatorID = &uid
 		}
 		recipes, err := s.GetRecipes(r.Context(), f)
 		if err != nil {
@@ -98,7 +102,7 @@ func GetRecipe(s db.Store) http.HandlerFunc {
 			jsonError(w, "not found", http.StatusNotFound)
 			return
 		}
-		if recipe.OwnerID != nil && *recipe.OwnerID == user.ID {
+		if recipe.CreatedBy != nil && *recipe.CreatedBy == user.ID {
 			recipe.IsMine = true
 		}
 		w.Header().Set("Content-Type", "application/json")

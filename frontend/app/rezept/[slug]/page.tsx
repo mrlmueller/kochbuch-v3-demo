@@ -37,9 +37,10 @@ async function RecipeContent({ slug }: { slug: string }) {
   if (!recipe) return notFound()
 
   const category = categories.find((c) => c.slug === recipe.category_slug)
-  // Edit/delete on the public recipe page is owner-only. Admins manage
-  // global recipes through /admin instead.
-  const canEdit = !!me && !!recipe.owner_id && recipe.owner_id === me.id
+  // Edit/delete on the public recipe page is creator-only.
+  // Admin still manages all recipes via /admin; this prevents the buttons
+  // from appearing on every restored/global recipe an admin opens.
+  const canEdit = !!me && !!recipe.created_by && recipe.created_by === me.id
   return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} canEdit={canEdit} />
 }
 

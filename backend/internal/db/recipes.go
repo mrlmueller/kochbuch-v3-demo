@@ -17,9 +17,9 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 		f.Limit = 200
 	}
 
-	// Visibility:
+	// Visibility (owner_id semantics — NULL = global, set = private):
 	//   AdminView = true                 → no owner restriction
-	//   OwnerID = &"" (sentinel)         → only global (admin) recipes
+	//   OwnerID = &"" (sentinel)         → only global (NULL owner_id)
 	//   OwnerID = &someID                → only that owner
 	//   ViewerID set                     → owner_id IS NULL OR owner_id = ViewerID
 	//   default                          → owner_id IS NULL
@@ -40,17 +40,25 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 		visibility = "r.owner_id IS NULL"
 	}
 
+	// Optional creator filter (overlays the visibility above).
+	creatorClause := ""
+	if f.CreatorID != nil {
+		args = append(args, *f.CreatorID)
+		creatorClause = fmt.Sprintf(" AND r.created_by = $%d", len(args))
+	}
+
 	q := fmt.Sprintf(`
 		SELECT r.slug, r.title, r.category_slug, r.time_minutes, r.servings,
-		       r.image_url, r.image_blurhash, r.owner_id, COALESCE(u.email, '')
+		       r.image_url, r.image_blurhash, r.owner_id, COALESCE(u.email, ''),
+		       r.created_by
 		FROM recipes r
 		LEFT JOIN users u ON u.id = r.owner_id
 		WHERE ($1 = '' OR r.category_slug = $1)
 		  AND ($2 = '' OR r.title ILIKE '%%' || $2 || '%%'
 		               OR r.ingredients::text ILIKE '%%' || $2 || '%%')
-		  AND %s
+		  AND %s%s
 		ORDER BY r.title
-		LIMIT $3 OFFSET $4`, visibility)
+		LIMIT $3 OFFSET $4`, visibility, creatorClause)
 
 	rows, err := s.pool.Query(ctx, q, args...)
 	if err != nil {
@@ -61,16 +69,17 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 	out := make([]models.RecipeListItem, 0)
 	for rows.Next() {
 		var r models.RecipeListItem
-		var ownerID *string
+		var ownerID, createdBy *string
 		if err := rows.Scan(
 			&r.Slug, &r.Title, &r.CategorySlug,
 			&r.TimeMinutes, &r.Servings, &r.ImageURL, &r.ImageBlurhash,
-			&ownerID, &r.OwnerEmail,
+			&ownerID, &r.OwnerEmail, &createdBy,
 		); err != nil {
 			return nil, err
 		}
 		r.OwnerID = ownerID
-		if f.ViewerID != "" && ownerID != nil && *ownerID == f.ViewerID {
+		r.CreatedBy = createdBy
+		if f.ViewerID != "" && createdBy != nil && *createdBy == f.ViewerID {
 			r.IsMine = true
 		}
 		out = append(out, r)
@@ -81,13 +90,13 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 func (s *PostgresStore) GetRecipeBySlug(ctx context.Context, slug string) (*models.Recipe, error) {
 	var r models.Recipe
 	var ingredientsJSON, stepsJSON []byte
-	var ownerID *string
+	var ownerID, createdBy *string
 	var ownerEmail string
 
 	err := s.pool.QueryRow(ctx, `
 		SELECT r.slug, r.title, r.category_slug, r.time_minutes, r.servings,
 		       r.ingredients, r.steps, r.notes, r.image_url, r.image_blurhash,
-		       r.owner_id, COALESCE(u.email, ''),
+		       r.owner_id, COALESCE(u.email, ''), r.created_by,
 		       r.created_at, r.updated_at
 		FROM recipes r
 		LEFT JOIN users u ON u.id = r.owner_id
@@ -97,7 +106,7 @@ func (s *PostgresStore) GetRecipeBySlug(ctx context.Context, slug string) (*mode
 			&r.TimeMinutes, &r.Servings,
 			&ingredientsJSON, &stepsJSON,
 			&r.Notes, &r.ImageURL, &r.ImageBlurhash,
-			&ownerID, &ownerEmail,
+			&ownerID, &ownerEmail, &createdBy,
 			&r.CreatedAt, &r.UpdatedAt,
 		)
 	if err != nil {
@@ -108,6 +117,7 @@ func (s *PostgresStore) GetRecipeBySlug(ctx context.Context, slug string) (*mode
 	}
 	r.OwnerID = ownerID
 	r.OwnerEmail = ownerEmail
+	r.CreatedBy = createdBy
 	if err := json.Unmarshal(ingredientsJSON, &r.Ingredients); err != nil {
 		return nil, fmt.Errorf("unmarshal ingredients: %w", err)
 	}
@@ -117,9 +127,12 @@ func (s *PostgresStore) GetRecipeBySlug(ctx context.Context, slug string) (*mode
 	return &r, nil
 }
 
+// CountUserRecipes counts recipes the user personally added (created_by),
+// regardless of whether the recipe is global or private. This is what powers
+// the "Meine Rezepte" chip.
 func (s *PostgresStore) CountUserRecipes(ctx context.Context, userID string) (int, error) {
 	var n int
-	err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM recipes WHERE owner_id = $1`, userID).Scan(&n)
+	err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM recipes WHERE created_by = $1`, userID).Scan(&n)
 	return n, err
 }
 
@@ -141,10 +154,10 @@ func (s *PostgresStore) CreateRecipe(ctx context.Context, r models.Recipe) (stri
 		_, err := s.pool.Exec(ctx, `
 			INSERT INTO recipes
 			  (slug, title, category_slug, time_minutes, servings,
-			   ingredients, steps, notes, image_url, image_blurhash, owner_id)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+			   ingredients, steps, notes, image_url, image_blurhash, owner_id, created_by)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
 			candidate, r.Title, r.CategorySlug, r.TimeMinutes, r.Servings,
-			ingredientsJSON, stepsJSON, r.Notes, r.ImageURL, r.ImageBlurhash, r.OwnerID)
+			ingredientsJSON, stepsJSON, r.Notes, r.ImageURL, r.ImageBlurhash, r.OwnerID, r.CreatedBy)
 		if err == nil {
 			return candidate, nil
 		}

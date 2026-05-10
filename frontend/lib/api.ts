@@ -14,6 +14,7 @@ export interface RecipeListItem {
   image_url: string; image_blurhash: string
   owner_id?: string | null
   owner_email?: string
+  created_by?: string | null
   is_mine?: boolean
 }
 export interface Recipe extends RecipeListItem {
