@@ -1,13 +1,133 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Recipe } from '@/lib/api'
+import { clientDeleteRecipe } from '@/lib/api'
 import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+
+function OwnerActions({ recipe }: { recipe: Recipe }) {
+  const router = useRouter()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [error, setError] = useState('')
+
+  // Close on Escape, lock background scroll while open.
+  useEffect(() => {
+    if (!confirmOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setConfirmOpen(false) }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [confirmOpen])
+
+  async function confirmDelete() {
+    setDeleting(true)
+    setError('')
+    try {
+      await clientDeleteRecipe(recipe.slug)
+      router.push('/rezepte')
+      router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Löschen fehlgeschlagen')
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <>
+      <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+        <Link href={`/rezept/${recipe.slug}/bearbeiten`} style={ownerBtn}>Bearbeiten</Link>
+        <button type="button" onClick={() => setConfirmOpen(true)} style={{ ...ownerBtn, color: '#B91C1C' }}>
+          Löschen
+        </button>
+      </div>
+
+      {confirmOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-recipe-title"
+          onClick={() => !deleting && setConfirmOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(40,25,10,0.45)',
+            backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--card-bg, #fff)', borderRadius: 18, padding: 24,
+              maxWidth: 400, width: '100%',
+              boxShadow: '0 30px 80px rgba(40,25,10,0.25), 0 8px 24px rgba(40,25,10,0.12)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: '#FEE2E2', color: '#B91C1C',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                </svg>
+              </div>
+              <h2 id="delete-recipe-title" style={{ fontSize: 20, fontFamily: "'DM Serif Display', Georgia, serif", color: 'var(--text)', margin: 0, lineHeight: 1.15 }}>
+                Rezept löschen?
+              </h2>
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.5 }}>
+              „{recipe.title}" wird unwiderruflich entfernt. Das lässt sich nicht rückgängig machen.
+            </p>
+            {error && (
+              <div style={{ padding: '10px 12px', borderRadius: 8, background: '#FEE2E2', color: '#B91C1C', fontSize: 13, marginBottom: 16 }}>{error}</div>
+            )}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(false)}
+                disabled={deleting}
+                style={{ ...ownerBtn, padding: '10px 16px', fontSize: 14, opacity: deleting ? 0.5 : 1 }}>
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleting}
+                autoFocus
+                style={{
+                  padding: '10px 18px', borderRadius: 10, border: 'none',
+                  background: '#B91C1C', color: '#fff', fontSize: 14, fontWeight: 600,
+                  cursor: deleting ? 'wait' : 'pointer', fontFamily: 'inherit',
+                  opacity: deleting ? 0.7 : 1,
+                }}>
+                {deleting ? 'Löscht…' : 'Endgültig löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+const ownerBtn: React.CSSProperties = {
+  padding: '7px 12px', borderRadius: 8, border: '1px solid var(--border)',
+  background: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+  textDecoration: 'none', color: 'var(--text)', fontFamily: 'inherit',
+}
 
 const MOBILE_HERO_HEIGHT = 460
 
@@ -87,11 +207,12 @@ function useStretchyHero() {
 interface Props {
   recipe: Recipe
   categoryName: string
+  canEdit?: boolean
 }
 
 // ─── Desktop detail ──────────────────────────────────────
 
-function DesktopDetail({ recipe, categoryName }: Props) {
+function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
   const router = useRouter()
   const baseServings = parseServings(recipe.servings)
   const [scale, setScale] = useState(1)
@@ -131,9 +252,10 @@ function DesktopDetail({ recipe, categoryName }: Props) {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 18 }}>
               {categoryName}
             </div>
-            <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 22px', lineHeight: 1 }}>
+            <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 14px', lineHeight: 1 }}>
               {recipe.title}
             </h1>
+            {canEdit && <div style={{ marginBottom: 16 }}><OwnerActions recipe={recipe} /></div>}
 
             <div style={{ display: 'flex', gap: 36, paddingTop: 28, borderTop: '1px solid var(--border)' }}>
               {recipe.time_minutes > 0 && (
@@ -281,7 +403,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
 
 // ─── Main export ─────────────────────────────────────────
 
-export function DetailClient({ recipe, categoryName }: Props) {
+export function DetailClient({ recipe, categoryName, canEdit }: Props) {
   const router = useRouter()
   const { heroRef, imgWrapRef } = useStretchyHero()
 
@@ -302,7 +424,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
 
       {/* Desktop */}
       <div className="hidden lg:block">
-        <DesktopDetail recipe={recipe} categoryName={categoryName} />
+        <DesktopDetail recipe={recipe} categoryName={categoryName} canEdit={canEdit} />
       </div>
 
       {/* Mobile */}
@@ -335,6 +457,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
             {recipe.title}
           </h1>
           <div style={{ width: 32, height: 1, background: 'var(--accent)', margin: '0 auto 14px' }} />
+          {canEdit && <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerActions recipe={recipe} /></div>}
         </div>
 
         <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>

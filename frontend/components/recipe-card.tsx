@@ -55,9 +55,9 @@ export function CardList({ recipe, category, priority }: CardProps) {
         )}
       </div>
       <div className="flex-1 min-w-0 flex flex-col justify-center">
-        {category && (
+        {(recipe.is_mine || category) && (
           <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 3 }}>
-            {category.name}
+            {recipe.is_mine ? 'Mein Rezept' : category?.name}
           </p>
         )}
         <p className="font-semibold mb-1" style={{ fontSize: 16, fontFamily: 'var(--font-serif)', color: 'var(--text)', lineHeight: 1.25 }}>
@@ -88,9 +88,9 @@ export function CardCover({ recipe, category, priority }: CardProps) {
         {recipe.time_minutes}'
       </div>
       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-        {category && (
+        {(recipe.is_mine || category) && (
           <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', opacity: 0.85, marginBottom: 3 }}>
-            {category.name}
+            {recipe.is_mine ? 'Mein Rezept' : category?.name}
           </p>
         )}
         <p className="font-semibold" style={{ fontSize: 17, fontFamily: 'var(--font-serif)', lineHeight: 1.15, letterSpacing: -0.2 }}>

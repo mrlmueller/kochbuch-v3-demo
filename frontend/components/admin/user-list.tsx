@@ -97,7 +97,8 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
         </div>
       </div>
 
-      <div style={{ background: T.surface, borderRadius: 14, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+      {/* Desktop table */}
+      <div className="usr-table" style={{ background: T.surface, borderRadius: 14, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 60px', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: 1.2, textTransform: 'uppercase', background: '#FBF7F1' }}>
           <div>E-Mail</div><div>Status</div><div>Rolle</div><div>Erstellt</div><div />
         </div>
@@ -127,6 +128,54 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
           </div>
         ))}
       </div>
+
+      {/* Mobile card list */}
+      <div className="usr-cards">
+        {filtered.length === 0 && <p style={{ padding: 32, textAlign: 'center', color: T.muted }}>Keine Benutzer.</p>}
+        {filtered.map(u => (
+          <div key={u.id} className="usr-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: `linear-gradient(135deg, ${T.accent}, #9A340A)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{u.email[0].toUpperCase()}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 14, color: T.text, margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  {u.role === 'admin' ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 999, background: T.successBg, color: T.success, fontSize: 11, fontWeight: 600 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: T.success }} />
+                      admin
+                    </span>
+                  ) : (
+                    <button onClick={() => toggleStatus(u)} disabled={pendingToggleId === u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 11, fontWeight: 600, cursor: pendingToggleId === u.id ? 'wait' : 'pointer', opacity: pendingToggleId === u.id ? 0.6 : 1, fontFamily: 'inherit' }}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: u.status === 'active' ? T.success : T.warn }} />
+                      {u.status === 'active' ? 'aktiv' : 'deaktiviert'}
+                    </button>
+                  )}
+                  <span style={{ fontSize: 11, color: T.muted }}>{new Date(u.created_at).toLocaleDateString('de-DE')}</span>
+                </div>
+              </div>
+            </div>
+            <button onClick={() => setConfirmId(u.id)} aria-label="Löschen" style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, color: T.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        .usr-cards { display: none; }
+        @media (max-width: 768px) {
+          .usr-table { display: none; }
+          .usr-cards {
+            display: flex; flex-direction: column; gap: 10px;
+          }
+          .usr-card {
+            display: flex; gap: 10px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid rgba(120,90,60,0.16);
+            align-items: center;
+          }
+        }
+      `}</style>
 
       {/* Add user modal */}
       {showAdd && (

@@ -27,6 +27,16 @@ const tabs = [
     ),
   },
   {
+    href: '/neu',
+    label: 'Neu',
+    icon: (active: boolean) => (
+      <svg width={28} height={28} viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" />
+        <path d="M12 7v10M7 12h10" stroke={active ? '#fff' : 'currentColor'} strokeWidth="2.2" strokeLinecap="round" fill="none" />
+      </svg>
+    ),
+  },
+  {
     href: '/suche',
     label: 'Suchen',
     icon: (_active: boolean) => (
@@ -59,12 +69,13 @@ export function TabBar() {
       {tabs.map((tab) => {
         const active = pathname === tab.href ||
           (tab.href !== '/' && pathname.startsWith(tab.href))
+        const isPrimary = tab.href === '/neu'
         return (
           <Link
             key={tab.href}
             href={tab.href}
             className="flex flex-col items-center gap-1 px-4 py-1.5 no-underline"
-            style={{ color: active ? 'var(--accent)' : 'var(--muted)' }}
+            style={{ color: isPrimary ? 'var(--accent)' : (active ? 'var(--accent)' : 'var(--muted)') }}
           >
             {tab.icon(active)}
             <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: 0.1 }}>

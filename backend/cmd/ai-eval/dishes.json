@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Spaghetti Bolognese (Beispiel — durch echte Cloudinary-URLs ersetzen)",
+    "image_urls": [
+      "https://res.cloudinary.com/dtytlzppv/image/upload/v1/eval-dishes/bolognese-1.jpg",
+      "https://res.cloudinary.com/dtytlzppv/image/upload/v1/eval-dishes/bolognese-2.jpg"
+    ],
+    "reference": {
+      "title": "Spaghetti Bolognese",
+      "category_slug": "hauptgang",
+      "ingredients_names": ["hackfleisch", "spaghetti", "tomaten", "zwiebel", "knoblauch", "olivenöl", "salz", "pfeffer"],
+      "step_count_min": 4,
+      "step_count_max": 8
+    }
+  }
+]

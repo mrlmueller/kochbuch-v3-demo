@@ -29,7 +29,7 @@ export default function SuchePage() {
     const timer = setTimeout(async () => {
       try {
         const data = await getRecipes({ q })
-        setResults(data)
+        setResults(data.items)
       } catch {
         setHasError(true)
       } finally {

@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
+	"backend/internal/ai"
 	"backend/internal/backup"
 	"backend/internal/db"
 	"backend/internal/handlers"
@@ -41,6 +44,34 @@ func main() {
 		os.Getenv("BACKUP_GITHUB_OWNER"),
 		os.Getenv("BACKUP_GITHUB_REPO"),
 		os.Getenv("BACKUP_GITHUB_TOKEN"))
+
+	aiLimits := handlers.AIJobLimits{
+		PerUserActive:   intEnv("AI_PER_USER_ACTIVE_LIMIT", 3),
+		GlobalActive:    intEnv("AI_GLOBAL_QUEUE_LIMIT", 50),
+		DailyPerUser:    intEnv("AI_PER_USER_DAILY_LIMIT", 20),
+		DefaultProvider: getenv("AI_DEFAULT_PROVIDER", "openai"),
+		DefaultModel:    getenv("AI_DEFAULT_MODEL", "gpt-5.4-mini"),
+	}
+
+	workerPool := ai.NewWorkerPool(store, ai.WorkerOpts{
+		Workers: intEnv("AI_WORKERS", 2),
+		Categories: func(ctx context.Context) ([]string, error) {
+			cats, err := store.GetCategories(ctx)
+			if err != nil {
+				return nil, err
+			}
+			out := make([]string, 0, len(cats))
+			for _, c := range cats {
+				out = append(out, c.Slug)
+			}
+			return out, nil
+		},
+	})
+	go func() {
+		if err := workerPool.Start(ctx); err != nil && !errors.Is(err, context.Canceled) {
+			log.Printf("ai worker pool: %v", err)
+		}
+	}()
 
 	// Firebase Auth client (optional in dev if GOOGLE_APPLICATION_CREDENTIALS not set)
 	firebaseAuth, err := mw.InitFirebase(ctx)
@@ -79,13 +110,24 @@ func main() {
 		r.Get("/api/categories", handlers.ListCategories(store))
 		r.Get("/api/recipes", handlers.ListRecipes(store))
 		r.Get("/api/recipes/{slug}", handlers.GetRecipe(store))
+		r.Get("/api/image-search", handlers.ImageSearch())
+
+		// Recipe writes — any authed user; ownership is enforced inside.
+		r.Post("/api/recipes", handlers.CreateRecipe(store))
+		r.Put("/api/recipes/{slug}", handlers.UpdateRecipe(store))
+		r.Delete("/api/recipes/{slug}", handlers.DeleteRecipe(store))
+
+		// AI jobs (image-to-recipe)
+		r.Post("/api/ai-jobs", handlers.CreateAIJob(store, aiLimits))
+		r.Get("/api/ai-jobs", handlers.ListAIJobs(store))
+		r.Get("/api/ai-jobs/{id}", handlers.GetAIJob(store))
+		r.Delete("/api/ai-jobs/{id}", handlers.DeleteAIJob(store))
+		r.Post("/api/ai-jobs/{id}/consume", handlers.ConsumeAIJob(store))
 
 		// Admin-only (require admin role)
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireAdmin)
-			r.Post("/api/recipes", handlers.CreateRecipe(store))
-			r.Put("/api/recipes/{slug}", handlers.UpdateRecipe(store))
-			r.Delete("/api/recipes/{slug}", handlers.DeleteRecipe(store))
+			r.Get("/api/admin/recipes", handlers.ListAdminRecipes(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
 			r.Post("/api/admin/users", handlers.CreateUser(store))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
@@ -121,4 +163,20 @@ func runMigrations() error {
 	}
 	log.Println("migrations OK")
 	return nil
+}
+
+func getenv(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
+}
+
+func intEnv(key string, def int) int {
+	if v := os.Getenv(key); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			return n
+		}
+	}
+	return def
 }

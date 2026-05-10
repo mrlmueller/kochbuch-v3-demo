@@ -1,13 +1,17 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
+	"backend/internal/cloudinary"
 	"backend/internal/db"
+	mw "backend/internal/middleware"
 	"backend/internal/models"
 
 	"github.com/go-chi/chi/v5"
@@ -15,70 +19,146 @@ import (
 )
 
 // POST /api/recipes
+//
+// Authed users (any role) may create recipes:
+//   - Admin → recipe is global (owner_id = NULL)
+//   - User  → owner_id = caller's user id
 func CreateRecipe(store db.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		user := mw.UserFromContext(r.Context())
+		if user == nil {
+			jsonError(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
 		var recipe models.Recipe
 		if err := json.NewDecoder(r.Body).Decode(&recipe); err != nil {
 			jsonError(w, "Ungültige Anfrage", http.StatusBadRequest)
 			return
 		}
+		if recipe.Title == "" {
+			jsonError(w, "Titel ist erforderlich.", http.StatusBadRequest)
+			return
+		}
+		if user.Role == models.RoleAdmin {
+			recipe.OwnerID = nil // admin recipes are globally visible
+		} else {
+			uid := user.ID
+			recipe.OwnerID = &uid // user recipes are private to the user
+		}
+		// created_by always records who actually clicked Save, regardless
+		// of role — this is what powers Bearbeiten/Löschen on the detail
+		// page and the "Meine Rezepte" filter.
+		creator := user.ID
+		recipe.CreatedBy = &creator
 		if recipe.Slug == "" {
 			recipe.Slug = slugify(recipe.Title)
 		}
-		if err := store.CreateRecipe(r.Context(), recipe); err != nil {
+		finalSlug, err := store.CreateRecipe(r.Context(), recipe)
+		if err != nil {
 			log.Printf("CreateRecipe %q: %v", recipe.Slug, err)
 			writeDbError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(map[string]string{"slug": recipe.Slug})
+		json.NewEncoder(w).Encode(map[string]string{"slug": finalSlug})
 	}
 }
 
 // PUT /api/recipes/{slug}
 func UpdateRecipe(store db.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		user := mw.UserFromContext(r.Context())
+		slug := chi.URLParam(r, "slug")
+		existing, canEdit, hidden, err := recipeAccess(r.Context(), store, slug, user)
+		if err != nil {
+			writeDbError(w, err)
+			return
+		}
+		if hidden {
+			jsonError(w, "Rezept nicht gefunden.", http.StatusNotFound)
+			return
+		}
+		if !canEdit {
+			jsonError(w, "Keine Berechtigung.", http.StatusForbidden)
+			return
+		}
+
 		var recipe models.Recipe
 		if err := json.NewDecoder(r.Body).Decode(&recipe); err != nil {
 			jsonError(w, "Ungültige Anfrage", http.StatusBadRequest)
 			return
 		}
-		recipe.Slug = chi.URLParam(r, "slug")
+		recipe.Slug = slug
+		// Preserve ownership across edits.
+		recipe.OwnerID = existing.OwnerID
 		if err := store.UpdateRecipe(r.Context(), recipe); err != nil {
-			log.Printf("UpdateRecipe %q: %v", recipe.Slug, err)
+			log.Printf("UpdateRecipe %q: %v", slug, err)
 			writeDbError(w, err)
 			return
 		}
+		// If the image was replaced or cleared, clean up the previous one.
+		if existing.ImageURL != "" && existing.ImageURL != recipe.ImageURL {
+			cleanupCloudinaryAsync(slug, existing.ImageURL)
+		}
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+// cleanupCloudinaryAsync fires a Cloudinary destroy in the background so
+// the caller's request isn't blocked by the upstream round-trip. Detached
+// from the request context for the same reason.
+func cleanupCloudinaryAsync(slug, imageURL string) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := cloudinary.DeleteImageFromURL(ctx, imageURL); err != nil {
+			log.Printf("cloudinary cleanup %q: %v", slug, err)
+		}
+	}()
 }
 
 // DELETE /api/recipes/{slug}
 func DeleteRecipe(store db.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		user := mw.UserFromContext(r.Context())
 		slug := chi.URLParam(r, "slug")
+		existing, canEdit, hidden, err := recipeAccess(r.Context(), store, slug, user)
+		if err != nil {
+			writeDbError(w, err)
+			return
+		}
+		if hidden {
+			jsonError(w, "Rezept nicht gefunden.", http.StatusNotFound)
+			return
+		}
+		if !canEdit {
+			jsonError(w, "Keine Berechtigung.", http.StatusForbidden)
+			return
+		}
 		if err := store.DeleteRecipe(r.Context(), slug); err != nil {
 			log.Printf("DeleteRecipe %q: %v", slug, err)
 			writeDbError(w, err)
 			return
 		}
+		if existing != nil && existing.ImageURL != "" {
+			cleanupCloudinaryAsync(slug, existing.ImageURL)
+		}
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
-// writeDbError maps PostgreSQL constraint violations to meaningful HTTP responses.
 func writeDbError(w http.ResponseWriter, err error) {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {
-		case "23505": // unique_violation
+		case "23505":
 			jsonError(w, "Ein Rezept mit diesem Slug existiert bereits.", http.StatusConflict)
 			return
-		case "23503": // foreign_key_violation
+		case "23503":
 			jsonError(w, "Die gewählte Kategorie existiert nicht.", http.StatusBadRequest)
 			return
-		case "23502": // not_null_violation
+		case "23502":
 			jsonError(w, "Pflichtfeld fehlt: "+pgErr.ColumnName, http.StatusBadRequest)
 			return
 		}

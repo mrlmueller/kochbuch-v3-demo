@@ -66,7 +66,9 @@ async function _getRecipesCached(category: string): Promise<RecipeListItem[]> {
   const qs = category ? `?category=${encodeURIComponent(category)}` : ''
   const res = await backendFetchInternal(`/api/recipes${qs}`)
   if (!res.ok) throw new Error(`recipes: ${res.status}`)
-  return res.json()
+  const data = await res.json()
+  // Backend wraps in {items, meta}; old shape was a plain array. Tolerate both.
+  return Array.isArray(data) ? data : (data.items ?? [])
 }
 
 export async function getRecipes(category: string = ''): Promise<RecipeListItem[]> {
@@ -119,5 +121,13 @@ export async function getAdminUsers(): Promise<User[]> {
   const session = await getSession()
   const res = await backendFetch('/api/admin/users', session)
   if (!res.ok) throw new Error(`getAdminUsers: ${res.status}`)
+  return res.json()
+}
+
+export async function getAdminRecipes(filter?: 'all' | 'global' | 'user'): Promise<RecipeListItem[]> {
+  const session = await getSession()
+  const qs = filter && filter !== 'all' ? `?filter=${filter}` : ''
+  const res = await backendFetch(`/api/admin/recipes${qs}`, session)
+  if (!res.ok) return []
   return res.json()
 }

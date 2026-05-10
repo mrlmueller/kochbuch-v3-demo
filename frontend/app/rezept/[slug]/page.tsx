@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
+import { getRecipe, getCategories, getRecipes, getMe } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 import RecipeLoading from './loading'
 
@@ -25,15 +25,23 @@ export async function generateStaticParams() {
 }
 
 async function RecipeContent({ slug }: { slug: string }) {
-  const [recipe, categories] = await Promise.all([
+  // The recipe itself is fetched through the cached internal-token path
+  // (same content for everyone), so its `is_mine` flag is always false
+  // there. Ownership is computed below from the live session.
+  const [recipe, categories, me] = await Promise.all([
     getRecipe(slug),
     getCategories(),
+    getMe(),
   ])
 
   if (!recipe) return notFound()
 
   const category = categories.find((c) => c.slug === recipe.category_slug)
-  return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} />
+  // Edit/delete on the public recipe page is creator-only.
+  // Admin still manages all recipes via /admin; this prevents the buttons
+  // from appearing on every restored/global recipe an admin opens.
+  const canEdit = !!me && !!recipe.created_by && recipe.created_by === me.id
+  return <DetailClient recipe={recipe} categoryName={category?.name ?? ''} canEdit={canEdit} />
 }
 
 export default async function RecipeDetailPage({
