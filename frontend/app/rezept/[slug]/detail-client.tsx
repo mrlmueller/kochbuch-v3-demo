@@ -1,13 +1,47 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Recipe } from '@/lib/api'
+import { clientDeleteRecipe } from '@/lib/api'
 import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+
+function OwnerActions({ recipe }: { recipe: Recipe }) {
+  const router = useRouter()
+  const [deleting, setDeleting] = useState(false)
+  if (!recipe.is_mine) return null
+  async function onDelete() {
+    if (!confirm('Dieses Rezept wirklich löschen? Das lässt sich nicht rückgängig machen.')) return
+    setDeleting(true)
+    try {
+      await clientDeleteRecipe(recipe.slug)
+      router.push('/rezepte')
+      router.refresh()
+    } catch (e) {
+      alert((e instanceof Error ? e.message : 'Löschen fehlgeschlagen'))
+      setDeleting(false)
+    }
+  }
+  return (
+    <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+      <Link href={`/rezept/${recipe.slug}/bearbeiten`} style={ownerBtn}>Bearbeiten</Link>
+      <button type="button" onClick={onDelete} disabled={deleting} style={{ ...ownerBtn, color: '#B91C1C' }}>
+        {deleting ? 'Löscht…' : 'Löschen'}
+      </button>
+    </div>
+  )
+}
+
+const ownerBtn: React.CSSProperties = {
+  padding: '7px 12px', borderRadius: 8, border: '1px solid var(--border)',
+  background: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+  textDecoration: 'none', color: 'var(--text)', fontFamily: 'inherit',
+}
 
 const MOBILE_HERO_HEIGHT = 460
 
@@ -131,9 +165,10 @@ function DesktopDetail({ recipe, categoryName }: Props) {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 18 }}>
               {categoryName}
             </div>
-            <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 22px', lineHeight: 1 }}>
+            <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 14px', lineHeight: 1 }}>
               {recipe.title}
             </h1>
+            {recipe.is_mine && <div style={{ marginBottom: 16 }}><OwnerActions recipe={recipe} /></div>}
 
             <div style={{ display: 'flex', gap: 36, paddingTop: 28, borderTop: '1px solid var(--border)' }}>
               {recipe.time_minutes > 0 && (
@@ -335,6 +370,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
             {recipe.title}
           </h1>
           <div style={{ width: 32, height: 1, background: 'var(--accent)', margin: '0 auto 14px' }} />
+          {recipe.is_mine && <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerActions recipe={recipe} /></div>}
         </div>
 
         <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>

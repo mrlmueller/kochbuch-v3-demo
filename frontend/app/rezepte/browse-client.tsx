@@ -12,6 +12,8 @@ import { FloatingLastRecipe } from '@/components/floating-last-recipe'
 type Layout = 'grid' | 'list' | 'cover'
 type Sort = 'default' | 'time' | 'name'
 
+const MINE = '__mine__'
+
 interface Props {
   categories: Category[]
   initialRecipes: RecipeListItem[]
@@ -20,6 +22,7 @@ interface Props {
 // ─── Desktop card ────────────────────────────────────────
 
 function DesktopCard({ recipe, categoryName, priority }: { recipe: RecipeListItem; categoryName: string; priority?: boolean }) {
+  const label = recipe.is_mine ? 'Mein Rezept' : categoryName
   return (
     <Link href={`/rezept/${recipe.slug}`} style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}>
       <div style={{ aspectRatio: '4/5', borderRadius: 4, overflow: 'hidden', marginBottom: 14, position: 'relative', background: 'var(--border)' }}>
@@ -27,7 +30,7 @@ function DesktopCard({ recipe, categoryName, priority }: { recipe: RecipeListIte
           <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} priority={priority} />
         )}
       </div>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 6 }}>{categoryName}</div>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 6 }}>{label}</div>
       <h3 style={{ fontSize: 18, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -0.3, color: 'var(--text)', margin: '0 0 6px', lineHeight: 1.2 }}>{recipe.title}</h3>
       <div style={{ fontSize: 12.5, color: 'var(--muted)', fontStyle: 'italic', fontFamily: 'var(--font-serif)' }}>
         {recipe.time_minutes > 0 ? `${recipe.time_minutes} min` : ''}{recipe.time_minutes > 0 && recipe.servings ? ' · ' : ''}{recipe.servings || ''}
@@ -47,10 +50,14 @@ interface DesktopBrowseProps {
   setSort: (s: Sort) => void
   searchQuery: string
   lastRecipe: RecipeListItem | null
+  myRecipeCount: number
 }
 
-function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, setSort, searchQuery, lastRecipe }: DesktopBrowseProps) {
+function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, setSort, searchQuery, lastRecipe, myRecipeCount }: DesktopBrowseProps) {
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.slug, c])), [categories])
+
+  const chipDescriptors: { slug: string; name: string }[] = [{ slug: 'all', name: 'Alle' }, ...categories]
+  if (myRecipeCount > 0) chipDescriptors.push({ slug: MINE, name: 'Meine Rezepte' })
 
   return (
     <main style={{ maxWidth: 1320, margin: '0 auto', padding: '48px 40px 80px' }}>
@@ -62,7 +69,9 @@ function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, set
               <h1 style={{ fontSize: 48, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1, color: 'var(--text)', margin: 0, lineHeight: 1 }}>„{searchQuery}"</h1>
             </>
           ) : (
-            <h1 style={{ fontSize: 48, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1, color: 'var(--text)', margin: 0, lineHeight: 1 }}>Alle Rezepte</h1>
+            <h1 style={{ fontSize: 48, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1, color: 'var(--text)', margin: 0, lineHeight: 1 }}>
+              {activeCat === MINE ? 'Meine Rezepte' : 'Alle Rezepte'}
+            </h1>
           )}
           <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 10 }}>
             {recipes.length} {recipes.length === 1 ? 'Treffer' : searchQuery ? 'Treffer' : 'Rezepte'}
@@ -82,7 +91,7 @@ function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, set
 
       {!searchQuery && (
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
-          {[{ slug: 'all', name: 'Alle' }, ...categories].map(c => {
+          {chipDescriptors.map(c => {
             const active = c.slug === activeCat
             return (
               <button key={c.slug} onClick={() => setActiveCat(c.slug)} style={{
@@ -123,6 +132,17 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
   const [searchResults, setSearchResults] = useState<RecipeListItem[] | null>(null)
   const [isSearching, setIsSearching] = useState(false)
 
+  // Authenticated recipe list — SSR fetch uses the internal token so it has no
+  // is_mine / owner data. We re-fetch on mount to overlay ownership info.
+  const [authedRecipes, setAuthedRecipes] = useState<RecipeListItem[] | null>(null)
+  const [myRecipeCount, setMyRecipeCount] = useState(0)
+
+  useEffect(() => {
+    clientGetRecipes()
+      .then(r => { setAuthedRecipes(r.items); setMyRecipeCount(r.meta.my_recipe_count) })
+      .catch(() => {})
+  }, [])
+
   // Sync category from URL (e.g. navigating from home page category cards)
   useEffect(() => {
     const cat = urlCategory === 'all' || validSlugs.has(urlCategory) ? urlCategory : 'all'
@@ -151,7 +171,6 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     } catch {}
   }, [])
 
-  // Scroll position restore — retry after 100 ms so the grid has time to render
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem('rezepte-scroll-y')
@@ -164,7 +183,6 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     } catch {}
   }, [])
 
-  // Scroll position save
   useEffect(() => {
     const handle = () => {
       try { sessionStorage.setItem('rezepte-scroll-y', String(Math.round(window.scrollY))) } catch {}
@@ -183,16 +201,27 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     try { localStorage.setItem('browseLayout', l) } catch {}
   }, [])
 
-  // Derive the recipe list to show
+  const baseList = authedRecipes ?? initialRecipes
+
   const displayRecipes = useMemo(() => {
     if (searchResults !== null) return searchResults
-    let r = activeCat === 'all' ? initialRecipes : initialRecipes.filter(r => r.category_slug === activeCat)
+    let r: RecipeListItem[]
+    if (activeCat === MINE) {
+      r = baseList.filter(x => x.is_mine)
+    } else if (activeCat === 'all') {
+      r = baseList
+    } else {
+      r = baseList.filter(x => x.category_slug === activeCat)
+    }
     if (sort === 'time') r = [...r].sort((a, b) => a.time_minutes - b.time_minutes)
     if (sort === 'name') r = [...r].sort((a, b) => a.title.localeCompare(b.title, 'de'))
     return r
-  }, [searchResults, activeCat, sort, initialRecipes])
+  }, [searchResults, activeCat, sort, baseList])
 
-  const lastRecipe = lastRecipeSlug ? initialRecipes.find(r => r.slug === lastRecipeSlug) ?? null : null
+  const lastRecipe = lastRecipeSlug ? baseList.find(r => r.slug === lastRecipeSlug) ?? null : null
+
+  const chipDescriptors: { slug: string; name: string }[] = [{ slug: 'all', name: 'Alle' }, ...categories]
+  if (myRecipeCount > 0) chipDescriptors.push({ slug: MINE, name: 'Meine Rezepte' })
 
   return (
     <>
@@ -207,6 +236,7 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
           setSort={setSort}
           searchQuery={urlQuery}
           lastRecipe={lastRecipe}
+          myRecipeCount={myRecipeCount}
         />
       </div>
 
@@ -220,7 +250,7 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
             </>
           ) : (
             <h1 style={{ fontSize: 32, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', letterSpacing: -0.5, lineHeight: 1.05 }}>
-              Rezepte
+              {activeCat === MINE ? 'Meine Rezepte' : 'Rezepte'}
             </h1>
           )}
           <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>
@@ -230,7 +260,7 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
 
         {!urlQuery && (
           <div className="scroll-snap-x flex gap-2 px-5 py-4">
-            {[{ slug: 'all', name: 'Alle' }, ...categories].map((c) => {
+            {chipDescriptors.map((c) => {
               const active = c.slug === activeCat
               return (
                 <button

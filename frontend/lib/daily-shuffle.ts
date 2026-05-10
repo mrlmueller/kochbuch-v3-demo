@@ -1,6 +1,12 @@
 // Deterministic, date-seeded helpers for picking/shuffling content on the
 // Entdecken page. Same output all day for a given (date, section) pair;
 // rotates at local midnight in Europe/Berlin.
+//
+// `getTodayKey` is wrapped in a Cache Component (`use cache` + cacheLife) so
+// Next 16's prerenderer accepts the `new Date()` access. Shuffle/pick are
+// pure functions that take the date string as input.
+
+import { cacheLife } from 'next/cache'
 
 function hashString(s: string): number {
   let h = 2166136261
@@ -20,8 +26,9 @@ function mulberry32(seed: number): () => number {
   }
 }
 
-function todayKey(): string {
-  // en-CA gives ISO-like YYYY-MM-DD formatting
+export async function getTodayKey(): Promise<string> {
+  'use cache'
+  cacheLife('hours')
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Berlin',
     year: 'numeric',
@@ -30,12 +37,12 @@ function todayKey(): string {
   }).format(new Date())
 }
 
-function rngFor(section: string): () => number {
-  return mulberry32(hashString(`${todayKey()}|${section}`))
+function rngFor(today: string, section: string): () => number {
+  return mulberry32(hashString(`${today}|${section}`))
 }
 
-export function dailyShuffle<T>(items: readonly T[], section: string): T[] {
-  const rand = rngFor(section)
+export function dailyShuffle<T>(items: readonly T[], today: string, section: string): T[] {
+  const rand = rngFor(today, section)
   const arr = items.slice()
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1))
@@ -44,8 +51,8 @@ export function dailyShuffle<T>(items: readonly T[], section: string): T[] {
   return arr
 }
 
-export function dailyPick<T>(items: readonly T[], section: string): T | undefined {
+export function dailyPick<T>(items: readonly T[], today: string, section: string): T | undefined {
   if (items.length === 0) return undefined
-  const rand = rngFor(section)
+  const rand = rngFor(today, section)
   return items[Math.floor(rand() * items.length)]
 }
