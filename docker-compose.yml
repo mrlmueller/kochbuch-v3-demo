@@ -7,6 +7,11 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    # Expose to host so `go run ./backend` from the host can connect.
+    # In production the backend container talks via the docker network and
+    # doesn't need this — keep it only because this compose is used for dev.
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
