@@ -20,8 +20,8 @@ export function FloatingLastRecipe({ recipe }: { recipe: RecipeListItem }) {
   }, [])
 
   return (
-    <Link href={`/rezept/${recipe.slug}`} style={{
-      position: 'fixed', bottom: 28, left: '50%',
+    <Link href={`/rezept/${recipe.slug}`} className="floating-last-recipe" style={{
+      position: 'fixed', left: '50%',
       transform: `translateX(-50%) translateY(${show ? 0 : 80}px)`,
       opacity: show ? 1 : 0,
       transition: 'transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s',
@@ -52,6 +52,16 @@ export function FloatingLastRecipe({ recipe }: { recipe: RecipeListItem }) {
           <path d="M5 12h14M13 5l7 7-7 7"/>
         </svg>
       </div>
+      <style>{`
+        /* Desktop: tab bar is hidden, sit close to the bottom edge. */
+        .floating-last-recipe { bottom: 28px; }
+        /* Mobile (<1024px): clear the bottom tab bar + the device safe-area. */
+        @media (max-width: 1023px) {
+          .floating-last-recipe {
+            bottom: calc(env(safe-area-inset-bottom, 12px) + 72px);
+          }
+        }
+      `}</style>
     </Link>
   )
 }
