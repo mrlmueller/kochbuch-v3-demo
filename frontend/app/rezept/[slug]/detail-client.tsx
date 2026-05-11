@@ -152,8 +152,20 @@ function useStretchyHero() {
     if (!hero || !imgWrap) return
     if (window.matchMedia('(min-width: 1024px)').matches) return
 
-    let touchStartY: number | null = null
-    let stretching = false
+    // Stretch state machine. A finger-down begins in `pending`. Once the
+    // gesture has moved more than DECIDE_PX, we classify it once into
+    // `stretch` (downward, vertical-dominant) or `dismiss` (everything
+    // else — horizontal swipe-back, upward, or ambiguous). Once classified
+    // we never re-evaluate, so wiggling sideways during a swipe-back
+    // can't accidentally drag the hero down.
+    type Mode = 'idle' | 'pending' | 'stretch' | 'dismiss'
+    const EDGE_GUTTER_PX = 28        // ignore Safari swipe-back zone
+    const DECIDE_PX = 10             // commit threshold
+    const VERT_DOMINANCE = 1.4       // |dy| must be 1.4× |dx| to stretch
+
+    let mode: Mode = 'idle'
+    let startX = 0
+    let startY = 0
 
     const settleHero = () => {
       hero.style.transition = 'height 0.5s cubic-bezier(0.32, 0.72, 0, 1)'
@@ -161,31 +173,49 @@ function useStretchyHero() {
     }
 
     const onScroll = () => {
-      if (stretching) return
+      if (mode === 'stretch') return
       const y = Math.max(0, window.scrollY)
       const scale = Math.min(1.18, 1 + y / 2400)
       imgWrap.style.transform = `scale(${scale})`
     }
 
     const onTouchStart = (e: TouchEvent) => {
+      // Only consider gestures that start at the top of the page.
       if (window.scrollY > 0) return
-      touchStartY = e.touches[0].clientY
+      // Multi-touch (pinch etc.) — don't try to interpret.
+      if (e.touches.length !== 1) return
+      const t = e.touches[0]
+      // Leave Safari's edge swipe-back gesture alone.
+      if (t.clientX <= EDGE_GUTTER_PX) return
+      startX = t.clientX
+      startY = t.clientY
+      mode = 'pending'
     }
 
     const onTouchMove = (e: TouchEvent) => {
-      if (touchStartY === null) return
-      if (window.scrollY > 0) { touchStartY = null; return }
+      if (mode === 'idle' || mode === 'dismiss') return
+      if (window.scrollY > 0) { mode = 'dismiss'; return }
+      if (e.touches.length !== 1) { mode = 'dismiss'; return }
 
-      const delta = e.touches[0].clientY - touchStartY
-      if (delta <= 0) {
-        if (stretching) { stretching = false; settleHero() }
-        return
+      const t = e.touches[0]
+      const dx = t.clientX - startX
+      const dy = t.clientY - startY
+
+      if (mode === 'pending') {
+        // Wait for the gesture to commit to a direction.
+        if (Math.hypot(dx, dy) < DECIDE_PX) return
+        // Horizontal-dominant or upward → not a stretch.
+        if (Math.abs(dx) * VERT_DOMINANCE >= Math.abs(dy) || dy <= 0) {
+          mode = 'dismiss'
+          return
+        }
+        mode = 'stretch'
       }
 
+      // mode === 'stretch' — apply rubber-band damping.
+      const dyForStretch = Math.max(0, dy)
       e.preventDefault()
-      stretching = true
-      // Logarithmic damping — feels like iOS rubber band
-      const damped = Math.min(MOBILE_HERO_HEIGHT, Math.log(1 + delta / 8) * 60)
+      const damped = Math.min(MOBILE_HERO_HEIGHT, Math.log(1 + dyForStretch / 8) * 60)
       hero.style.transition = ''
       hero.style.height = `${MOBILE_HERO_HEIGHT + damped}px`
       imgWrap.style.transition = ''
@@ -193,8 +223,8 @@ function useStretchyHero() {
     }
 
     const onTouchEnd = () => {
-      touchStartY = null
-      if (stretching) { stretching = false; settleHero() }
+      if (mode === 'stretch') settleHero()
+      mode = 'idle'
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
