@@ -5,11 +5,22 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Recipe } from '@/lib/api'
 import { clientDeleteRecipe } from '@/lib/api'
+import { useMe } from '@/lib/use-me'
 import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+
+// Renders the Bearbeiten/Löschen buttons when the current user created
+// this recipe. Looks up the user via the cached useMe() hook so the
+// recipe page itself stays statically prerendered — the auth round-trip
+// happens client-side, in the background, behind a sessionStorage cache.
+function OwnerControls({ recipe }: { recipe: Recipe }) {
+  const { me } = useMe()
+  if (!me || !recipe.created_by || me.id !== recipe.created_by) return null
+  return <OwnerActions recipe={recipe} />
+}
 
 function OwnerActions({ recipe }: { recipe: Recipe }) {
   const router = useRouter()
@@ -207,12 +218,11 @@ function useStretchyHero() {
 interface Props {
   recipe: Recipe
   categoryName: string
-  canEdit?: boolean
 }
 
 // ─── Desktop detail ──────────────────────────────────────
 
-function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
+function DesktopDetail({ recipe, categoryName }: Props) {
   const router = useRouter()
   const baseServings = parseServings(recipe.servings)
   const [scale, setScale] = useState(1)
@@ -254,7 +264,7 @@ function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
             <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 14px', lineHeight: 1 }}>
               {recipe.title}
             </h1>
-            {canEdit && <div style={{ marginBottom: 16 }}><OwnerActions recipe={recipe} /></div>}
+            <div style={{ marginBottom: 16 }}><OwnerControls recipe={recipe} /></div>
 
             <div style={{ display: 'flex', gap: 36, paddingTop: 28, borderTop: '1px solid var(--border)' }}>
               {recipe.time_minutes > 0 && (
@@ -393,7 +403,7 @@ function DesktopDetail({ recipe, categoryName, canEdit }: Props) {
 
 // ─── Main export ─────────────────────────────────────────
 
-export function DetailClient({ recipe, categoryName, canEdit }: Props) {
+export function DetailClient({ recipe, categoryName }: Props) {
   const router = useRouter()
   const { heroRef, imgWrapRef } = useStretchyHero()
 
@@ -414,7 +424,7 @@ export function DetailClient({ recipe, categoryName, canEdit }: Props) {
 
       {/* Desktop */}
       <div className="hidden lg:block">
-        <DesktopDetail recipe={recipe} categoryName={categoryName} canEdit={canEdit} />
+        <DesktopDetail recipe={recipe} categoryName={categoryName} />
       </div>
 
       {/* Mobile */}
@@ -447,7 +457,7 @@ export function DetailClient({ recipe, categoryName, canEdit }: Props) {
             {recipe.title}
           </h1>
           <div style={{ width: 32, height: 1, background: 'var(--accent)', margin: '0 auto 14px' }} />
-          {canEdit && <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerActions recipe={recipe} /></div>}
+          <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerControls recipe={recipe} /></div>
         </div>
 
         <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>

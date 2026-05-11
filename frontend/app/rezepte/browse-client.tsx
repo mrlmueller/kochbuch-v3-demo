@@ -136,14 +136,40 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
   const [searchResults, setSearchResults] = useState<RecipeListItem[] | null>(null)
   const [isSearching, setIsSearching] = useState(false)
 
-  // Authenticated recipe list — SSR fetch uses the internal token so it has no
-  // is_mine / owner data. We re-fetch on mount to overlay ownership info.
-  const [authedRecipes, setAuthedRecipes] = useState<RecipeListItem[] | null>(null)
-  const [myRecipeCount, setMyRecipeCount] = useState(0)
+  // Authenticated recipe list — SSR fetch uses the internal token so it
+  // has no is_mine / owner data. We re-fetch on mount to overlay ownership
+  // info. Cache the overlay in sessionStorage so repeat visits to /rezepte
+  // skip the network round-trip and the chip + badges appear instantly.
+  const [authedRecipes, setAuthedRecipes] = useState<RecipeListItem[] | null>(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const raw = sessionStorage.getItem('kb:rezepte-overlay:v1')
+      if (!raw) return null
+      const cached = JSON.parse(raw) as { items: RecipeListItem[]; meta: { my_recipe_count: number }; ts: number }
+      if (Date.now() - cached.ts > 60_000) return null // 60s freshness
+      return cached.items
+    } catch { return null }
+  })
+  const [myRecipeCount, setMyRecipeCount] = useState(() => {
+    if (typeof window === 'undefined') return 0
+    try {
+      const raw = sessionStorage.getItem('kb:rezepte-overlay:v1')
+      if (!raw) return 0
+      const cached = JSON.parse(raw) as { meta: { my_recipe_count: number }; ts: number }
+      if (Date.now() - cached.ts > 60_000) return 0
+      return cached.meta.my_recipe_count
+    } catch { return 0 }
+  })
 
   useEffect(() => {
     clientGetRecipes()
-      .then(r => { setAuthedRecipes(r.items); setMyRecipeCount(r.meta.my_recipe_count) })
+      .then(r => {
+        setAuthedRecipes(r.items)
+        setMyRecipeCount(r.meta.my_recipe_count)
+        try {
+          sessionStorage.setItem('kb:rezepte-overlay:v1', JSON.stringify({ items: r.items, meta: r.meta, ts: Date.now() }))
+        } catch {}
+      })
       .catch(() => {})
   }, [])
 
