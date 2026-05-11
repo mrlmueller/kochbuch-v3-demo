@@ -212,10 +212,19 @@ func (s *PostgresStore) RequeueAIJob(ctx context.Context, id string) error {
 	return err
 }
 
+// DeleteAIJob soft-deletes a job by marking it 'cancelled'. The row stays
+// in the table so its input_tokens / output_tokens / cost_usd remain
+// counted in admin stats — the cost was already paid to the provider, we
+// never want to lose that signal when a user throws away an unreviewed
+// recipe. Hard cleanup of cost-free terminal rows happens via the cleanup
+// ticker after 30 days (see DeleteOldAIJobs).
 func (s *PostgresStore) DeleteAIJob(ctx context.Context, id, ownerID string) error {
 	res, err := s.pool.Exec(ctx, `
-		DELETE FROM ai_jobs
-		WHERE id = $1 AND user_id = $2 AND status IN ('queued','ready','failed','cancelled')`,
+		UPDATE ai_jobs
+		SET status = 'cancelled',
+		    finished_at = COALESCE(finished_at, now())
+		WHERE id = $1 AND user_id = $2
+		  AND status IN ('queued','ready','failed','cancelled')`,
 		id, ownerID)
 	if err != nil {
 		return err
@@ -251,11 +260,17 @@ func (s *PostgresStore) ResetOrphanedAIJobs(ctx context.Context, maxAttempts int
 	return err
 }
 
+// DeleteOldAIJobs purges old terminal rows, but only those with no cost
+// attached — rows that incurred a charge stay forever so the Kosten page's
+// lifetime totals never silently shrink.
 func (s *PostgresStore) DeleteOldAIJobs(ctx context.Context, before time.Time) (int, error) {
 	res, err := s.pool.Exec(ctx, `
 		DELETE FROM ai_jobs
-		WHERE (finished_at IS NOT NULL AND finished_at < $1)
-		   OR (status='cancelled' AND created_at < $1)`, before)
+		WHERE cost_usd = 0
+		  AND (
+		       (finished_at IS NOT NULL AND finished_at < $1)
+		    OR (status = 'cancelled' AND created_at < $1)
+		  )`, before)
 	if err != nil {
 		return 0, err
 	}

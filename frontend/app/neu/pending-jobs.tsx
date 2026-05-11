@@ -28,8 +28,10 @@ export function PendingJobs({ dailyLimit }: { dailyLimit: number }) {
     return () => { stop = true; if (timer) clearTimeout(timer) }
   }, [])
 
-  // Hide rows we'd never show.
-  const visible = jobs.filter(j => j.status !== 'consumed')
+  // Hide rows we'd never show. consumed = saved as recipe; cancelled =
+  // user discarded — both are bookkeeping-only and shouldn't appear in
+  // the user's pending list. (They remain in the DB for cost tracking.)
+  const visible = jobs.filter(j => j.status !== 'consumed' && j.status !== 'cancelled')
   if (visible.length === 0 && used === 0) return null
 
   return (
