@@ -49,7 +49,9 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 
 	q := fmt.Sprintf(`
 		SELECT r.slug, r.title, r.category_slug, r.time_minutes, r.servings,
-		       r.image_url, r.image_blurhash, r.owner_id, COALESCE(u.email, ''),
+		       r.image_url, r.image_blurhash,
+		       COALESCE((SELECT string_agg(elem->>'name', ' ') FROM jsonb_array_elements(r.ingredients) AS elem), ''),
+		       r.owner_id, COALESCE(u.email, ''),
 		       r.created_by
 		FROM recipes r
 		LEFT JOIN users u ON u.id = r.owner_id
@@ -73,6 +75,7 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 		if err := rows.Scan(
 			&r.Slug, &r.Title, &r.CategorySlug,
 			&r.TimeMinutes, &r.Servings, &r.ImageURL, &r.ImageBlurhash,
+			&r.IngredientNames,
 			&ownerID, &r.OwnerEmail, &createdBy,
 		); err != nil {
 			return nil, err

@@ -12,6 +12,7 @@ export interface RecipeListItem {
   slug: string; title: string; category_slug: string
   time_minutes: number; servings: string
   image_url: string; image_blurhash: string
+  ingredient_names?: string
   owner_id?: string | null
   owner_email?: string
   created_by?: string | null
