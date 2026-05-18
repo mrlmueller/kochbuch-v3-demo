@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { getRecipe, getCategories, getRecipes } from '@/lib/api.server'
+import { getRecipe, getRecipeAuthed, getCategories, getRecipes } from '@/lib/api.server'
 import { DetailClient } from './detail-client'
 import RecipeLoading from './loading'
 
@@ -35,10 +35,17 @@ async function RecipeContent({ slug }: { slug: string }) {
   // subsequent load. Ownership / canEdit is computed client-side from
   // /api/auth/me (cached in sessionStorage) inside DetailClient so it
   // doesn't block first paint.
-  const [recipe, categories] = await Promise.all([
+  const [cachedRecipe, categories] = await Promise.all([
     getRecipe(slug),
     getCategories(),
   ])
+
+  // Global (admin) recipes come back from the cached internal-token path
+  // above. User-private recipes are deliberately 404'd by that path so they
+  // never enter the shared cache — fall back to an owner-aware fetch that
+  // carries the viewer's session. This keeps global recipes fully static
+  // and only makes the render dynamic for private recipes.
+  const recipe = cachedRecipe ?? (await getRecipeAuthed(slug))
 
   if (!recipe) return notFound()
 

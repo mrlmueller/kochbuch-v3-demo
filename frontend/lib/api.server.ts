@@ -106,6 +106,18 @@ export async function getAdminCategories(): Promise<Category[]> {
   return res.json()
 }
 
+// Owner-aware single-recipe read. Unlike getRecipe() this carries the
+// caller's session, so the backend's recipeAccess returns user-private
+// recipes to their owner (and any recipe to an admin). Never cached —
+// the result depends on who is asking, and private recipes must never
+// enter the shared SSR cache.
+export async function getRecipeAuthed(slug: string): Promise<Recipe | null> {
+  const session = await getSession()
+  const res = await backendFetch(`/api/recipes/${slug}`, session)
+  if (!res.ok) return null
+  return res.json()
+}
+
 export async function getMe(): Promise<User | null> {
   try {
     const session = await getSession()
