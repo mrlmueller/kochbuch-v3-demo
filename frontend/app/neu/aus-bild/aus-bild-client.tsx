@@ -6,11 +6,14 @@ import { clientCreateAIJob } from '@/lib/api'
 import { prepareImageForUpload } from '@/lib/image-prep'
 
 const MODEL_OPTIONS = [
-  { provider: 'openai', model: 'gpt-5.4-mini', label: 'GPT-5.4 mini (Standard)' },
+  { provider: 'claude', model: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6 (Standard)' },
+  { provider: 'openai', model: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
   { provider: 'openai', model: 'gpt-5.4-nano', label: 'GPT-5.4 nano' },
   { provider: 'claude', model: 'claude-haiku-4-5', label: 'Claude Haiku 4.5' },
-  { provider: 'claude', model: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
 ]
+
+const ADMIN_DEFAULT_MODEL = 'claude:claude-sonnet-4-6'
+const USER_DEFAULT_MODEL = 'openai:gpt-5.4-mini'
 
 export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter()
@@ -19,7 +22,7 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [modelKey, setModelKey] = useState('openai:gpt-5.4-mini')
+  const [modelKey, setModelKey] = useState(isAdmin ? ADMIN_DEFAULT_MODEL : USER_DEFAULT_MODEL)
 
   useEffect(() => {
     try {
@@ -60,6 +63,10 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
         image_urls: images,
         ...(isAdmin ? { provider, model } : {}),
       })
+      // The uploaded images now belong to the queued job — drop them so the
+      // form is empty when the user returns to start another extraction.
+      setImages([])
+      setError('')
       router.push('/neu')
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -70,6 +77,14 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <main style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 96px' }}>
+      <style>{`
+        .ab-spinner {
+          width: 18px; height: 18px; border-radius: 50%;
+          border: 2.5px solid var(--border); border-top-color: var(--accent);
+          animation: ab-spin 0.7s linear infinite; flex-shrink: 0;
+        }
+        @keyframes ab-spin { to { transform: rotate(360deg); } }
+      `}</style>
       <h1 style={{ fontSize: 28, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -0.4, margin: '0 0 8px' }}>Aus Bildern</h1>
       <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px' }}>
         Eine Aufnahme reicht, mehrere Winkel helfen aber. Maximal 3 Bilder.
@@ -84,12 +99,22 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
           </div>
         ))}
         {images.length < 3 && (
-          <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} style={{ aspectRatio: '1', borderRadius: 12, border: '2px dashed var(--border)', background: 'transparent', cursor: 'pointer', fontSize: 24, color: 'var(--muted)' }}>
-            {uploading ? '…' : '+'}
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+            style={{ aspectRatio: '1', borderRadius: 12, border: '2px dashed var(--border)', background: uploading ? 'var(--card-bg)' : 'transparent', cursor: uploading ? 'wait' : 'pointer', color: 'var(--muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: 'inherit' }}>
+            {uploading
+              ? <><span className="ab-spinner" /><span style={{ fontSize: 11, fontWeight: 600 }}>Lädt…</span></>
+              : <span style={{ fontSize: 24 }}>+</span>}
           </button>
         )}
       </div>
-      <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={e => {
+
+      {uploading && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 13px', borderRadius: 10, background: 'var(--card-bg)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--text)', marginBottom: 16 }}>
+          <span className="ab-spinner" />
+          Bild wird verarbeitet und hochgeladen…
+        </div>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => {
         const f = e.target.files?.[0]
         if (f) uploadOne(f)
         if (fileRef.current) fileRef.current.value = ''
@@ -107,12 +132,13 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
 
       {error && <p style={{ color: '#B91C1C', fontSize: 13, margin: '12px 0' }}>{error}</p>}
 
-      <button type="button" onClick={submit} disabled={images.length === 0 || submitting} style={{
+      <button type="button" onClick={submit} disabled={images.length === 0 || submitting || uploading} style={{
         width: '100%', padding: '14px', borderRadius: 12, background: 'var(--accent)',
-        color: 'white', border: 'none', fontSize: 16, fontWeight: 600, cursor: 'pointer',
-        opacity: images.length === 0 || submitting ? 0.5 : 1,
+        color: 'white', border: 'none', fontSize: 16, fontWeight: 600,
+        cursor: images.length === 0 || submitting || uploading ? 'not-allowed' : 'pointer',
+        opacity: images.length === 0 || submitting || uploading ? 0.5 : 1,
       }}>
-        {submitting ? 'Sende…' : 'Rezept erzeugen'}
+        {submitting ? 'Sende…' : uploading ? 'Bild lädt…' : 'Rezept erzeugen'}
       </button>
     </main>
   )
