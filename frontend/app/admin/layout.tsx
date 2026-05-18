@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getMe } from '@/lib/api.server'
 import { AdminBackupButton } from '@/components/admin/backup-button'
+import { AdminNav } from '@/components/admin/admin-nav'
 
 export const unstable_instant = false
 
@@ -18,17 +19,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p style={{ fontSize: 22, fontFamily: "'DM Serif Display', Georgia, serif", color: '#2A1F14', letterSpacing: -0.3 }}>Admin</p>
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
-          <NavLink href="/admin" label="Rezepte" icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5v14z"/></svg>
-          } />
-          <NavLink href="/admin/users" label="Benutzer" icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-          } />
-          <NavLink href="/admin/kosten" label="KI-Kosten" icon={
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-          } />
+          <AdminNav variant="desktop" />
         </nav>
-        <div style={{ padding: '0 6px', borderTop: '1px solid rgba(120,90,60,0.12)', paddingTop: 16 }}>
+        <div style={{ padding: '0 6px', borderTop: '1px solid rgba(120,90,60,0.12)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <AdminBackupButton />
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#7A6B5A', textDecoration: 'none', fontWeight: 500 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -39,24 +32,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       {/* Mobile top bar */}
       <header className="admin-topbar">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(120,90,60,0.16)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 14px' }}>
           <div>
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: '#7A6B5A', marginBottom: 1 }}>Kochbuch</p>
             <p style={{ fontSize: 18, fontFamily: "'DM Serif Display', Georgia, serif", color: '#2A1F14', letterSpacing: -0.3, lineHeight: 1 }}>Admin</p>
           </div>
-          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#7A6B5A', textDecoration: 'none', border: '1px solid rgba(120,90,60,0.16)' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            App
-          </Link>
-        </div>
-        <nav style={{ display: 'flex', overflowX: 'auto', gap: 4, padding: '10px 12px', borderBottom: '1px solid rgba(120,90,60,0.16)', background: '#FBF7F1' }}>
-          <MobileNavLink href="/admin" label="Rezepte" />
-          <MobileNavLink href="/admin/users" label="Benutzer" />
-          <MobileNavLink href="/admin/kosten" label="KI-Kosten" />
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-            <AdminBackupButton />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <AdminBackupButton compact />
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 9, fontSize: 12, fontWeight: 600, color: '#7A6B5A', textDecoration: 'none', border: '1px solid rgba(120,90,60,0.16)', whiteSpace: 'nowrap' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              App
+            </Link>
           </div>
-        </nav>
+        </div>
+        <div style={{ padding: '0 14px 12px' }}>
+          <div style={{ display: 'flex', gap: 3, padding: 3, borderRadius: 12, background: '#F0EBE3' }}>
+            <AdminNav variant="mobile" />
+          </div>
+        </div>
       </header>
 
       <main className="admin-main">
@@ -94,6 +87,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           .admin-topbar {
             display: block;
             background: #fff;
+            border-bottom: 1px solid rgba(120,90,60,0.16);
             position: sticky;
             top: 0;
             z-index: 20;
@@ -104,31 +98,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         }
       `}</style>
     </div>
-  )
-}
-
-function NavLink({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) {
-  return (
-    <Link href={href} style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '9px 12px', borderRadius: 9, textDecoration: 'none',
-      color: '#2A1F14', fontSize: 14, fontWeight: 500,
-    }}>
-      {icon}
-      {label}
-    </Link>
-  )
-}
-
-function MobileNavLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link href={href} style={{
-      padding: '8px 14px', borderRadius: 999,
-      fontSize: 13, fontWeight: 600, color: '#2A1F14',
-      textDecoration: 'none', whiteSpace: 'nowrap',
-      border: '1px solid rgba(120,90,60,0.16)', background: 'white',
-    }}>
-      {label}
-    </Link>
   )
 }
