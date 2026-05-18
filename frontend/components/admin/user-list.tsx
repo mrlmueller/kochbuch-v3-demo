@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import type { User } from '@/lib/api'
-import { clientCreateUser, clientUpdateUser, clientDeleteUser } from '@/lib/api'
+import Link from 'next/link'
+import type { User, UserDetail } from '@/lib/api'
+import { clientCreateUser, clientUpdateUser, clientDeleteUser, clientGetUserDetail, clientSetUserAILimit } from '@/lib/api'
 
 export function AdminUserList({ users: initial }: { users: User[] }) {
   const [users, setUsers] = useState(initial)
@@ -15,6 +16,13 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [pendingToggleId, setPendingToggleId] = useState<string | null>(null)
+  const [detailId, setDetailId] = useState<string | null>(null)
+  const [detail, setDetail] = useState<UserDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState('')
+  const [limitDraft, setLimitDraft] = useState('')
+  const [savingLimit, setSavingLimit] = useState(false)
+  const [limitSaved, setLimitSaved] = useState(false)
 
   const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C', success: '#15803D', successBg: '#DCFCE7', warnBg: '#FEF3C7', warn: '#92400E' }
 
@@ -64,6 +72,45 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
     }
   }
 
+  const openDetail = async (id: string) => {
+    setDetailId(id)
+    setDetail(null)
+    setDetailError('')
+    setLimitSaved(false)
+    setDetailLoading(true)
+    try {
+      const d = await clientGetUserDetail(id)
+      setDetail(d)
+      setLimitDraft(String(d.ai_daily_limit))
+    } catch (e: unknown) {
+      setDetailError(e instanceof Error ? e.message : 'Details konnten nicht geladen werden')
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
+  const closeDetail = () => { setDetailId(null); setDetail(null); setDetailError('') }
+
+  const saveLimit = async () => {
+    if (!detail) return
+    const n = parseInt(limitDraft, 10)
+    if (Number.isNaN(n) || n < 0 || n > 1000) {
+      setDetailError('Limit muss eine Zahl zwischen 0 und 1000 sein.')
+      return
+    }
+    setSavingLimit(true)
+    setDetailError('')
+    try {
+      await clientSetUserAILimit(detail.user.id, n)
+      setDetail({ ...detail, ai_daily_limit: n })
+      setLimitSaved(true)
+    } catch (e: unknown) {
+      setDetailError(e instanceof Error ? e.message : 'Limit konnte nicht gesetzt werden')
+    } finally {
+      setSavingLimit(false)
+    }
+  }
+
   const counts = { all: users.length, active: users.filter(u => u.status === 'active').length, deactivated: users.filter(u => u.status === 'deactivated').length }
 
   return (
@@ -104,7 +151,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
         </div>
         {filtered.length === 0 && <p style={{ padding: 40, textAlign: 'center', color: T.muted }}>Keine Benutzer.</p>}
         {filtered.map((u, i) => (
-          <div key={u.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 60px', alignItems: 'center', padding: '14px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none' }}>
+          <div key={u.id} onClick={() => openDetail(u.id)} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 60px', alignItems: 'center', padding: '14px 16px', borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : 'none', cursor: 'pointer' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: `linear-gradient(135deg, ${T.accent}, #9A340A)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{u.email[0].toUpperCase()}</div>
               <span style={{ fontSize: 14, color: T.text }}>{u.email}</span>
@@ -115,7 +162,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
                 aktiv
               </span>
             ) : (
-              <button onClick={() => toggleStatus(u)} disabled={pendingToggleId === u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 12, fontWeight: 600, cursor: pendingToggleId === u.id ? 'wait' : 'pointer', opacity: pendingToggleId === u.id ? 0.6 : 1, fontFamily: 'inherit' }}>
+              <button onClick={(e) => { e.stopPropagation(); toggleStatus(u) }} disabled={pendingToggleId === u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 12, fontWeight: 600, cursor: pendingToggleId === u.id ? 'wait' : 'pointer', opacity: pendingToggleId === u.id ? 0.6 : 1, fontFamily: 'inherit' }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: u.status === 'active' ? T.success : T.warn }} />
                 {u.status === 'active' ? 'aktiv' : 'deaktiviert'}
               </button>
@@ -123,7 +170,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
             <span style={{ fontSize: 13, color: T.muted, fontWeight: 600 }}>{u.role}</span>
             <span style={{ fontSize: 12, color: T.muted }}>{new Date(u.created_at).toLocaleDateString('de-DE')}</span>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmId(u.id)} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, color: T.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              <button onClick={(e) => { e.stopPropagation(); setConfirmId(u.id) }} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, color: T.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
           </div>
         ))}
@@ -133,7 +180,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
       <div className="usr-cards">
         {filtered.length === 0 && <p style={{ padding: 32, textAlign: 'center', color: T.muted }}>Keine Benutzer.</p>}
         {filtered.map(u => (
-          <div key={u.id} className="usr-card">
+          <div key={u.id} className="usr-card" onClick={() => openDetail(u.id)} style={{ cursor: 'pointer' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: `linear-gradient(135deg, ${T.accent}, #9A340A)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{u.email[0].toUpperCase()}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -145,7 +192,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
                       admin
                     </span>
                   ) : (
-                    <button onClick={() => toggleStatus(u)} disabled={pendingToggleId === u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 11, fontWeight: 600, cursor: pendingToggleId === u.id ? 'wait' : 'pointer', opacity: pendingToggleId === u.id ? 0.6 : 1, fontFamily: 'inherit' }}>
+                    <button onClick={(e) => { e.stopPropagation(); toggleStatus(u) }} disabled={pendingToggleId === u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 999, border: 'none', background: u.status === 'active' ? T.successBg : T.warnBg, color: u.status === 'active' ? T.success : T.warn, fontSize: 11, fontWeight: 600, cursor: pendingToggleId === u.id ? 'wait' : 'pointer', opacity: pendingToggleId === u.id ? 0.6 : 1, fontFamily: 'inherit' }}>
                       <span style={{ width: 5, height: 5, borderRadius: '50%', background: u.status === 'active' ? T.success : T.warn }} />
                       {u.status === 'active' ? 'aktiv' : 'deaktiviert'}
                     </button>
@@ -154,7 +201,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
                 </div>
               </div>
             </div>
-            <button onClick={() => setConfirmId(u.id)} aria-label="Löschen" style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, color: T.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
+            <button onClick={(e) => { e.stopPropagation(); setConfirmId(u.id) }} aria-label="Löschen" style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, color: T.danger, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
           </div>
         ))}
       </div>
@@ -203,6 +250,61 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
               <button onClick={() => setConfirmId(null)} disabled={deleting} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}>Abbrechen</button>
               <button onClick={() => handleDelete(confirmId)} disabled={deleting} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: T.danger, color: '#fff', fontWeight: 600, cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1, fontFamily: 'inherit' }}>{deleting ? 'Lösche…' : 'Löschen'}</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* User detail */}
+      {detailId && (
+        <div onClick={closeDetail} style={{ position: 'fixed', inset: 0, background: 'rgba(40,25,10,0.4)', backdropFilter: 'blur(4px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: T.surface, borderRadius: 16, padding: 24, maxWidth: 460, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
+            {detailLoading && <p style={{ fontSize: 14, color: T.muted, margin: 0 }}>Lädt…</p>}
+            {detailError && <p style={{ fontSize: 13, color: T.danger, margin: '0 0 12px' }}>{detailError}</p>}
+            {detail && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 2 }}>
+                  <h2 style={{ fontSize: 19, fontFamily: "'DM Serif Display', Georgia, serif", margin: 0, wordBreak: 'break-word' }}>{detail.user.email}</h2>
+                  <button onClick={closeDetail} aria-label="Schließen" style={{ width: 28, height: 28, flexShrink: 0, borderRadius: 7, border: `1px solid ${T.border}`, background: T.surface, color: T.muted, cursor: 'pointer', fontSize: 16, lineHeight: 1, fontFamily: 'inherit' }}>×</button>
+                </div>
+                <p style={{ fontSize: 12, color: T.muted, margin: '0 0 18px' }}>
+                  {detail.user.role} · {detail.user.status === 'active' ? 'aktiv' : 'deaktiviert'}
+                </p>
+
+                <div style={{ padding: 14, borderRadius: 12, background: '#FBF7F1', border: `1px solid ${T.border}`, marginBottom: 18 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: T.muted, margin: '0 0 6px' }}>KI-Rezepte heute</p>
+                  <p style={{ fontSize: 22, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, margin: '0 0 10px' }}>
+                    {detail.ai_used_today} <span style={{ fontSize: 14, color: T.muted }}>/ {detail.ai_daily_limit}</span>
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <label style={{ fontSize: 12, color: T.muted }}>Limit heute</label>
+                    <input type="number" value={limitDraft} min={0} max={1000}
+                      onChange={e => { setLimitDraft(e.target.value); setLimitSaved(false) }}
+                      style={{ width: 76, padding: '7px 9px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, fontSize: 14, fontFamily: 'inherit', color: T.text }} />
+                    <button onClick={saveLimit} disabled={savingLimit} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: T.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: savingLimit ? 'wait' : 'pointer', fontFamily: 'inherit', opacity: savingLimit ? 0.7 : 1 }}>
+                      {savingLimit ? 'Speichert…' : 'Speichern'}
+                    </button>
+                    {limitSaved && <span style={{ fontSize: 12, color: T.success, fontWeight: 600 }}>✓ gesetzt</span>}
+                  </div>
+                  <p style={{ fontSize: 11, color: T.muted, margin: '8px 0 0' }}>Gilt nur für heute — setzt sich morgen automatisch zurück.</p>
+                </div>
+
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: T.muted, margin: '0 0 8px' }}>
+                  Rezepte ({detail.recipe_count})
+                </p>
+                {detail.recipes.length === 0 ? (
+                  <p style={{ fontSize: 13, color: T.muted, fontStyle: 'italic', margin: 0 }}>Noch keine Rezepte erstellt.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', maxHeight: 240, overflowY: 'auto' }}>
+                    {detail.recipes.map(r => (
+                      <Link key={r.slug} href={`/admin/${r.slug}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '8px 10px', borderRadius: 8, textDecoration: 'none', color: T.text, fontSize: 13.5 }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</span>
+                        <span style={{ color: T.muted, fontSize: 12, flexShrink: 0 }}>{r.owner_id ? 'privat' : 'global'}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}

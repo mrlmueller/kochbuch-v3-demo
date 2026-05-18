@@ -30,7 +30,7 @@ export default function NeuPage() {
         </Link>
       </div>
 
-      <PendingJobs dailyLimit={20} />
+      <PendingJobs dailyLimit={25} />
     </main>
   )
 }

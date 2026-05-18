@@ -54,6 +54,7 @@ export interface AIJob {
 export interface ListAIJobsResponse {
   items: AIJob[]
   daily_used: number
+  daily_limit: number
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -122,6 +123,31 @@ export async function clientUpdateUser(id: string, patch: { role?: string; statu
 export async function clientDeleteUser(id: string): Promise<void> {
   const res = await fetch(`/api/proxy/admin/users/${id}`, { method: 'DELETE' })
   await throwIfError(res)
+}
+
+export interface UserDetail {
+  user: User
+  recipe_count: number
+  recipes: RecipeListItem[]
+  ai_used_today: number
+  ai_daily_limit: number
+}
+
+export async function clientGetUserDetail(id: string): Promise<UserDetail> {
+  const res = await fetch(`/api/proxy/admin/users/${id}`)
+  await throwIfError(res)
+  return res.json()
+}
+
+// Sets the user's AI-job cap for the current day only.
+export async function clientSetUserAILimit(id: string, limit: number): Promise<{ ai_daily_limit: number }> {
+  const res = await fetch(`/api/proxy/admin/users/${id}/ai-limit`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit }),
+  })
+  await throwIfError(res)
+  return res.json()
 }
 
 // Returns the final slug (server may have suffixed it -2, -3, …).

@@ -95,15 +95,19 @@ func CreateAIJob(store db.Store, lim AIJobLimits) http.HandlerFunc {
 			return
 		}
 		used, _ := store.GetTodayAIUsage(r.Context(), user.ID)
+		dailyLimit := lim.DailyPerUser
+		if override, _ := store.GetTodayAILimitOverride(r.Context(), user.ID); override != nil {
+			dailyLimit = *override
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(aiJobResponse{
 			ID: id, Status: "queued", Provider: provider, Model: model,
-			CreatedAt: time.Now(), DailyUsed: used, DailyLimit: lim.DailyPerUser,
+			CreatedAt: time.Now(), DailyUsed: used, DailyLimit: dailyLimit,
 		})
 	}
 }
 
-func ListAIJobs(store db.Store) http.HandlerFunc {
+func ListAIJobs(store db.Store, lim AIJobLimits) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user := mw.UserFromContext(r.Context())
 		if user == nil {
@@ -120,10 +124,15 @@ func ListAIJobs(store db.Store) http.HandlerFunc {
 			jobs = []models.AIJob{}
 		}
 		used, _ := store.GetTodayAIUsage(r.Context(), user.ID)
+		dailyLimit := lim.DailyPerUser
+		if override, _ := store.GetTodayAILimitOverride(r.Context(), user.ID); override != nil {
+			dailyLimit = *override
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
-			"items":      jobs,
-			"daily_used": used,
+			"items":       jobs,
+			"daily_used":  used,
+			"daily_limit": dailyLimit,
 		})
 	}
 }

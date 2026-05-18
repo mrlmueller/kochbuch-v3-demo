@@ -7,6 +7,9 @@ import { clientListAIJobs, clientDeleteAIJob, type AIJob } from '@/lib/api'
 export function PendingJobs({ dailyLimit }: { dailyLimit: number }) {
   const [jobs, setJobs] = useState<AIJob[]>([])
   const [used, setUsed] = useState(0)
+  // Starts from the server default and is corrected to the user's effective
+  // cap (which an admin may have raised) on the first poll.
+  const [limit, setLimit] = useState(dailyLimit)
 
   useEffect(() => {
     let stop = false
@@ -14,10 +17,11 @@ export function PendingJobs({ dailyLimit }: { dailyLimit: number }) {
 
     async function tick() {
       try {
-        const { items, daily_used } = await clientListAIJobs()
+        const { items, daily_used, daily_limit } = await clientListAIJobs()
         if (stop) return
         setJobs(items)
         setUsed(daily_used)
+        if (daily_limit) setLimit(daily_limit)
         const active = items.some(j => j.status === 'queued' || j.status === 'running')
         timer = setTimeout(tick, active ? 3000 : 15000)
       } catch {
@@ -48,7 +52,7 @@ export function PendingJobs({ dailyLimit }: { dailyLimit: number }) {
         ))}
       </div>
       <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 12 }}>
-        Heute genutzt: {used} / {dailyLimit}
+        Heute genutzt: {used} / {limit}
       </p>
     </section>
   )

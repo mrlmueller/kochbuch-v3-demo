@@ -62,5 +62,7 @@ type Store interface {
 	CountActiveAIJobs(ctx context.Context, userID string) (int, error)
 	CountActiveAIJobsGlobal(ctx context.Context) (int, error)
 	GetTodayAIUsage(ctx context.Context, userID string) (int, error)
+	GetTodayAILimitOverride(ctx context.Context, userID string) (*int, error)
+	SetTodayAILimitOverride(ctx context.Context, userID string, limit int) error
 	GetAIStats(ctx context.Context) (*models.AIStats, error)
 }

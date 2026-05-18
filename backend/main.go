@@ -48,7 +48,7 @@ func main() {
 	aiLimits := handlers.AIJobLimits{
 		PerUserActive:   intEnv("AI_PER_USER_ACTIVE_LIMIT", 3),
 		GlobalActive:    intEnv("AI_GLOBAL_QUEUE_LIMIT", 50),
-		DailyPerUser:    intEnv("AI_PER_USER_DAILY_LIMIT", 20),
+		DailyPerUser:    intEnv("AI_PER_USER_DAILY_LIMIT", 25),
 		DefaultProvider: getenv("AI_DEFAULT_PROVIDER", "openai"),
 		DefaultModel:    getenv("AI_DEFAULT_MODEL", "gpt-5.4-mini"),
 	}
@@ -119,7 +119,7 @@ func main() {
 
 		// AI jobs (image-to-recipe)
 		r.Post("/api/ai-jobs", handlers.CreateAIJob(store, aiLimits))
-		r.Get("/api/ai-jobs", handlers.ListAIJobs(store))
+		r.Get("/api/ai-jobs", handlers.ListAIJobs(store, aiLimits))
 		r.Get("/api/ai-jobs/{id}", handlers.GetAIJob(store))
 		r.Delete("/api/ai-jobs/{id}", handlers.DeleteAIJob(store))
 		r.Post("/api/ai-jobs/{id}/consume", handlers.ConsumeAIJob(store))
@@ -130,8 +130,10 @@ func main() {
 			r.Get("/api/admin/recipes", handlers.ListAdminRecipes(store))
 			r.Get("/api/admin/ai-stats", handlers.GetAIStats(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
+			r.Get("/api/admin/users/{id}", handlers.GetUserDetail(store, aiLimits))
 			r.Post("/api/admin/users", handlers.CreateUser(store))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
+			r.Patch("/api/admin/users/{id}/ai-limit", handlers.SetUserAILimit(store))
 			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(store))
 			r.Post("/api/admin/backup", handlers.TriggerBackup(store))
 		})

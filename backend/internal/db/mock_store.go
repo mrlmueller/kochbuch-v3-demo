@@ -17,9 +17,10 @@ type MockStore struct {
 	UserRecipeN   int
 	AIJobs        []models.AIJob
 	NextAIJob     *models.AIJob
-	AIActiveCount int
-	AIGlobalCount int
-	AIUsageToday  int
+	AIActiveCount   int
+	AIGlobalCount   int
+	AIUsageToday    int
+	AILimitOverride *int
 	CreatedSlug   string
 	Err           error
 	CreateErr     error
@@ -134,4 +135,10 @@ func (m *MockStore) CountActiveAIJobsGlobal(_ context.Context) (int, error) {
 }
 func (m *MockStore) GetTodayAIUsage(_ context.Context, _ string) (int, error) {
 	return m.AIUsageToday, m.Err
+}
+func (m *MockStore) GetTodayAILimitOverride(_ context.Context, _ string) (*int, error) {
+	return m.AILimitOverride, m.Err
+}
+func (m *MockStore) SetTodayAILimitOverride(_ context.Context, _ string, _ int) error {
+	return m.Err
 }

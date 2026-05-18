@@ -23,6 +23,78 @@ func ListUsers(store db.Store) http.HandlerFunc {
 	}
 }
 
+type userDetailResponse struct {
+	User         models.User             `json:"user"`
+	RecipeCount  int                     `json:"recipe_count"`
+	Recipes      []models.RecipeListItem `json:"recipes"`
+	AIUsedToday  int                     `json:"ai_used_today"`
+	AIDailyLimit int                     `json:"ai_daily_limit"`
+}
+
+// GET /api/admin/users/{id}
+// Per-user detail for the admin panel: the recipes this user created plus
+// their AI-usage state for today.
+func GetUserDetail(store db.Store, lim AIJobLimits) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		user, err := store.GetUserByID(r.Context(), id)
+		if err != nil || user == nil {
+			http.Error(w, `{"error":"not found"}`, http.StatusNotFound)
+			return
+		}
+		recipes, err := store.GetRecipes(r.Context(), db.RecipeFilter{
+			CreatorID: &id,
+			AdminView: true,
+		})
+		if err != nil {
+			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
+			return
+		}
+		if recipes == nil {
+			recipes = []models.RecipeListItem{}
+		}
+		used, _ := store.GetTodayAIUsage(r.Context(), id)
+		limit := lim.DailyPerUser
+		if override, _ := store.GetTodayAILimitOverride(r.Context(), id); override != nil {
+			limit = *override
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(userDetailResponse{
+			User:         *user,
+			RecipeCount:  len(recipes),
+			Recipes:      recipes,
+			AIUsedToday:  used,
+			AIDailyLimit: limit,
+		})
+	}
+}
+
+// PATCH /api/admin/users/{id}/ai-limit  body: {"limit": 30}
+// Sets the user's daily AI-job cap for the current day only; it falls back
+// to the server default again at the next UTC day rollover.
+func SetUserAILimit(store db.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		var body struct {
+			Limit int `json:"limit"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, `{"error":"bad request"}`, http.StatusBadRequest)
+			return
+		}
+		if body.Limit < 0 || body.Limit > 1000 {
+			http.Error(w, `{"error":"Limit muss zwischen 0 und 1000 liegen."}`, http.StatusBadRequest)
+			return
+		}
+		if err := store.SetTodayAILimitOverride(r.Context(), id, body.Limit); err != nil {
+			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]int{"ai_daily_limit": body.Limit})
+	}
+}
+
 // POST /api/admin/users  body: {"email":"..."}
 func CreateUser(store db.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

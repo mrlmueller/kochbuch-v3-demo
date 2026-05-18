@@ -51,11 +51,16 @@ func (s *PostgresStore) CreateAIJob(
 
 	today := time.Now().UTC().Format("2006-01-02")
 	var used int
+	var override *int
 	err = tx.QueryRow(ctx, `
-		SELECT COALESCE(count, 0) FROM ai_usage_daily
-		WHERE user_id = $1 AND day = $2`, j.UserID, today).Scan(&used)
+		SELECT COALESCE(count, 0), limit_override FROM ai_usage_daily
+		WHERE user_id = $1 AND day = $2`, j.UserID, today).Scan(&used, &override)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return "", err
+	}
+	// An admin-set override for today wins over the server default.
+	if override != nil {
+		dailyCap = *override
 	}
 	if used >= dailyCap {
 		return "", ErrJobLimitDaily
@@ -302,6 +307,36 @@ func (s *PostgresStore) GetTodayAIUsage(ctx context.Context, userID string) (int
 		return 0, err
 	}
 	return n, nil
+}
+
+// GetTodayAILimitOverride returns the admin-set daily-cap override for the
+// user (today, UTC), or nil when none is set — in which case the server
+// default applies.
+func (s *PostgresStore) GetTodayAILimitOverride(ctx context.Context, userID string) (*int, error) {
+	today := time.Now().UTC().Format("2006-01-02")
+	var override *int
+	err := s.pool.QueryRow(ctx, `
+		SELECT limit_override FROM ai_usage_daily
+		WHERE user_id = $1 AND day = $2`, userID, today).Scan(&override)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return override, nil
+}
+
+// SetTodayAILimitOverride upserts the daily-cap override for the user
+// (today, UTC). It only resets at the next UTC day rollover.
+func (s *PostgresStore) SetTodayAILimitOverride(ctx context.Context, userID string, limit int) error {
+	today := time.Now().UTC().Format("2006-01-02")
+	_, err := s.pool.Exec(ctx, `
+		INSERT INTO ai_usage_daily (user_id, day, count, limit_override)
+		VALUES ($1, $2, 0, $3)
+		ON CONFLICT (user_id, day) DO UPDATE SET limit_override = $3`,
+		userID, today, limit)
+	return err
 }
 
 // GetAIStats aggregates AI-job usage for the admin Kosten page. One DB
