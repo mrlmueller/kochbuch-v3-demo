@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import type { Recipe } from '@/lib/api'
 import { clientDeleteRecipe } from '@/lib/api'
 import { useMe } from '@/lib/use-me'
+import { useAdminConfirmations } from '@/lib/use-admin-confirmations'
 import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
@@ -18,11 +19,16 @@ import { PersistLastRecipe } from '@/components/persist-last-recipe'
 // happens client-side, in the background, behind a sessionStorage cache.
 function OwnerControls({ recipe }: { recipe: Recipe }) {
   const { me } = useMe()
-  if (!me || !recipe.created_by || me.id !== recipe.created_by) return null
-  return <OwnerActions recipe={recipe} />
+  if (!me) return null
+  const isOwner = !!recipe.created_by && me.id === recipe.created_by
+  const isAdmin = me.role === 'admin'
+  // Admins can edit any recipe; deletion stays owner-only so the global
+  // catalogue can't be removed by accident while calibrating.
+  if (!isOwner && !isAdmin) return null
+  return <OwnerActions recipe={recipe} canDelete={isOwner} />
 }
 
-function OwnerActions({ recipe }: { recipe: Recipe }) {
+function OwnerActions({ recipe, canDelete }: { recipe: Recipe; canDelete: boolean }) {
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -58,9 +64,11 @@ function OwnerActions({ recipe }: { recipe: Recipe }) {
     <>
       <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
         <Link href={`/rezept/${recipe.slug}/bearbeiten`} style={ownerBtn}>Bearbeiten</Link>
-        <button type="button" onClick={() => setConfirmOpen(true)} style={{ ...ownerBtn, color: '#B91C1C' }}>
-          Löschen
-        </button>
+        {canDelete && (
+          <button type="button" onClick={() => setConfirmOpen(true)} style={{ ...ownerBtn, color: '#B91C1C' }}>
+            Löschen
+          </button>
+        )}
       </div>
 
       {confirmOpen && (
@@ -138,6 +146,36 @@ const ownerBtn: React.CSSProperties = {
   padding: '7px 12px', borderRadius: 8, border: '1px solid var(--border)',
   background: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer',
   textDecoration: 'none', color: 'var(--text)', fontFamily: 'inherit',
+}
+
+// Admin-only calibration badge + one-click confirm toggle. Renders nothing
+// for normal users, so the public recipe page stays byte-identical.
+function CalibrationControl({ slug }: { slug: string }) {
+  const { isAdmin, ready, isConfirmed, setConfirmed } = useAdminConfirmations()
+  const [busy, setBusy] = useState(false)
+  if (!isAdmin) return null
+  const confirmed = isConfirmed(slug)
+  const toggle = async () => {
+    setBusy(true)
+    try { await setConfirmed(slug, !confirmed) } catch { /* hook reverts */ } finally { setBusy(false) }
+  }
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 5,
+        padding: '5px 10px', borderRadius: 999, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.3,
+        background: confirmed ? '#DCFCE7' : '#FEF3C7',
+        color: confirmed ? '#15803D' : '#B45309',
+      }}>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: confirmed ? '#16A34A' : '#D97706' }} />
+        {confirmed ? 'Kalibriert' : 'Nicht kalibriert'}
+      </span>
+      <button type="button" onClick={toggle} disabled={busy || !ready}
+        style={{ ...ownerBtn, opacity: busy || !ready ? 0.6 : 1, cursor: busy || !ready ? 'wait' : 'pointer' }}>
+        {confirmed ? 'Markierung entfernen' : 'Als kalibriert markieren'}
+      </button>
+    </div>
+  )
 }
 
 const MOBILE_HERO_HEIGHT = 460
@@ -294,7 +332,10 @@ function DesktopDetail({ recipe, categoryName }: Props) {
             <h1 style={{ fontSize: 64, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -1.5, color: 'var(--text)', margin: '0 0 14px', lineHeight: 1 }}>
               {recipe.title}
             </h1>
-            <div style={{ marginBottom: 16 }}><OwnerControls recipe={recipe} /></div>
+            <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+              <OwnerControls recipe={recipe} />
+              <CalibrationControl slug={recipe.slug} />
+            </div>
 
             <div style={{ display: 'flex', gap: 36, paddingTop: 28, borderTop: '1px solid var(--border)' }}>
               {recipe.time_minutes > 0 && (
@@ -487,7 +528,10 @@ export function DetailClient({ recipe, categoryName }: Props) {
             {recipe.title}
           </h1>
           <div style={{ width: 32, height: 1, background: 'var(--accent)', margin: '0 auto 14px' }} />
-          <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center' }}><OwnerControls recipe={recipe} /></div>
+          <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <OwnerControls recipe={recipe} />
+            <CalibrationControl slug={recipe.slug} />
+          </div>
         </div>
 
         <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>

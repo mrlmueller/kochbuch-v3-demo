@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { Category, RecipeListItem } from '@/lib/api'
 import { clientGetRecipes } from '@/lib/api'
+import { useAdminConfirmations } from '@/lib/use-admin-confirmations'
 import { CardList, CardCover } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
 import { FloatingLastRecipe } from '@/components/floating-last-recipe'
@@ -18,13 +19,32 @@ interface Props {
   initialRecipes: RecipeListItem[]
 }
 
+// Admin-only "needs calibration" marker overlaid on un-confirmed recipe
+// cards. Absolutely positioned, so its parent must be position: relative.
+function CalDot() {
+  return (
+    <span style={{
+      position: 'absolute', top: 8, left: 8, zIndex: 2,
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: '3px 8px', borderRadius: 999,
+      background: 'rgba(217,119,6,0.95)', color: '#fff',
+      fontSize: 10, fontWeight: 700, letterSpacing: 0.3,
+      boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff' }} />
+      Prüfen
+    </span>
+  )
+}
+
 // ─── Desktop card ────────────────────────────────────────
 
-function DesktopCard({ recipe, categoryName, priority }: { recipe: RecipeListItem; categoryName: string; priority?: boolean }) {
+function DesktopCard({ recipe, categoryName, priority, unconfirmed }: { recipe: RecipeListItem; categoryName: string; priority?: boolean; unconfirmed?: boolean }) {
   const label = recipe.is_mine ? 'Mein Rezept' : categoryName
   return (
     <Link href={`/rezept/${recipe.slug}`} style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}>
       <div style={{ aspectRatio: '4/5', borderRadius: 4, overflow: 'hidden', marginBottom: 14, position: 'relative', background: 'var(--border)' }}>
+        {unconfirmed && <CalDot />}
         {recipe.image_url && (
           <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} priority={priority} />
         )}
@@ -54,6 +74,8 @@ interface DesktopBrowseProps {
 
 function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, setSort, searchQuery, lastRecipe, myRecipeCount }: DesktopBrowseProps) {
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.slug, c])), [categories])
+  const cal = useAdminConfirmations()
+  const showCal = cal.isAdmin && cal.ready
 
   // "Meine Rezepte" sits right after "Alle" so it's the first thing users
   // see when they scroll the chip row, and only when the user actually
@@ -110,7 +132,7 @@ function DesktopBrowse({ categories, recipes, activeCat, setActiveCat, sort, set
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, rowGap: 48 }}>
-        {recipes.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
+        {recipes.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} unconfirmed={showCal && !cal.isConfirmed(r.slug)} />)}
       </div>
 
       {lastRecipe && <FloatingLastRecipe recipe={lastRecipe} />}
@@ -222,6 +244,9 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     [categories]
   )
 
+  const cal = useAdminConfirmations()
+  const showCal = cal.isAdmin && cal.ready
+
   const baseList = authedRecipes ?? initialRecipes
 
   const displayRecipes = useMemo(() => {
@@ -308,11 +333,21 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
         <div className="px-5">
           {urlQuery ? (
             <div className="flex flex-col gap-3">
-              {displayRecipes.map((r, i) => <CardList key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
+              {displayRecipes.map((r, i) => (
+                <div key={r.slug} style={{ position: 'relative' }}>
+                  {showCal && !cal.isConfirmed(r.slug) && <CalDot />}
+                  <CardList recipe={r} category={catMap[r.category_slug]} priority={i === 0} />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              {displayRecipes.map((r, i) => <CardCover key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
+              {displayRecipes.map((r, i) => (
+                <div key={r.slug} style={{ position: 'relative' }}>
+                  {showCal && !cal.isConfirmed(r.slug) && <CalDot />}
+                  <CardCover recipe={r} category={catMap[r.category_slug]} priority={i === 0} />
+                </div>
+              ))}
             </div>
           )}
         </div>

@@ -168,6 +168,27 @@ export async function clientDeleteRecipe(slug: string): Promise<void> {
   await throwIfError(res)
 }
 
+// ─── Admin-only: recipe calibration status ──────────────────
+// These hit admin-gated endpoints and are never called for normal users.
+// The status is deliberately kept out of the public recipe payloads so the
+// shared static cache and the non-admin experience stay identical.
+
+export async function clientGetRecipeConfirmations(): Promise<string[]> {
+  const res = await fetch('/api/proxy/admin/recipes/status')
+  await throwIfError(res)
+  const data = (await res.json()) as { confirmed?: string[] }
+  return data.confirmed ?? []
+}
+
+export async function clientSetRecipeConfirmed(slug: string, confirmed: boolean): Promise<void> {
+  const res = await fetch(`/api/proxy/admin/recipes/${slug}/confirm`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ confirmed }),
+  })
+  await throwIfError(res)
+}
+
 export async function clientGetRecipes(filter: RecipeFilter = {}): Promise<ListRecipesResponse> {
   const params = new URLSearchParams()
   if (filter.category) params.set('category', filter.category)

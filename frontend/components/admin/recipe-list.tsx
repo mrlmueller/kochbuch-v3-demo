@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { RecipeListItem, Category } from '@/lib/api'
 import { clientDeleteRecipe } from '@/lib/api'
+import { useAdminConfirmations } from '@/lib/use-admin-confirmations'
 
 interface Props {
   recipes: RecipeListItem[]
@@ -14,6 +15,28 @@ interface Props {
 type OwnerFilter = 'all' | 'global' | 'user'
 
 const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C' }
+
+// Per-row calibration toggle: green ✓ when confirmed, amber ○ when not.
+function CalToggle({ slug, confirmed, onToggle }: { slug: string; confirmed: boolean; onToggle: (slug: string, value: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onToggle(slug, !confirmed) }}
+      title={confirmed ? 'Kalibriert — klicken zum Zurücksetzen' : 'Als kalibriert markieren'}
+      aria-label={confirmed ? 'Kalibrierung zurücksetzen' : 'Als kalibriert markieren'}
+      style={{
+        width: 30, height: 30, borderRadius: 8, cursor: 'pointer',
+        border: `1px solid ${confirmed ? '#16A34A' : '#D97706'}`,
+        background: confirmed ? '#16A34A' : 'transparent',
+        color: confirmed ? '#fff' : '#D97706',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'inherit', fontSize: 14, lineHeight: 1,
+      }}
+    >
+      {confirmed ? '✓' : '○'}
+    </button>
+  )
+}
 
 export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const router = useRouter()
@@ -25,6 +48,18 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const [confirmSlug, setConfirmSlug] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [calFilter, setCalFilter] = useState<'all' | 'open' | 'confirmed'>('all')
+  const { isConfirmed, setConfirmed } = useAdminConfirmations()
+  const confirmedCount = useMemo(() => recipes.filter(r => isConfirmed(r.slug)).length, [recipes, isConfirmed])
+
+  const toggleConfirmed = async (slug: string, value: boolean) => {
+    setError('')
+    try {
+      await setConfirmed(slug, value)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Status konnte nicht gespeichert werden')
+    }
+  }
 
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.slug, c])), [categories])
 
@@ -33,6 +68,8 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
     if (cat !== 'all') r = r.filter(x => x.category_slug === cat)
     if (ownerFilter === 'global') r = r.filter(x => !x.owner_id)
     else if (ownerFilter === 'user') r = r.filter(x => !!x.owner_id)
+    if (calFilter === 'confirmed') r = r.filter(x => isConfirmed(x.slug))
+    else if (calFilter === 'open') r = r.filter(x => !isConfirmed(x.slug))
     if (query.trim()) {
       const q = query.toLowerCase()
       r = r.filter(x => x.title.toLowerCase().includes(q) || (x.owner_email ?? '').toLowerCase().includes(q))
@@ -40,7 +77,7 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
     if (sort === 'name') r.sort((a, b) => a.title.localeCompare(b.title))
     else if (sort === 'time') r.sort((a, b) => a.time_minutes - b.time_minutes)
     return r
-  }, [recipes, query, cat, ownerFilter, sort])
+  }, [recipes, query, cat, ownerFilter, sort, calFilter, isConfirmed])
 
   const handleDelete = async (slug: string) => {
     setDeleting(true)
@@ -64,7 +101,7 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
       <div className="adm-header">
         <div>
           <h1 style={{ fontSize: 28, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, lineHeight: 1.05, letterSpacing: -0.5, margin: 0 }}>Rezepte</h1>
-          <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>{filtered.length} von {recipes.length}</p>
+          <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>{filtered.length} von {recipes.length} · {confirmedCount} von {recipes.length} kalibriert</p>
         </div>
         <Link href="/admin/neu" className="adm-cta">
           <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Neues Rezept
@@ -90,6 +127,21 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
             fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
           }}>
             {f === 'all' ? 'Alle' : f === 'global' ? 'Global (Admin)' : 'Nutzer-Rezepte'}
+          </button>
+        ))}
+      </div>
+
+      {/* Calibration filter chips */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, overflowX: 'auto', paddingBottom: 2 }}>
+        {(['all', 'open', 'confirmed'] as const).map(f => (
+          <button key={f} type="button" onClick={() => setCalFilter(f)} style={{
+            padding: '7px 14px', borderRadius: 999, whiteSpace: 'nowrap',
+            border: `1px solid ${calFilter === f ? T.accent : T.border}`,
+            background: calFilter === f ? T.accent : 'transparent',
+            color: calFilter === f ? '#fff' : T.text,
+            fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            {f === 'all' ? 'Alle' : f === 'open' ? 'Offen' : 'Kalibriert'}
           </button>
         ))}
       </div>
@@ -124,6 +176,7 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
               <p style={{ fontSize: 12, color: r.owner_email ? T.text : T.muted, margin: 0, fontStyle: r.owner_email ? 'normal' : 'italic' }}>{r.owner_email || 'Global'}</p>
               <p style={{ fontSize: 13, color: T.text, margin: 0 }}>{r.time_minutes} min</p>
               <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                <CalToggle slug={r.slug} confirmed={isConfirmed(r.slug)} onToggle={toggleConfirmed} />
                 <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)} aria-label="Bearbeiten">✎</Link>
                 <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)} aria-label="Löschen">✕</button>
               </div>
@@ -151,6 +204,7 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
                 </div>
               </Link>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <CalToggle slug={r.slug} confirmed={isConfirmed(r.slug)} onToggle={toggleConfirmed} />
                 <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)} aria-label="Bearbeiten">✎</Link>
                 <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)} aria-label="Löschen">✕</button>
               </div>
