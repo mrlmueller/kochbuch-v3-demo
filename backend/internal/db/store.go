@@ -31,6 +31,10 @@ type Store interface {
 	CreateRecipe(ctx context.Context, r models.Recipe) (slug string, err error)
 	UpdateRecipe(ctx context.Context, r models.Recipe) error
 	DeleteRecipe(ctx context.Context, slug string) error
+	SetRecipeConfirmed(ctx context.Context, slug string, confirmed bool) error
+
+	// Recipe calibration status (admin-only; never in public payloads)
+	ListConfirmedSlugs(ctx context.Context) ([]string, error)
 
 	// Users
 	GetUsers(ctx context.Context) ([]models.User, error)

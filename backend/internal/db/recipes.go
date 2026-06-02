@@ -191,3 +191,46 @@ func (s *PostgresStore) DeleteRecipe(ctx context.Context, slug string) error {
 	_, err := s.pool.Exec(ctx, `DELETE FROM recipes WHERE slug = $1`, slug)
 	return err
 }
+
+// ErrRecipeNotFound is returned by recipe writes that target a slug with no row.
+var ErrRecipeNotFound = errors.New("recipe not found")
+
+// ListConfirmedSlugs returns the slugs of all hand-confirmed (calibrated)
+// recipes. Used by the admin-only status endpoint; never exposed publicly.
+func (s *PostgresStore) ListConfirmedSlugs(ctx context.Context) ([]string, error) {
+	rows, err := s.pool.Query(ctx, `SELECT slug FROM recipes WHERE confirmed_at IS NOT NULL ORDER BY slug`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]string, 0)
+	for rows.Next() {
+		var slug string
+		if err := rows.Scan(&slug); err != nil {
+			return nil, err
+		}
+		out = append(out, slug)
+	}
+	return out, rows.Err()
+}
+
+// SetRecipeConfirmed sets confirmed_at to now() (confirmed=true) or NULL
+// (confirmed=false). Returns ErrRecipeNotFound if the slug doesn't exist.
+func (s *PostgresStore) SetRecipeConfirmed(ctx context.Context, slug string, confirmed bool) error {
+	var (
+		tag pgconn.CommandTag
+		err error
+	)
+	if confirmed {
+		tag, err = s.pool.Exec(ctx, `UPDATE recipes SET confirmed_at = now() WHERE slug = $1`, slug)
+	} else {
+		tag, err = s.pool.Exec(ctx, `UPDATE recipes SET confirmed_at = NULL WHERE slug = $1`, slug)
+	}
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrRecipeNotFound
+	}
+	return nil
+}

@@ -128,6 +128,8 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireAdmin)
 			r.Get("/api/admin/recipes", handlers.ListAdminRecipes(store))
+			r.Get("/api/admin/recipes/status", handlers.ListRecipeConfirmations(store))
+			r.Patch("/api/admin/recipes/{slug}/confirm", handlers.SetRecipeConfirmed(store))
 			r.Get("/api/admin/ai-stats", handlers.GetAIStats(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
 			r.Get("/api/admin/users/{id}", handlers.GetUserDetail(store, aiLimits))

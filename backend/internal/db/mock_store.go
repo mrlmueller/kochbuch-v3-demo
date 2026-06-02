@@ -24,6 +24,12 @@ type MockStore struct {
 	CreatedSlug   string
 	Err           error
 	CreateErr     error
+
+	// Recipe calibration status
+	ConfirmedSlugs   []string
+	ConfirmErr       error
+	LastConfirmSlug  string
+	LastConfirmValue bool
 }
 
 func (m *MockStore) GetCategories(_ context.Context) ([]models.Category, error) {
@@ -54,6 +60,16 @@ func (m *MockStore) CreateRecipe(_ context.Context, r models.Recipe) (string, er
 
 func (m *MockStore) UpdateRecipe(_ context.Context, _ models.Recipe) error { return m.Err }
 func (m *MockStore) DeleteRecipe(_ context.Context, _ string) error        { return m.Err }
+
+func (m *MockStore) ListConfirmedSlugs(_ context.Context) ([]string, error) {
+	return m.ConfirmedSlugs, m.Err
+}
+
+func (m *MockStore) SetRecipeConfirmed(_ context.Context, slug string, confirmed bool) error {
+	m.LastConfirmSlug = slug
+	m.LastConfirmValue = confirmed
+	return m.ConfirmErr
+}
 
 func (m *MockStore) GetUsers(_ context.Context) ([]models.User, error) { return m.Users, m.Err }
 func (m *MockStore) GetUserByEmail(_ context.Context, _ string) (*models.User, error) {
