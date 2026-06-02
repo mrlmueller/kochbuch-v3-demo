@@ -1,17 +1,21 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { useMe } from '@/lib/use-me'
 import { clientGetRecipeConfirmations, clientSetRecipeConfirmed } from '@/lib/api'
 
 // Admin-only set of hand-confirmed (calibrated) recipe slugs.
 //
 // Stale-while-revalidate: the sessionStorage snapshot paints instantly, then a
-// fresh no-store fetch on *every* mount refreshes it in the background. So a
-// calibration toggle made anywhere shows up on the next /rezepte (or any) visit
-// immediately — no cache TTL, no server restart. (An earlier version kept a 60s
-// freshness gate AND re-stamped the cache timestamp on every mount, which froze
-// the set so it only ever fetched once per session; that's the bug this fixes.)
+// fresh no-store fetch on every mount refreshes it in the background. So a
+// calibration toggle made anywhere shows up on the next visit immediately — no
+// cache TTL, no server restart.
+//
+// Hydration safety: /rezepte and the recipe pages are statically prerendered
+// with NO viewer (the server can't know you're an admin), so the server HTML
+// never contains the admin-only markers. We therefore withhold ALL admin output
+// until after hydration (useHydrated) — otherwise a warm client cache would
+// render markers on the first client render and mismatch the server HTML.
 //
 // For non-admins the hook is inert: isAdmin is false, no request is ever made,
 // and nothing about the public page changes. The admin check stays client-side
@@ -53,6 +57,18 @@ function fetchConfirmations(): Promise<string[]> {
   return inflight
 }
 
+// false on the server and during the first (hydration) client render, true
+// afterward — without a setState-in-effect. Lets admin-only UI stay absent
+// until the client has hydrated, matching the viewer-less server HTML.
+const subscribeNoop = () => () => {}
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  )
+}
+
 export interface AdminConfirmations {
   isAdmin: boolean
   ready: boolean
@@ -63,20 +79,20 @@ export interface AdminConfirmations {
 
 export function useAdminConfirmations(): AdminConfirmations {
   const { me } = useMe()
-  const isAdmin = me?.role === 'admin'
+  const hydrated = useHydrated()
+  const isAdmin = hydrated && me?.role === 'admin'
 
   const [confirmed, setConfirmedState] = useState<Set<string>>(() => {
     if (typeof window === 'undefined') return new Set()
     return new Set(readCache() ?? [])
   })
-  const [ready, setReady] = useState<boolean>(() => {
+  const [readyState, setReady] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false
     return readCache() != null
   })
 
-  // Revalidate on every mount (admin only). The cached snapshot above already
-  // painted; this refreshes it from the server in the background. setState only
-  // happens inside the async .then, never synchronously in the effect body.
+  // Revalidate on every mount once we know the viewer is an admin (post-
+  // hydration). setState only happens inside the async .then, never synchronously.
   useEffect(() => {
     if (!isAdmin) return
     let cancelled = false
@@ -90,13 +106,17 @@ export function useAdminConfirmations(): AdminConfirmations {
     }
   }, [isAdmin])
 
-  // Persist the live set so the next mount can paint instantly. No timestamp,
-  // so it can never gate (freeze) the revalidate above.
+  // Persist the live set so the next mount can paint instantly.
   useEffect(() => {
-    if (isAdmin && ready) writeCache(Array.from(confirmed))
-  }, [confirmed, isAdmin, ready])
+    if (isAdmin && readyState) writeCache(Array.from(confirmed))
+  }, [confirmed, isAdmin, readyState])
 
-  const isConfirmed = useCallback((slug: string) => confirmed.has(slug), [confirmed])
+  // Every output is gated on `hydrated` so the first client render matches the
+  // viewer-less server HTML (no admin UI), eliminating hydration mismatches.
+  const isConfirmed = useCallback(
+    (slug: string) => hydrated && confirmed.has(slug),
+    [hydrated, confirmed],
+  )
 
   const setConfirmed = useCallback(async (slug: string, value: boolean) => {
     setConfirmedState((prev) => {
@@ -119,5 +139,5 @@ export function useAdminConfirmations(): AdminConfirmations {
     }
   }, [])
 
-  return { isAdmin: !!isAdmin, ready, isConfirmed, setConfirmed }
+  return { isAdmin: !!isAdmin, ready: hydrated && readyState, isConfirmed, setConfirmed }
 }
