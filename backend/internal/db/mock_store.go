@@ -69,7 +69,8 @@ func (m *MockStore) UpdateUser(_ context.Context, _ string, _ models.Role, _ mod
 	return nil, nil
 }
 func (m *MockStore) DeleteUser(_ context.Context, _ string) error      { return nil }
-func (m *MockStore) UpdateLastLogin(_ context.Context, _ string) error { return nil }
+func (m *MockStore) UpdateLastLogin(_ context.Context, _ string) error  { return nil }
+func (m *MockStore) UpdateLastActive(_ context.Context, _ string) error { return nil }
 func (m *MockStore) CreateSession(_ context.Context, _, _ string, _ time.Time, _, _ string) error {
 	return nil
 }
