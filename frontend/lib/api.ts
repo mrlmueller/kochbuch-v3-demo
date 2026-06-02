@@ -30,7 +30,7 @@ export interface ListRecipesResponse {
 export interface User {
   id: string; email: string; role: 'admin' | 'user'
   status: 'active' | 'deactivated'
-  created_at: string; last_login?: string
+  created_at: string; last_login?: string; last_active_at?: string
 }
 
 // ─── AI jobs ─────────────────────────────────────────────
