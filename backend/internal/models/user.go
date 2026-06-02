@@ -13,10 +13,11 @@ const (
 )
 
 type User struct {
-	ID        string     `json:"id"`
-	Email     string     `json:"email"`
-	Role      Role       `json:"role"`
-	Status    Status     `json:"status"`
-	CreatedAt time.Time  `json:"created_at"`
-	LastLogin *time.Time `json:"last_login,omitempty"`
+	ID           string     `json:"id"`
+	Email        string     `json:"email"`
+	Role         Role       `json:"role"`
+	Status       Status     `json:"status"`
+	CreatedAt    time.Time  `json:"created_at"`
+	LastLogin    *time.Time `json:"last_login,omitempty"`
+	LastActiveAt *time.Time `json:"last_active_at,omitempty"`
 }

@@ -19,10 +19,10 @@ func (s *PostgresStore) CreateSession(ctx context.Context, userID, token string,
 func (s *PostgresStore) GetUserBySessionToken(ctx context.Context, token string) (*models.User, error) {
 	var u models.User
 	err := s.pool.QueryRow(ctx, `
-		SELECT u.id, u.email, u.role, u.status, u.created_at, u.last_login
+		SELECT u.id, u.email, u.role, u.status, u.created_at, u.last_login, u.last_active_at
 		FROM sessions s JOIN users u ON u.id = s.user_id
 		WHERE s.token = $1 AND s.expires_at > now()`, token).
-		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin)
+		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin, &u.LastActiveAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}

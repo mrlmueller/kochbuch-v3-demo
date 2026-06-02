@@ -40,6 +40,7 @@ type Store interface {
 	UpdateUser(ctx context.Context, id string, role models.Role, status models.Status) (*models.User, error)
 	DeleteUser(ctx context.Context, id string) error
 	UpdateLastLogin(ctx context.Context, id string) error
+	UpdateLastActive(ctx context.Context, id string) error
 
 	// Sessions
 	CreateSession(ctx context.Context, userID, token string, expires time.Time, ua, ip string) error

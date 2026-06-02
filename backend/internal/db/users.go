@@ -10,7 +10,7 @@ import (
 
 func (s *PostgresStore) GetUsers(ctx context.Context) ([]models.User, error) {
 	rows, err := s.pool.Query(ctx,
-		`SELECT id, email, role, status, created_at, last_login FROM users ORDER BY created_at DESC`)
+		`SELECT id, email, role, status, created_at, last_login, last_active_at FROM users ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (s *PostgresStore) GetUsers(ctx context.Context) ([]models.User, error) {
 	users := make([]models.User, 0)
 	for rows.Next() {
 		var u models.User
-		if err := rows.Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin); err != nil {
+		if err := rows.Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin, &u.LastActiveAt); err != nil {
 			return nil, err
 		}
 		users = append(users, u)
@@ -29,8 +29,8 @@ func (s *PostgresStore) GetUsers(ctx context.Context) ([]models.User, error) {
 func (s *PostgresStore) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	var u models.User
 	err := s.pool.QueryRow(ctx,
-		`SELECT id, email, role, status, created_at, last_login FROM users WHERE email = $1`, email).
-		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin)
+		`SELECT id, email, role, status, created_at, last_login, last_active_at FROM users WHERE email = $1`, email).
+		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin, &u.LastActiveAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -40,8 +40,8 @@ func (s *PostgresStore) GetUserByEmail(ctx context.Context, email string) (*mode
 func (s *PostgresStore) GetUserByID(ctx context.Context, id string) (*models.User, error) {
 	var u models.User
 	err := s.pool.QueryRow(ctx,
-		`SELECT id, email, role, status, created_at, last_login FROM users WHERE id = $1`, id).
-		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin)
+		`SELECT id, email, role, status, created_at, last_login, last_active_at FROM users WHERE id = $1`, id).
+		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin, &u.LastActiveAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -52,9 +52,9 @@ func (s *PostgresStore) CreateUser(ctx context.Context, email string, role model
 	var u models.User
 	err := s.pool.QueryRow(ctx,
 		`INSERT INTO users (email, role) VALUES ($1, $2)
-		 RETURNING id, email, role, status, created_at, last_login`,
+		 RETURNING id, email, role, status, created_at, last_login, last_active_at`,
 		email, role).
-		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin)
+		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin, &u.LastActiveAt)
 	return &u, err
 }
 
@@ -62,9 +62,9 @@ func (s *PostgresStore) UpdateUser(ctx context.Context, id string, role models.R
 	var u models.User
 	err := s.pool.QueryRow(ctx,
 		`UPDATE users SET role=$2, status=$3 WHERE id=$1
-		 RETURNING id, email, role, status, created_at, last_login`,
+		 RETURNING id, email, role, status, created_at, last_login, last_active_at`,
 		id, role, status).
-		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin)
+		Scan(&u.ID, &u.Email, &u.Role, &u.Status, &u.CreatedAt, &u.LastLogin, &u.LastActiveAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -78,5 +78,10 @@ func (s *PostgresStore) DeleteUser(ctx context.Context, id string) error {
 
 func (s *PostgresStore) UpdateLastLogin(ctx context.Context, id string) error {
 	_, err := s.pool.Exec(ctx, `UPDATE users SET last_login = now() WHERE id = $1`, id)
+	return err
+}
+
+func (s *PostgresStore) UpdateLastActive(ctx context.Context, id string) error {
+	_, err := s.pool.Exec(ctx, `UPDATE users SET last_active_at = now() WHERE id = $1`, id)
 	return err
 }

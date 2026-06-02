@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { getCategories, getRecipes } from '@/lib/api.server'
 import { CardCompact, CardList } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
-import { PersistLastRecipe } from '@/components/persist-last-recipe'
 import { dailyPick, dailyShuffle, getTodayKey } from '@/lib/daily-shuffle'
 import type { Category, RecipeListItem } from '@/lib/api'
 
@@ -195,8 +194,6 @@ export default async function EntdeckenPage() {
 
   return (
     <>
-      {featured && <PersistLastRecipe slug={featured.slug} />}
-
       {/* ── Desktop layout ── */}
       <div className="hidden lg:block">
         <DesktopHome categories={categories} allRecipes={allRecipes} today={today} />

@@ -266,8 +266,13 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
                   <h2 style={{ fontSize: 19, fontFamily: "'DM Serif Display', Georgia, serif", margin: 0, wordBreak: 'break-word' }}>{detail.user.email}</h2>
                   <button onClick={closeDetail} aria-label="Schließen" style={{ width: 28, height: 28, flexShrink: 0, borderRadius: 7, border: `1px solid ${T.border}`, background: T.surface, color: T.muted, cursor: 'pointer', fontSize: 16, lineHeight: 1, fontFamily: 'inherit' }}>×</button>
                 </div>
-                <p style={{ fontSize: 12, color: T.muted, margin: '0 0 18px' }}>
+                <p style={{ fontSize: 12, color: T.muted, margin: '0 0 4px' }}>
                   {detail.user.role} · {detail.user.status === 'active' ? 'aktiv' : 'deaktiviert'}
+                </p>
+                <p style={{ fontSize: 12, color: T.muted, margin: '0 0 18px' }}>
+                  Zuletzt aktiv: {detail.user.last_active_at
+                    ? new Date(detail.user.last_active_at).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })
+                    : '—'}
                 </p>
 
                 <div style={{ padding: 14, borderRadius: 12, background: '#FBF7F1', border: `1px solid ${T.border}`, marginBottom: 18 }}>

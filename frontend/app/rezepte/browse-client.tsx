@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { Category, RecipeListItem } from '@/lib/api'
 import { clientGetRecipes } from '@/lib/api'
-import { CardGrid, CardList, CardCover } from '@/components/recipe-card'
+import { CardList, CardCover } from '@/components/recipe-card'
 import { BlurImage } from '@/components/blur-image'
 import { FloatingLastRecipe } from '@/components/floating-last-recipe'
 
-type Layout = 'grid' | 'list' | 'cover'
 type Sort = 'default' | 'time' | 'name'
 
 const MINE = '__mine__'
@@ -131,7 +130,6 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     urlCategory === 'all' || validSlugs.has(urlCategory) ? urlCategory : 'all'
   )
   const [sort, setSort] = useState<Sort>('default')
-  const [layout, setLayout] = useState<Layout>('cover')
   const [lastRecipeSlug, setLastRecipeSlug] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<RecipeListItem[] | null>(null)
   const [isSearching, setIsSearching] = useState(false)
@@ -195,8 +193,6 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('browseLayout')
-      if (saved === 'cover' || saved === 'grid' || saved === 'list') setLayout(saved as Layout)
       setLastRecipeSlug(localStorage.getItem('last_recipe'))
     } catch {}
   }, [])
@@ -225,11 +221,6 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
     () => Object.fromEntries(categories.map(c => [c.slug, c])),
     [categories]
   )
-
-  const setLayoutPersist = useCallback((l: Layout) => {
-    setLayout(l)
-    try { localStorage.setItem('browseLayout', l) } catch {}
-  }, [])
 
   const baseList = authedRecipes ?? initialRecipes
 
@@ -314,39 +305,12 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
           </div>
         )}
 
-        {!urlQuery && (
-          <div className="flex gap-2 px-5 mb-4">
-            {(['cover', 'grid', 'list'] as Layout[]).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setLayoutPersist(l)}
-                className="px-3 py-1 rounded-lg text-xs font-semibold capitalize cursor-pointer"
-                style={{
-                  background: layout === l ? 'var(--accent)' : 'var(--card-bg)',
-                  color: layout === l ? '#fff' : 'var(--muted)',
-                  border: `1px solid ${layout === l ? 'var(--accent)' : 'var(--border)'}`,
-                  fontFamily: 'inherit',
-                }}
-              >
-                {l === 'cover' ? 'Cover' : l === 'grid' ? 'Grid' : 'Liste'}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div className="px-5">
-          {(urlQuery || layout === 'list') && (
+          {urlQuery ? (
             <div className="flex flex-col gap-3">
               {displayRecipes.map((r, i) => <CardList key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
             </div>
-          )}
-          {!urlQuery && layout === 'grid' && (
-            <div className="grid grid-cols-2 gap-3">
-              {displayRecipes.map((r, i) => <CardGrid key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
-            </div>
-          )}
-          {!urlQuery && layout === 'cover' && (
+          ) : (
             <div className="grid grid-cols-2 gap-3">
               {displayRecipes.map((r, i) => <CardCover key={r.slug} recipe={r} category={catMap[r.category_slug]} priority={i === 0} />)}
             </div>
