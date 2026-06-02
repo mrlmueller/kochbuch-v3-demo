@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"time"
 
 	"backend/internal/db"
 	"backend/internal/models"
@@ -69,6 +70,16 @@ func RequireSession(store db.Store, internalToken string) func(http.Handler) htt
 			if user.Status == models.StatusDeactivated {
 				jsonErr(w, "account deactivated", http.StatusForbidden)
 				return
+			}
+			// Touch last_active_at at most every 5 minutes per user.
+			// Fire-and-forget so the user request never waits on the write,
+			// and use a fresh context so the goroutine survives the request.
+			if user.LastActiveAt == nil || time.Since(*user.LastActiveAt) > 5*time.Minute {
+				go func(id string) {
+					ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+					defer cancel()
+					_ = store.UpdateLastActive(ctx, id)
+				}(user.ID)
 			}
 			ctx := context.WithValue(r.Context(), CtxUser, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
