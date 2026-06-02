@@ -10,7 +10,7 @@ import { useAdminConfirmations } from '@/lib/use-admin-confirmations'
 import { BlurImage } from '@/components/blur-image'
 import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
-import { formatIngredientAmount, parseServings } from '@/lib/utils'
+import { formatIngredientAmount, parseServings, isIngredientDivider, ingredientDividerTitle } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
 
 // Renders the Bearbeiten/Löschen buttons when the current user created
@@ -386,6 +386,15 @@ function DesktopDetail({ recipe, categoryName }: Props) {
             </div>
             <div>
               {recipe.ingredients.map((ing, i) => {
+                if (isIngredientDivider(ing)) {
+                  return (
+                    <div key={i} style={{ padding: i === 0 ? '0 0 8px' : '20px 0 8px' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--accent)' }}>
+                        {ingredientDividerTitle(ing)}
+                      </div>
+                    </div>
+                  )
+                }
                 const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, 'metric')
                 const isChecked = checkedIngs.has(i)
                 return (

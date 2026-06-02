@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { Ingredient } from '@/lib/api'
-import { formatIngredientAmount, parseServings } from '@/lib/utils'
+import { formatIngredientAmount, parseServings, isIngredientDivider, ingredientDividerTitle } from '@/lib/utils'
 
 interface Props {
   ingredients: Ingredient[]
@@ -50,6 +50,21 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
         {ingredients.length === 0 ? (
           <p style={{ padding: '12px 16px', fontSize: 14, color: 'var(--muted)' }}>Keine Zutaten angegeben.</p>
         ) : ingredients.map((ing, i) => {
+          if (isIngredientDivider(ing)) {
+            return (
+              <div
+                key={i}
+                style={{
+                  padding: i === 0 ? '12px 16px 6px' : '18px 16px 6px',
+                  borderBottom: i < ingredients.length - 1 ? '0.5px solid var(--border)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--accent)' }}>
+                  {ingredientDividerTitle(ing)}
+                </span>
+              </div>
+            )
+          }
           const isChecked = checked.has(i)
           const amountStr = formatIngredientAmount(ing.amount, ing.unit, ing.display, scale, 'metric')
           return (

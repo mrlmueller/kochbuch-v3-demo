@@ -12,6 +12,21 @@ export function parseServings(s: string, defaultVal = 4): number {
 }
 
 /**
+ * A section divider inside the ingredient list. The AI/editor encodes these as
+ * an ingredient whose amount marker is exactly "---" (see backend prompt); the
+ * name is the section title, e.g. "Mürbeteig:". Such rows are headings, not
+ * checkable ingredients.
+ */
+export function isIngredientDivider(ing: { display: string }): boolean {
+  return ing.display.trim() === '---'
+}
+
+/** Section title for a divider row, without any trailing colon. */
+export function ingredientDividerTitle(ing: { name: string }): string {
+  return ing.name.replace(/\s*:\s*$/, '').trim()
+}
+
+/**
  * Format an ingredient amount with serving scale and unit conversion.
  * Returns the display string to show (e.g. "750 g", "3 EL", "nach Bedarf").
  */
