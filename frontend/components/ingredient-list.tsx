@@ -54,14 +54,14 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
             return (
               <div
                 key={i}
-                style={{
-                  padding: i === 0 ? '14px 16px 10px' : '22px 16px 10px',
-                  background: 'color-mix(in srgb, var(--accent) 5%, transparent)',
-                }}
+                className="flex items-center gap-3"
+                style={{ padding: i === 0 ? '14px 16px 12px' : '22px 16px 12px' }}
               >
-                <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--accent)' }}>
+                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--accent)', whiteSpace: 'nowrap' }}>
                   {ingredientDividerTitle(ing)}
                 </span>
+                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
               </div>
             )
           }
