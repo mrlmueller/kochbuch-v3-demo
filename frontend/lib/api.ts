@@ -174,7 +174,9 @@ export async function clientDeleteRecipe(slug: string): Promise<void> {
 // shared static cache and the non-admin experience stay identical.
 
 export async function clientGetRecipeConfirmations(): Promise<string[]> {
-  const res = await fetch('/api/proxy/admin/recipes/status')
+  // no-store: this is live admin status; it must never be served from the
+  // browser/route cache (otherwise toggles look stale until a restart).
+  const res = await fetch('/api/proxy/admin/recipes/status', { cache: 'no-store' })
   await throwIfError(res)
   const data = (await res.json()) as { confirmed?: string[] }
   return data.confirmed ?? []

@@ -4,29 +4,30 @@ import { useCallback, useEffect, useState } from 'react'
 import { useMe } from '@/lib/use-me'
 import { clientGetRecipeConfirmations, clientSetRecipeConfirmed } from '@/lib/api'
 
-// Admin-only hook exposing which recipes have been hand-confirmed
-// (calibrated). Mirrors useMe(): the set is sessionStorage-cached and shared
-// via an in-flight promise so the badges appear instantly when navigating
-// between pages, and the network round-trip happens at most once per minute.
+// Admin-only set of hand-confirmed (calibrated) recipe slugs.
 //
-// For non-admins this is inert — `isAdmin` is false, the set stays empty, and
-// no request is ever made. Nothing about the public experience changes.
+// Stale-while-revalidate: the sessionStorage snapshot paints instantly, then a
+// fresh no-store fetch on *every* mount refreshes it in the background. So a
+// calibration toggle made anywhere shows up on the next /rezepte (or any) visit
+// immediately — no cache TTL, no server restart. (An earlier version kept a 60s
+// freshness gate AND re-stamped the cache timestamp on every mount, which froze
+// the set so it only ever fetched once per session; that's the bug this fixes.)
+//
+// For non-admins the hook is inert: isAdmin is false, no request is ever made,
+// and nothing about the public page changes. The admin check stays client-side
+// on purpose so /rezepte remains statically prerendered.
 
 const STORAGE_KEY = 'kb:confirmations:v1'
-const FRESH_FOR_MS = 60_000
-
-interface Cached {
-  slugs: string[]
-  ts: number
-}
 
 let inflight: Promise<string[]> | null = null
 
-function readCache(): Cached | null {
+function readCache(): string[] | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    return JSON.parse(raw) as Cached
+    const parsed = JSON.parse(raw)
+    // Tolerate (ignore) any older/other cache shape — only a plain array is valid.
+    return Array.isArray(parsed) ? (parsed as string[]) : null
   } catch {
     return null
   }
@@ -34,7 +35,7 @@ function readCache(): Cached | null {
 
 function writeCache(slugs: string[]) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ slugs, ts: Date.now() } satisfies Cached))
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(slugs))
   } catch {}
 }
 
@@ -66,22 +67,18 @@ export function useAdminConfirmations(): AdminConfirmations {
 
   const [confirmed, setConfirmedState] = useState<Set<string>>(() => {
     if (typeof window === 'undefined') return new Set()
-    return new Set(readCache()?.slugs ?? [])
+    return new Set(readCache() ?? [])
   })
   const [ready, setReady] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false
-    const c = readCache()
-    return !!c && Date.now() - c.ts < FRESH_FOR_MS
+    return readCache() != null
   })
 
+  // Revalidate on every mount (admin only). The cached snapshot above already
+  // painted; this refreshes it from the server in the background. setState only
+  // happens inside the async .then, never synchronously in the effect body.
   useEffect(() => {
     if (!isAdmin) return
-    const c = readCache()
-    if (c && Date.now() - c.ts < FRESH_FOR_MS) {
-      // Initial state already reflects the fresh cache (read in the useState
-      // initializers above) — nothing to fetch or set. Mirrors useMe().
-      return
-    }
     let cancelled = false
     fetchConfirmations().then((slugs) => {
       if (cancelled) return
@@ -93,7 +90,8 @@ export function useAdminConfirmations(): AdminConfirmations {
     }
   }, [isAdmin])
 
-  // Keep the cache in sync with the live set so toggles persist across nav.
+  // Persist the live set so the next mount can paint instantly. No timestamp,
+  // so it can never gate (freeze) the revalidate above.
   useEffect(() => {
     if (isAdmin && ready) writeCache(Array.from(confirmed))
   }, [confirmed, isAdmin, ready])
