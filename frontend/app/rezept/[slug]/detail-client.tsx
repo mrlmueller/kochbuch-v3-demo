@@ -568,14 +568,14 @@ export function DetailClient({ recipe, categoryName }: Props) {
                 {baseServings > 0 ? (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     <button type="button" aria-label="Weniger Portionen" onClick={() => setScale(s => Math.max(0.25, s - 0.25))}
-                      style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--card-bg, white)', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                      style={{ width: 24, height: 24, border: 'none', background: 'transparent', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
                       <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/></svg>
                     </button>
                     <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', minWidth: 22, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
                       {Math.round(baseServings * scale)}
                     </span>
                     <button type="button" aria-label="Mehr Portionen" onClick={() => setScale(s => s + 0.25)}
-                      style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--card-bg, white)', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                      style={{ width: 24, height: 24, border: 'none', background: 'transparent', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
                       <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
                     </button>
                   </div>
