@@ -336,3 +336,25 @@ export async function clientImageSearch(q: string): Promise<ImageSearchResult[]>
   const data = await res.json() as { items: ImageSearchResult[] }
   return data.items ?? []
 }
+
+// ─── Admin: per-recipe nutrition control ─────────────────
+
+export interface NutritionDetail {
+  status?: 'none'
+  per_recipe?: Macros
+  per_serving?: Macros
+  cost_usd?: number
+  outdated?: boolean
+  computed_at?: string
+}
+
+export async function clientComputeNutrition(slug: string): Promise<void> {
+  const res = await fetch(`/api/proxy/admin/recipes/${slug}/nutrition`, { method: 'POST' })
+  if (!res.ok) throw new Error((await res.json().catch(() => ({} as { error?: string }))).error ?? 'Fehler')
+}
+
+export async function clientGetNutritionDetail(slug: string): Promise<NutritionDetail> {
+  const res = await fetch(`/api/proxy/admin/recipes/${slug}/nutrition`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Fehler')
+  return res.json()
+}
