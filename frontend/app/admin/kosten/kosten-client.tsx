@@ -11,6 +11,11 @@ function fmtUSD(v: number): string {
 function fmtInt(v: number): string {
   return v.toLocaleString('de-DE')
 }
+function taskLabel(kind: string): string {
+  if (kind === 'extraction') return 'Foto-Extraktion'
+  if (kind === 'nutrition') return 'Nährwerte'
+  return kind || '—'
+}
 
 export function KostenClient() {
   const [stats, setStats] = useState<AIStats | null>(null)
@@ -32,7 +37,7 @@ export function KostenClient() {
       <header style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 28, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, margin: 0 }}>KI-Kosten</h1>
         <p style={{ fontSize: 13, color: T.muted, marginTop: 4 }}>
-          Verbrauch pro Modell und Nutzer. Stand: {new Date(stats.generated_at).toLocaleString('de-DE')}.
+          Verbrauch pro Aufgabe, Modell und Nutzer. Stand: {new Date(stats.generated_at).toLocaleString('de-DE')}.
         </p>
       </header>
 
@@ -42,6 +47,32 @@ export function KostenClient() {
         <SummaryCard title="Letzte 30 Tage" bucket={stats.last_30d} />
         <SummaryCard title="Letzte 7 Tage" bucket={stats.last_7d} />
       </div>
+
+      {/* By task kind */}
+      <Section title="Nach Aufgabe">
+        {stats.by_kind.length === 0 ? (
+          <Empty>Noch keine erfolgreichen Generierungen.</Empty>
+        ) : (
+          <div className="kosten-table-wrap">
+            <table className="kosten-table">
+              <thead>
+                <tr><th>Aufgabe</th><th>Jobs</th><th>Input-Tokens</th><th>Output-Tokens</th><th>Kosten</th></tr>
+              </thead>
+              <tbody>
+                {stats.by_kind.map(k => (
+                  <tr key={k.kind}>
+                    <td style={{ fontWeight: 600 }}>{taskLabel(k.kind)}</td>
+                    <td>{fmtInt(k.jobs)}</td>
+                    <td>{fmtInt(k.input_tokens)}</td>
+                    <td>{fmtInt(k.output_tokens)}</td>
+                    <td style={{ fontWeight: 600 }}>{fmtUSD(k.cost_usd)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
 
       {/* By model */}
       <Section title="Nach Modell">
@@ -102,13 +133,14 @@ export function KostenClient() {
           <div className="kosten-table-wrap">
             <table className="kosten-table">
               <thead>
-                <tr><th>Zeit</th><th>Nutzer</th><th>Modell</th><th>Status</th><th>Tokens (in/out)</th><th>Kosten</th></tr>
+                <tr><th>Zeit</th><th>Nutzer</th><th>Aufgabe</th><th>Modell</th><th>Status</th><th>Tokens (in/out)</th><th>Kosten</th></tr>
               </thead>
               <tbody>
                 {stats.recent.map(r => (
                   <tr key={r.job_id}>
                     <td style={{ fontSize: 12, color: T.muted, whiteSpace: 'nowrap' }}>{new Date(r.created_at).toLocaleString('de-DE')}</td>
                     <td style={{ fontSize: 12, wordBreak: 'break-all' }}>{r.user_email || '—'}</td>
+                    <td style={{ fontSize: 12, whiteSpace: 'nowrap' }}>{taskLabel(r.kind)}</td>
                     <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{r.provider}:{r.model}</td>
                     <td><StatusPill status={r.status} /></td>
                     <td style={{ fontSize: 12, whiteSpace: 'nowrap' }}>{fmtInt(r.input_tokens)} / {fmtInt(r.output_tokens)}</td>

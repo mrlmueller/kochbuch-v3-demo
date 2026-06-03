@@ -223,6 +223,14 @@ export interface AIStatsBucket {
   cost_usd: number
 }
 
+export interface AIStatsByKind {
+  kind: string
+  jobs: number
+  input_tokens: number
+  output_tokens: number
+  cost_usd: number
+}
+
 export interface AIStatsByModel {
   provider: string
   model: string
@@ -243,6 +251,7 @@ export interface AIStatsByUser {
 export interface AIStatsRecentItem {
   job_id: string
   user_email: string
+  kind: string
   provider: string
   model: string
   status: string
@@ -257,6 +266,7 @@ export interface AIStats {
   totals: AIStatsBucket
   last_7d: AIStatsBucket
   last_30d: AIStatsBucket
+  by_kind: AIStatsByKind[]
   by_model: AIStatsByModel[]
   by_user: AIStatsByUser[]
   recent: AIStatsRecentItem[]

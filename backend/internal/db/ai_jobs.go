@@ -361,6 +361,30 @@ func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error)
 		return nil, fmt.Errorf("last30d: %w", err)
 	}
 
+	// Per-task-kind breakdown (extraction vs nutrition; only successful jobs).
+	kindRows, err := s.pool.Query(ctx, `
+		SELECT kind,
+		       COUNT(*),
+		       COALESCE(SUM(input_tokens), 0),
+		       COALESCE(SUM(output_tokens), 0),
+		       COALESCE(SUM(cost_usd), 0)
+		FROM ai_jobs
+		WHERE status IN ('ready', 'consumed')
+		GROUP BY kind
+		ORDER BY SUM(cost_usd) DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("by_kind: %w", err)
+	}
+	for kindRows.Next() {
+		var k models.AIStatsByKind
+		if err := kindRows.Scan(&k.Kind, &k.Jobs, &k.InputTokens, &k.OutputTokens, &k.CostUSD); err != nil {
+			kindRows.Close()
+			return nil, fmt.Errorf("scan by_kind: %w", err)
+		}
+		out.ByKind = append(out.ByKind, k)
+	}
+	kindRows.Close()
+
 	// Per-model breakdown (only successful jobs — failures had no cost).
 	rows, err := s.pool.Query(ctx, `
 		SELECT provider, model,
@@ -415,7 +439,7 @@ func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error)
 
 	// Recent 25 jobs across all users (any status).
 	rows, err = s.pool.Query(ctx, `
-		SELECT j.id, COALESCE(u.email, ''), j.provider, j.model, j.status,
+		SELECT j.id, COALESCE(u.email, ''), j.kind, j.provider, j.model, j.status,
 		       j.input_tokens, j.output_tokens, j.cost_usd, j.created_at
 		FROM ai_jobs j
 		LEFT JOIN users u ON u.id = j.user_id
@@ -426,7 +450,7 @@ func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error)
 	}
 	for rows.Next() {
 		var it models.AIStatsRecentItem
-		if err := rows.Scan(&it.JobID, &it.UserEmail, &it.Provider, &it.Model, &it.Status,
+		if err := rows.Scan(&it.JobID, &it.UserEmail, &it.Kind, &it.Provider, &it.Model, &it.Status,
 			&it.InputTokens, &it.OutputTokens, &it.CostUSD, &it.CreatedAt); err != nil {
 			rows.Close()
 			return nil, fmt.Errorf("scan recent: %w", err)
