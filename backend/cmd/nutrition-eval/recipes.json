@@ -39,7 +39,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 2459.2,
+        "protein_g": 52.9,
+        "fat_g": 101.3,
+        "carbs_g": 327.9,
+        "sugar_g": 113.3,
+        "fibre_g": 9.6
+      },
+      "per_serving_derived": {
         "kcal": 123.0,
         "protein_g": 2.6,
         "fat_g": 5.1,
@@ -50,7 +58,14 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 10,
       "notes": "Plain baked dough, no glaze in the data. ~20 small cakes."
-    }
+    },
+    "steps": [
+      "Backofen auf 180 °C Ober-/Unterhitze vorheizen.",
+      "100 g Butter, 100 g Zucker, 1 Stk. Vanillezucker (Päckchen) und 1 Prise Salz sahnig rühren.",
+      "3 Stk. Eier nacheinander dazugeben und gründlich verrühren.",
+      "300 g Mehl mit 1 Stk. Backpulver (Päckchen) mischen und unterrühren, dann 4 EL Milch einarbeiten, bis der Teig etwas fester als Napfkuchenteig ist.",
+      "Mit einem Esslöffel kleine runde Häufchen mit großem Abstand auf ein gefettetes Backblech setzen und 15–20 Minuten backen, bis sie leicht goldbraun sind."
+    ]
   },
   {
     "id": "apfelkuchen",
@@ -100,7 +115,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 2849.7,
+        "protein_g": 44.8,
+        "fat_g": 121.3,
+        "carbs_g": 386.9,
+        "sugar_g": 228.0,
+        "fibre_g": 21.7
+      },
+      "per_serving_derived": {
         "kcal": 237.5,
         "protein_g": 3.7,
         "fat_g": 10.1,
@@ -111,7 +134,14 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "DB servings=2 is WRONG for a 28cm Springform cake -> used 12. Apricot glaze counted."
-    }
+    },
+    "steps": [
+      "Springform (28 cm) fetten. Butter schaumig schlagen, Zucker, Eier, Salz und Zitronen-Backöl einrühren.",
+      "Mehl mit Backpulver mischen und portionsweise zugeben; so viel Milch einrühren, bis der Teig schwer reißend vom Löffel fällt. In die Form streichen.",
+      "Äpfel schälen, vierteln, entkernen, längs mehrfach einritzen und kranzförmig auflegen; ca. 1 cm Rand Teig frei lassen.",
+      "Bei 175–200 °C 40–50 Min. backen.",
+      "Aprikotur: Marmelade mit Wasser aufkochen, durchs Sieb streichen und den heißen Kuchen bestreichen; alternativ den erkalteten Kuchen mit Puderzucker bestäuben."
+    ]
   },
   {
     "id": "apfelkuechle",
@@ -149,7 +179,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 1503.2,
+        "protein_g": 35.9,
+        "fat_g": 56.0,
+        "carbs_g": 194.5,
+        "sugar_g": 16.1,
+        "fibre_g": 8.0
+      },
+      "per_serving_derived": {
         "kcal": 375.8,
         "protein_g": 9.0,
         "fat_g": 14.0,
@@ -160,7 +198,12 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 25,
       "notes": "DATA GAP: apples are NOT in the ingredient list (it's only the batter). Computed batter + deep-fry oil uptake (+7 g/100 g batter). Real dish would add apples."
-    }
+    },
+    "steps": [
+      "1 Stk Ei mit 2 TL Zucker verrühren.",
+      "125 ml Milch, 3 EL Rum und 2 TL Öl einrühren.",
+      "250 g Mehl und 1 gestr. TL Backpulver zu einem glatten Teig verrühren."
+    ]
   },
   {
     "id": "honig-senf-dressing",
@@ -194,7 +237,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 428.1,
+        "protein_g": 0.5,
+        "fat_g": 40.4,
+        "carbs_g": 16.9,
+        "sugar_g": 16.1,
+        "fibre_g": 0.2
+      },
+      "per_serving_derived": {
         "kcal": 107.0,
         "protein_g": 0.1,
         "fat_g": 10.1,
@@ -205,7 +256,13 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 12,
       "notes": "Raw emulsion, no transform. Per-serving = dressing portion."
-    }
+    },
+    "steps": [
+      "Olivenöl, Balsamico, Honig, Senf, Pfeffer und Salz abmessen.",
+      "Alles in eine Schüssel geben und 30–60 Sek. kräftig verrühren, bis es emulgiert und cremig ist.",
+      "Abschmecken; nach Wunsch mehr Honig (süßer), Senf (schärfer) oder Essig (säuerlicher) zugeben.",
+      "Sofort verwenden oder in eine Flasche füllen und im Kühlschrank aufbewahren."
+    ]
   },
   {
     "id": "kartoffelpueree",
@@ -235,7 +292,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 1607.6,
+        "protein_g": 35.3,
+        "fat_g": 80.2,
+        "carbs_g": 194.3,
+        "sugar_g": 27.3,
+        "fibre_g": 21.0
+      },
+      "per_serving_derived": {
         "kcal": 401.9,
         "protein_g": 8.8,
         "fat_g": 20.1,
@@ -246,7 +311,14 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 10,
       "notes": "Boiled peeled potato (yield ~1.0; macros unchanged) + milk + butter."
-    }
+    },
+    "steps": [
+      "Kartoffeln schälen, in 1,5–2 cm Würfel schneiden und unter kaltem Wasser abspülen.",
+      "Hohen Topf kalt ausspülen; Kartoffeln mit Milch und Salz hineingeben, unter Rühren aufkochen.",
+      "Hitze stark reduzieren, mit Deckel 20–25 Min. sieden, ab und zu umrühren, bis die Würfel sehr weich sind.",
+      "Butter und Muskat zugeben; Kartoffeln im Topf mit dem Stampfer zu cremigem Püree verarbeiten.",
+      "Mit Salz abschmecken; nach Wunsch mit etwas Butter oder Petersilie servieren."
+    ]
   },
   {
     "id": "sauce-hollandaise",
@@ -292,7 +364,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 1644.4,
+        "protein_g": 10.7,
+        "fat_g": 178.2,
+        "carbs_g": 6.6,
+        "sugar_g": 4.7,
+        "fibre_g": 0.1
+      },
+      "per_serving_derived": {
         "kcal": 411.1,
         "protein_g": 2.7,
         "fat_g": 44.6,
@@ -303,7 +383,14 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Butter + egg yolk emulsion. Per-serving = ~66 g sauce."
-    }
+    },
+    "steps": [
+      "3 Stk. Eigelb (Größe L) in einen Rührbecher geben und mit 1 EL Limettensaft, 1 TL Dijonsenf, 1 TL Crème fraîche, 1 TL Zucker sowie etwas Salz mit dem Pürierstab kurz pürieren.",
+      "200 g Butter in einem kleinen Topf schmelzen und kurz aufkochen.",
+      "Die heiße Butter bei laufendem Pürierstab langsam in die Eigelbmasse gießen und dabei weiter pürieren, bis die Sauce cremig ist.",
+      "Mit Salz und Pfeffer abschmecken und optional mit 0,5 TL Weißweinessig abrunden.",
+      "Die Blitz-Hollandaise direkt warm servieren."
+    ]
   },
   {
     "id": "asiatische-spareribs",
@@ -373,7 +460,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 2185.7,
+        "protein_g": 134.7,
+        "fat_g": 143.4,
+        "carbs_g": 73.2,
+        "sugar_g": 50.1,
+        "fibre_g": 3.2
+      },
+      "per_serving_derived": {
         "kcal": 546.4,
         "protein_g": 33.7,
         "fat_g": 35.9,
@@ -384,7 +479,16 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 30,
       "notes": "HARDEST: 1.5 kg bone-in -> ~60% edible meat (900 g). Boiled 75 min (renders fat into discarded sud: fat ret 0.65, protein 0.92, kcal 0.72), then glazed+baked. Boil aromatics (salt/soy/garlic/onion) discarded. Glaze ~80% adheres."
-    }
+    },
+    "steps": [
+      "Ziehe bei 1,5 kg Spareribs die Silberhaut auf der Knochenseite ab und schneide die Rippchen einzeln oder in kleine Stücke zwischen den Knochen auseinander.",
+      "Koche die Spareribs mit 3 EL Salz, 1 halbierten Knolle Knoblauch, 1 geviertelten Zwiebel und 4 EL dunkler Sojasoße in reichlich Wasser 1 Stunde 15 Minuten leise, bis das Fleisch weich, aber noch nicht zerfallen ist.",
+      "Rühre für die Glasur 2 EL Mirin, 1 EL Reisessig, 2 EL Austernsoße, 1 EL dunkle Sojasoße, 1,5 EL süße Sojasoße, 5 EL Hoisin-Soße, 1 TL braunen Zucker, 1 EL Sriracha und 1 EL Sesam glatt.",
+      "Schneide 2 Stk. Frühlingslauch längs in feine Streifen und lege sie in eiskaltes Wasser, damit sie sich für die Deko aufrollen.",
+      "Nimm die vorgekochten Rippchen aus dem Sud, tupfe sie trocken und pinsele sie rundherum großzügig mit der Glasur ein.",
+      "Backe die Rippchen bei 200 °C Umluft 6–8 Minuten, bis die Glasur glänzt und leicht karamellisiert. Bestreiche sie bei Bedarf nach der Hälfte der Zeit noch einmal dünn.",
+      "Richte die heißen Spareribs an und streue die Frühlingslauchstreifen darüber."
+    ]
   },
   {
     "id": "auberginen-hackfleisch-pfanne",
@@ -438,7 +542,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 1990.0,
+        "protein_g": 105.9,
+        "fat_g": 147.5,
+        "carbs_g": 77.5,
+        "sugar_g": 42.9,
+        "fibre_g": 27.0
+      },
+      "per_serving_derived": {
         "kcal": 497.5,
         "protein_g": 26.5,
         "fat_g": 36.9,
@@ -449,7 +561,15 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Pan-fried; added oil + rendered meat fat both stay in the Pfanne (dish basis). Broth (~0 kcal) and serving yogurt dropped."
-    }
+    },
+    "steps": [
+      "Auberginen, Zwiebeln, Knoblauch und Tomaten würfeln.",
+      "Öl erhitzen, Hackfleisch krümelig und kräftig anbraten.",
+      "Zwiebeln und Knoblauch zugeben und 2–3 Min. mitbraten.",
+      "Auberginen, Tomaten, Oregano, Paprika, Salz und Pfeffer einrühren.",
+      "Brühe angießen und ca. 20 Min. leise köcheln, bis die Auberginen weich sind.",
+      "Mit Naturjoghurt servieren; dazu passen Reis oder Kartoffeln."
+    ]
   },
   {
     "id": "kaesespaetzle",
@@ -487,7 +607,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 3062.2,
+        "protein_g": 137.1,
+        "fat_g": 150.1,
+        "carbs_g": 287.3,
+        "sugar_g": 27.8,
+        "fibre_g": 16.5
+      },
+      "per_serving_derived": {
         "kcal": 765.6,
         "protein_g": 34.3,
         "fat_g": 37.5,
@@ -498,7 +626,13 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Ready Spätzle (no transform) + cheese + cream. Röstzwiebeln topping estimated 30 g."
-    }
+    },
+    "steps": [
+      "Spätzle in Salzwasser nach Packungsangabe bissfest kochen, abgießen und bereitstellen.",
+      "Hitze reduzieren, Sahne in dieselbe Pfanne geben, mit Muskat, Salz und Pfeffer würzen.",
+      "Spätzle in die Pfanne schütten, gründlich mit der Sahne vermengen, dann den geriebenen Käse unterheben.",
+      "Pfanne abdecken, bis der Käse schmilzt und Fäden zieht. Mit Röstzwiebeln und Schnittlauch bestreut servieren."
+    ]
   },
   {
     "id": "schnitzel",
@@ -536,7 +670,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 1688.4,
+        "protein_g": 160.1,
+        "fat_g": 87.4,
+        "carbs_g": 54.3,
+        "sugar_g": 2.1,
+        "fibre_g": 2.9
+      },
+      "per_serving_derived": {
         "kcal": 844.2,
         "protein_g": 80.1,
         "fat_g": 43.7,
@@ -547,7 +689,15 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 20,
       "notes": "Breaded pork loin (700 g, midpoint of 600-800), deep-fried. Breading adhering estimated (flour 15, egg 40, breadcrumbs 60 g); oil uptake +6 g/100 g breaded."
-    }
+    },
+    "steps": [
+      "Silberhaut der Schweinelende entfernen; Lende in ca. 3 cm Scheiben schneiden.",
+      "Scheiben sehr dünn plattieren (3–4 mm).",
+      "Panierstraße aufbauen: Teller mit Mehl; Teller mit 3–4 Eiern, Salz, Pfeffer, wenig Muskat verquirlen (Bedenke die gewürze müssen für alle schnitzel reichen also nicht zu wenig nehmen) ; Teller mit Paniermehl.",
+      "Pfanne mit reichlich Öl auf 170–180 °C erhitzen (Schnitzel sollen im Fett schwimmen).",
+      "Mehlieren, durch Ei ziehen, in Paniermehl wenden; überschüssiges Mehl/Brösel abklopfen.",
+      "Schnitzel portionsweise 1–2 Min. je Seite goldbraun frittieren, auf Küchenpapier abtropfen lassen und sofort servieren."
+    ]
   },
   {
     "id": "spaghetti-bolognese",
@@ -585,7 +735,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 2291.3,
+        "protein_g": 112.5,
+        "fat_g": 109.8,
+        "carbs_g": 215.5,
+        "sugar_g": 31.5,
+        "fibre_g": 13.2
+      },
+      "per_serving_derived": {
         "kcal": 1145.6,
         "protein_g": 56.2,
         "fat_g": 54.9,
@@ -596,7 +754,13 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 18,
       "notes": "'Eine Packung' Nudeln unquantified -> estimated 250 g for 2 servings. Meat fat + 1 EL oil stay in sauce."
-    }
+    },
+    "steps": [
+      "Großen Topf Wasser aufsetzen, salzen; Nudeln nach Packungsangabe al dente kochen.",
+      "Öl in einer Pfanne erhitzen; Hackfleisch 5–6 Min. krümelig und kräftig anbraten.",
+      "Tomatensoße zugießen; Kräuter, Salz, Pfeffer und eine Prise Zucker einrühren und 5–10 Min. leise köcheln.",
+      "Nudeln abgießen, mit der Soße mischen oder auf Tellern anrichten und Soße darübergeben."
+    ]
   },
   {
     "id": "tortilla-omelett",
@@ -638,7 +802,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 597.2,
+        "protein_g": 32.4,
+        "fat_g": 33.9,
+        "carbs_g": 37.9,
+        "sugar_g": 6.3,
+        "fibre_g": 3.1
+      },
+      "per_serving_derived": {
         "kcal": 597.2,
         "protein_g": 32.4,
         "fat_g": 33.9,
@@ -649,7 +821,15 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Single serving. Pan-fried in 1 TL butter (counted)."
-    }
+    },
+    "steps": [
+      "1 TL Butter in einer Pfanne bei mittlerer Hitze schmelzen und 1 kleine Tomate in Scheiben darin je Seite 2–3 Minuten braten, bis sie leicht weich und etwas goldbraun ist; mit Salz und Pfeffer würzen und 1 EL gehackte Petersilie darüberstreuen.",
+      "2 Eier in einer Schüssel mit Salz und Pfeffer verquirlen und optional 2 EL Milch unterrühren.",
+      "Die Eiermischung über die Tomaten in der Pfanne gießen und 1–2 Minuten stocken lassen, bis die Oberfläche leicht anzieht.",
+      "1 große Tortilla direkt obenauf legen, die Pfanne abdecken und 2–3 Minuten garen, bis alles zusammenhält.",
+      "Das Ganze mithilfe eines Tellers wenden, sodass die Tortilla unten liegt, 50 g geriebenen Käse auf eine Hälfte geben und zu einem Halbmond zusammenklappen.",
+      "Noch einmal 1–2 Minuten pro Seite braten, bis die Tortilla goldbraun und knusprig ist; in Stücke schneiden und warm servieren."
+    ]
   },
   {
     "id": "mais-airfryer",
@@ -671,7 +851,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 295.8,
+        "protein_g": 6.4,
+        "fat_g": 16.8,
+        "carbs_g": 38.0,
+        "sugar_g": 12.6,
+        "fibre_g": 5.4
+      },
+      "per_serving_derived": {
         "kcal": 147.9,
         "protein_g": 3.2,
         "fat_g": 8.4,
@@ -682,7 +870,12 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "2 cobs ~ 200 g kernels; 1 EL oil brushed on (stays)."
-    }
+    },
+    "steps": [
+      "2 Stk. Maiskolben in eine Schüssel geben.",
+      "1 EL Öl und 0,5 TL Salz dazugeben und die Maiskolben rundum darin wenden.",
+      "Die Maiskolben bei 180 °C 15 Minuten im Airfryer garen und dabei 2–3 Mal wenden."
+    ]
   },
   {
     "id": "lachscreme",
@@ -716,7 +909,15 @@
       }
     ],
     "reference": {
-      "per_serving": {
+      "per_recipe": {
+        "kcal": 1146.0,
+        "protein_g": 51.3,
+        "fat_g": 96.8,
+        "carbs_g": 12.9,
+        "sugar_g": 9.5,
+        "fibre_g": 0.9
+      },
+      "per_serving_derived": {
         "kcal": 286.5,
         "protein_g": 12.8,
         "fat_g": 24.2,
@@ -727,6 +928,12 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Raw spread. Salmon 175 g (midpoint 150-200), crème fraîche 38 g (midpoint 25-50)."
-    }
+    },
+    "steps": [
+      "Zwiebel schälen und fein würfeln, Lachs grob zerkleinern.",
+      "Frischkäse, Lachs, Zwiebel und Zitronenschale mit Pürierstab/Mixer cremig pürieren.",
+      "Crème fraîche portionsweise unterrühren, bis die gewünschte Konsistenz erreicht ist.",
+      "Mit Salz und Pfeffer abschmecken, in eine Schale füllen und mit Kräutern bestreuen."
+    ]
   }
 ]

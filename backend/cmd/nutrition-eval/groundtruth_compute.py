@@ -233,12 +233,16 @@ for r in RECIPES:
     atw = 4*per["protein_g"] + 9*per["fat_g"] + 4*per["carbs_g"]
     atw_dev = abs(atw - per["kcal"]) / per["kcal"] * 100 if per["kcal"] else 0
     per_r = {k: round1(per[k]) for k in KEYS}
+    total_r = {k: round1(total[k]) for k in KEYS}
     out.append({
         "id": r["id"], "title": r["title"], "category_slug": r["category"],
         "servings": r["servings"],
         "ingredients": [{"amount": a, "name": n} for a, n in r["ingredients"]],
         "reference": {
-            "per_serving": {k: per_r[k] for k in ("kcal","protein_g","fat_g","carbs_g","sugar_g","fibre_g")},
+            # per_recipe is the PRIMARY eval target (servings is unreliable and
+            # divides out trivially for display). per_serving_derived is FYI only.
+            "per_recipe": {k: total_r[k] for k in ("kcal","protein_g","fat_g","carbs_g","sugar_g","fibre_g")},
+            "per_serving_derived": {k: per_r[k] for k in ("kcal","protein_g","fat_g","carbs_g","sugar_g","fibre_g")},
             "source": "computed:USDA+DE(BLS-aligned)",
             "uncertainty_pct": r["uncertainty"],
             "notes": r["notes"],
