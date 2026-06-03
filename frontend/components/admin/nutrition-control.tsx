@@ -6,6 +6,7 @@ import { useAdminConfirmations } from '@/lib/use-admin-confirmations'
 import {
   clientComputeNutrition,
   clientGetNutritionDetail,
+  clientGetAIJob,
   type NutritionDetail,
 } from '@/lib/api'
 
@@ -20,6 +21,11 @@ const T = {
   amber: '#D97706',
 }
 
+// After kicking off a compute we poll the job. Cap the wait so a stuck job
+// doesn't leave the control spinning on "läuft…" forever.
+const POLL_MS = 3000
+const MAX_POLLS = 40 // ~2 minutes
+
 interface Props {
   slug: string
 }
@@ -33,15 +39,11 @@ export function NutritionControl({ slug }: Props) {
   const [computing, setComputing] = useState(false)
   const [error, setError] = useState('')
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const prevComputedAt = useRef<string | undefined>(undefined)
 
   // Load current nutrition status on mount
   useEffect(() => {
     clientGetNutritionDetail(slug)
-      .then((d) => {
-        setDetail(d)
-        prevComputedAt.current = d.computed_at
-      })
+      .then(setDetail)
       .catch(() => setDetail(null))
   }, [slug])
 
@@ -65,27 +67,32 @@ export function NutritionControl({ slug }: Props) {
   const handleCompute = async () => {
     setError('')
     setComputing(true)
-    prevComputedAt.current = detail?.computed_at
 
+    let jobId = ''
     try {
-      await clientComputeNutrition(slug)
+      jobId = await clientComputeNutrition(slug)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Fehler beim Starten')
       setComputing(false)
       return
     }
 
-    // Poll every 3 s until a fresh result appears
+    // Poll the job itself so we react to success and failure precisely, with a
+    // poll ceiling as a safety net in case a job gets stuck.
+    let polls = 0
     pollingRef.current = setInterval(async () => {
+      polls++
       try {
-        const d = await clientGetNutritionDetail(slug)
-        const hasResult = !!d.per_serving
-        const isNewer =
-          !prevComputedAt.current ||
-          (!!d.computed_at && d.computed_at !== prevComputedAt.current)
-
-        if (hasResult && isNewer) {
+        const job = await clientGetAIJob(jobId)
+        if (job.status === 'failed' || job.status === 'cancelled') {
           stopPolling()
+          setComputing(false)
+          setError(job.error || 'Berechnung fehlgeschlagen.')
+          return
+        }
+        if (job.status === 'ready' || job.status === 'consumed') {
+          stopPolling()
+          const d = await clientGetNutritionDetail(slug)
           setDetail(d)
           setComputing(false)
           // Bust the SSR cache so the public page picks up the card
@@ -95,11 +102,17 @@ export function NutritionControl({ slug }: Props) {
             body: JSON.stringify({ slug }),
           }).catch(() => {/* best-effort */})
           router.refresh()
+          return
         }
       } catch {
-        // keep polling; transient errors are normal while the job runs
+        // transient errors are normal while the job runs; keep polling
       }
-    }, 3000)
+      if (polls >= MAX_POLLS) {
+        stopPolling()
+        setComputing(false)
+        setError('Zeitüberschreitung beim Warten. Falls die Berechnung noch läuft, erscheinen die Werte beim nächsten Neuladen der Seite.')
+      }
+    }, POLL_MS)
   }
 
   const hasData = detail && !detail.status

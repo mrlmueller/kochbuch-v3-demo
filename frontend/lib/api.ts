@@ -358,9 +358,11 @@ export interface NutritionDetail {
   computed_at?: string
 }
 
-export async function clientComputeNutrition(slug: string): Promise<void> {
+export async function clientComputeNutrition(slug: string): Promise<string> {
   const res = await fetch(`/api/proxy/admin/recipes/${slug}/nutrition`, { method: 'POST' })
   if (!res.ok) throw new Error((await res.json().catch(() => ({} as { error?: string }))).error ?? 'Fehler')
+  const data = (await res.json().catch(() => ({}))) as { job_id?: string }
+  return data.job_id ?? ''
 }
 
 export async function clientGetNutritionDetail(slug: string): Promise<NutritionDetail> {
