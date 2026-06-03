@@ -31,22 +31,33 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
     } catch {}
   }, [])
 
-  async function uploadOne(rawFile: File) {
+  async function uploadOne(rawFile: File): Promise<string> {
+    // iOS HEIC photos (especially ones with printed text) routinely blow
+    // past the server's size limit. Normalize to JPEG <=2048px first.
+    const file = await prepareImageForUpload(rawFile)
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({})) as { error?: string }
+      throw new Error(body.error ?? 'Upload fehlgeschlagen')
+    }
+    const { url } = await res.json() as { url: string }
+    return url
+  }
+
+  async function uploadFiles(rawFiles: File[]) {
+    // Only fill the remaining slots — never exceed 3 images total.
+    const remaining = 3 - images.length
+    const batch = rawFiles.slice(0, remaining)
+    if (batch.length === 0) return
     setUploading(true)
     setError('')
     try {
-      // iOS HEIC photos (especially ones with printed text) routinely blow
-      // past the server's size limit. Normalize to JPEG <=2048px first.
-      const file = await prepareImageForUpload(rawFile)
-      const form = new FormData()
-      form.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: form })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({})) as { error?: string }
-        throw new Error(body.error ?? 'Upload fehlgeschlagen')
+      for (const rawFile of batch) {
+        const url = await uploadOne(rawFile)
+        setImages(prev => [...prev, url])
       }
-      const { url } = await res.json() as { url: string }
-      setImages(prev => [...prev, url])
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -87,7 +98,7 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
       `}</style>
       <h1 style={{ fontSize: 28, fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: -0.4, margin: '0 0 8px' }}>Aus Bildern</h1>
       <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px' }}>
-        Eine Aufnahme reicht, mehrere Winkel helfen aber. Maximal 3 Bilder.
+        Eine Aufnahme reicht, mehrere Winkel helfen aber. Du kannst bis zu 3 Bilder auf einmal auswählen.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
@@ -114,9 +125,9 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
           Bild wird verarbeitet und hochgeladen…
         </div>
       )}
-      <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => {
-        const f = e.target.files?.[0]
-        if (f) uploadOne(f)
+      <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={e => {
+        const files = e.target.files ? Array.from(e.target.files) : []
+        if (files.length) uploadFiles(files)
         if (fileRef.current) fileRef.current.value = ''
       }} />
 

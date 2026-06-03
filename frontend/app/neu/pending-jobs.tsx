@@ -60,12 +60,19 @@ export function PendingJobs({ dailyLimit }: { dailyLimit: number }) {
 
 function JobRow({ job, onCancel }: { job: AIJob; onCancel: () => void }) {
   const status = job.status
+  // Once a job is ready, the extracted recipe title is the most useful label —
+  // show it instead of the image-count/model line (which still serves as the
+  // fallback while a job is queued/running and has no recipe yet).
+  const title = job.recipe_json?.title?.trim()
+  const subline = status === 'ready' && title
+    ? title
+    : `${job.image_urls.length} Bild(er) · ${job.model}`
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 10, border: '1px solid var(--border)', background: 'white' }}>
       <span style={{ fontSize: 18 }}>{statusIcon(status)}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, color: 'var(--text)' }}>{statusLabel(status)}</div>
-        <div style={{ fontSize: 11, color: 'var(--muted)' }}>{job.image_urls.length} Bild(er) · {job.model}</div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{subline}</div>
         {job.error && <div style={{ fontSize: 11, color: '#B91C1C', marginTop: 2 }}>{job.error}</div>}
       </div>
       {status === 'ready' && (
