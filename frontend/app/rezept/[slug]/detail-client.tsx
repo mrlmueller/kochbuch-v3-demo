@@ -494,6 +494,8 @@ function DesktopDetail({ recipe, categoryName }: Props) {
 export function DetailClient({ recipe, categoryName }: Props) {
   const router = useRouter()
   const { heroRef, imgWrapRef } = useStretchyHero()
+  const baseServings = parseServings(recipe.servings)
+  const [scale, setScale] = useState(1)
 
   // Screen wake lock — keep screen on while cooking
   useEffect(() => {
@@ -551,7 +553,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
           </div>
         </div>
 
-        <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>
+        <div className="flex justify-center gap-8 px-5 py-6">
           <div className="text-center">
             <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Zeit</p>
             <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
@@ -563,9 +565,25 @@ export function DetailClient({ recipe, categoryName }: Props) {
               <div style={{ width: 1, background: 'var(--border)' }} />
               <div className="text-center">
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Personen</p>
-                <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
-                  {recipe.servings}
-                </p>
+                {baseServings > 0 ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <button type="button" aria-label="Weniger Portionen" onClick={() => setScale(s => Math.max(0.25, s - 0.25))}
+                      style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--card-bg, white)', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                      <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/></svg>
+                    </button>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', minWidth: 22, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                      {Math.round(baseServings * scale)}
+                    </span>
+                    <button type="button" aria-label="Mehr Portionen" onClick={() => setScale(s => s + 0.25)}
+                      style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--card-bg, white)', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                      <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
+                    {recipe.servings}
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -577,7 +595,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--accent)' }}>Zutaten</p>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
-          <IngredientList ingredients={recipe.ingredients} servingsRaw={recipe.servings} />
+          <IngredientList ingredients={recipe.ingredients} scale={scale} />
         </div>
 
         <div className="px-6 py-2">
