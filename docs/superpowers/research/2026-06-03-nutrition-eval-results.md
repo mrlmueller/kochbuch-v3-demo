@@ -127,7 +127,8 @@ Two more estimators isolated *where* determinism helps vs hurts. kcal MAPE / Acc
 |---|--:|--:|
 | exp3 pure-LLM (CoT+steps, totals)                 | 13.2 / 72 | 7.1 / 93 |
 | exp6 LLM per-100g + determ **amount-table** + transforms | 39.5 / 59 | 6.7 / 93 |
-| exp7 LLM **grams** + per-100g + determ transforms only   | 14.1 / 76 | **5.6 / 93** |
+| exp7 LLM **grams** + per-100g + determ transforms only   | 14.1 / 76 | 5.6 / 93 |
+| **exp8 LLM-only (grams + per-100g; code ONLY sums)**     | **10.7 / 79** | 7.6 / 93 |
 
 Findings:
 - **Deterministic piece/pack amount tables are brittle** (exp6, our set 39.5 %): "40
@@ -141,22 +142,27 @@ Findings:
   Schnitzel +24→+12) but double-count when the LLM's per-100g already reflects cooking
   (Fried Chicken +20→+51, Mais +46→+104). Net-neutral on kcal — keep only the
   unambiguous ones (exclude frying-bath oil; bone fraction for whole birds/ribs).
-- **Auditable line items cost nothing**: exp7 (the LLM emits per-ingredient grams +
-  per-100g; code sums) matches/beats pure-LLM while making every ingredient's
-  contribution inspectable and freezable — best external kcal of all runs (5.6 / 93).
+- **Auditable line items cost nothing**: the LLM emits per-ingredient grams + per-100g;
+  code sums — every ingredient's contribution is inspectable and freezable.
+- **Removing the transforms entirely wins** (exp8): once the prompt tells the LLM to do
+  the cooking reasoning itself (edible/bone removal, absorbed frying oil as its own
+  line, drained/rendered fat, dry-weight for pasta/rice, fat-level qualifiers), code
+  shrinks to a pure sum and kcal on the vague-amount set improves to **10.7 % / 79 %**
+  — the best of any config, with the transform double-counts gone (Fried Chicken
+  +51→+25, Mais +104→+49). Code-summation also removes the LLM's own arithmetic error.
 
-**Final architecture (evidence-locked):**
+**Final architecture (evidence-locked — exp8):**
 ```
-LLM resolves each ingredient -> { grams (realistic, incl. bone/peel),
-    per_100g (qualifier-aware, raw), food_class, cooking method }
-deterministic code -> sum; NARROW transforms only (exclude frying-bath oil,
-    bone fraction for whole birds/ribs); ÷ servings for display
+LLM resolves each ingredient -> { grams (realistic, edible-only, dry-weight for
+    pasta/rice), per_100g (qualifier-aware) }   + a line for absorbed cooking oil
+deterministic code -> Σ grams × per_100g / 100   (nothing else); ÷ servings for display
 ```
-No USDA matching (hurts on qualifiers). No piece/pack gram tables (brittle). No heavy
-transform stack (washes out). The LLM + CoT + recipe **steps** is the robust core;
-deterministic code is the auditable scaffolding around it. Gate to hold in production:
-kcal ≤ ~14 % MAPE / ~80 % within ±20 % on vague-amount recipes, ≤ ~7 % when grams are
-given. Sugar/fibre stay weakest (secondary display, show uncertainty). Eval spend ≈ $7.
+No USDA matching (hurts on qualifiers). No piece/pack gram tables (brittle). No code
+transforms (the LLM handles bone/oil/rendering via a comprehensive GENERIC prompt). The
+LLM + CoT + recipe **steps** is the engine; code only sums (auditable, no arithmetic
+error). Gate to hold in production: **kcal ≤ ~11 % MAPE / ~80 % within ±20 % on
+vague-amount recipes, ≤ ~8 % when grams are given**, near-zero bias. Sugar/fibre stay
+weakest (~20–36 % MAPE → secondary display, show uncertainty). Eval spend ≈ $8.
 
 ## Seeds for the production build
 - The prototype's `UNIT_ML / PIECE_G / PACK_G / EDIBLE / FAT_UPTAKE / fat-rendering`
