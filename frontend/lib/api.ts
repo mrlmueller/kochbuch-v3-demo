@@ -18,9 +18,16 @@ export interface RecipeListItem {
   created_by?: string | null
   is_mine?: boolean
 }
+export interface Macros {
+  kcal: number; protein_g: number; fat_g: number
+  carbs_g: number; sugar_g: number; fibre_g: number
+}
+export interface PublicNutrition { per_serving: Macros; outdated?: boolean }
+
 export interface Recipe extends RecipeListItem {
   ingredients: Ingredient[]; steps: string[]
   notes: string; created_at: string; updated_at: string
+  nutrition?: PublicNutrition | null
 }
 export interface RecipeFilter { category?: string; q?: string; owner?: 'me' }
 export interface ListRecipesResponse {

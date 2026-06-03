@@ -12,6 +12,7 @@ import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings, isIngredientDivider, ingredientDividerTitle } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+import { NutritionCard } from '@/components/nutrition-card'
 
 // Renders the Bearbeiten/Löschen buttons when the current user created
 // this recipe. Looks up the user via the cached useMe() hook so the
@@ -429,6 +430,11 @@ function DesktopDetail({ recipe, categoryName }: Props) {
                 )
               })}
             </div>
+            {recipe.nutrition && (
+              <div style={{ marginTop: 24 }}>
+                <NutritionCard perServing={recipe.nutrition.per_serving} />
+              </div>
+            )}
           </aside>
 
           {/* Steps */}
@@ -571,6 +577,12 @@ export function DetailClient({ recipe, categoryName }: Props) {
           </div>
           <IngredientList ingredients={recipe.ingredients} servingsRaw={recipe.servings} />
         </div>
+
+        {recipe.nutrition && (
+          <div className="px-6 pb-4">
+            <NutritionCard perServing={recipe.nutrition.per_serving} />
+          </div>
+        )}
 
         <div className="px-6 py-2">
           <div className="flex items-center gap-4 mb-5">
