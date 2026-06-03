@@ -10,11 +10,13 @@ The model never guesses grams or oil. All prompts/tables are GENERIC.
 
 Run:  python backend/cmd/nutrition-eval/_experiments/exp5_deterministic.py
 """
-import json, pathlib, time, urllib.request, urllib.parse
+import json, pathlib, sys, time, urllib.request, urllib.parse
 import anthropic
 
 HERE = pathlib.Path(__file__).resolve().parent
-EVAL_SET = HERE.parent / "recipes.json"
+# Optional dataset path arg (default = our hand-built recipes.json); lets the same
+# estimator run against the independent external set (recipes_external.json).
+EVAL_SET = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else HERE.parent / "recipes.json"
 ENV = HERE.parents[2] / ".env"
 MODEL = "claude-sonnet-4-6"
 PRICE = {"in": 3.0, "out": 15.0}
@@ -192,7 +194,8 @@ def main():
     def bias(m): return sum(errs[m]) / len(errs[m])
     def acc20(m): return 100 * sum(1 for x in errs[m] if abs(x) <= 20) / len(errs[m])
     cost = in_tok * PRICE["in"] / 1e6 + out_tok * PRICE["out"] / 1e6
-    print("\n=== Experiment 5: deterministic grams + cooking transforms (USDA + tables) ===")
+    print(f"\n=== Experiment 5: deterministic grams + cooking transforms (USDA + tables) ===")
+    print(f"dataset: {EVAL_SET.name}")
     print(f"{'macro':10} {'MAPE%':>7} {'bias%':>7} {'Acc@20%':>8}   (exp3 prompt: 15.1/79 | exp4 FDC: 19.9/79)")
     for m in MACROS:
         print(f"{m:10} {mape(m):7.1f} {bias(m):+7.1f} {acc20(m):8.0f}")

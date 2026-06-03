@@ -76,6 +76,49 @@ The 15 new recipes are **held out** from the exp1–5 tuning, so re-running the 
 estimator (exp5) on them is a direct over-fitting test: if the table-driven approach was
 tuned to the original 14, accuracy will drop on the unseen 15. That run is the next gate.
 
+## Independent external set (15 recipes) — generalization + a course-correction
+
+A second ground-truth set was added from a German recipe app
+(`recipes_external.json`, built by `external_build.py`). Its nutrient values were
+computed by a **third party**, not by us — so it has none of the circularity of our
+hand-computed `recipes.json`. Each recipe gives exact gram amounts, a portion count,
+steps, and a per-portion table for all six macros; `per_recipe = per_portion ×
+servings`. Transcription QA: every Atwater self-check ≤7%.
+
+Both estimators were run against it (same `claude-sonnet-4-6`):
+
+| estimator (external set) | kcal MAPE / Acc@±20 | protein | fat | carbs |
+|---|--:|--:|--:|--:|
+| exp5 deterministic **+ USDA FDC** | 15.4 / 80 | 15.7 | 36.5 | 42.7 |
+| exp3 **pure-LLM** (CoT + steps)   | **7.1 / 93** | 12.2 | **20.0** | **22.2** |
+
+**Findings:**
+1. **kcal generalizes — not overfit.** exp5's kcal on independent data (15.4 / 80) is
+   essentially its number on our own set (14.8 / 86). The headline holds on data we
+   didn't make.
+2. **With grams given, pure-LLM >> USDA-augmented.** exp3 hits 7.1% kcal MAPE / 93%
+   here. Two reasons: (a) the external recipes already give grams, so the deterministic
+   amount→grams layer (exp5's main lever) buys nothing; (b) the USDA food-search
+   **cannot honor "fettarm / mager / 10% Fett" qualifiers** and grabs full-fat matches,
+   so exp5's fat over-counts (**bias +26%**) and carbs over-count (**bias +43%**).
+   Tomaten-Mozzarella (250 g *low-fat* mozzarella) is the extreme: exp5 +134%, exp3 +54%.
+3. **Course-correction (caught before building):** a generic USDA-FDC *matching* layer
+   is a **net negative** when ingredient qualifiers matter — which is most real recipes.
+   exp4 already hinted at this on our set; the external set makes it unambiguous.
+
+**Refined production design (updated by this evidence):**
+- **Keep** the LLM as resolver/classifier: structured amount (value+unit), food_class,
+  cooking method — **and the fat-level/variant qualifier** (fettarm, mager, 10 %).
+- **Keep** deterministic amount→grams + cooking transforms — they are the lever for
+  **vague-amount** recipes (our real data: free-text servings + amounts). The external
+  set can't test this because it already gives grams.
+- **Change** where per-100g values come from: **not** a generic USDA top-1 search.
+  Use a **German, variant-aware** source (BLS, which carries fettarm/mager variants)
+  via **curated matching** that honors the qualifier — or let the LLM supply the
+  per-100g value (it's accurate and qualifier-aware) and use the DB to freeze/audit it.
+  The eval gate to beat is now **exp3's 7.1 % kcal** on the external set and **~15 %**
+  on the vague-amount set.
+
 ## Seeds for the production build
 - The prototype's `UNIT_ML / PIECE_G / PACK_G / EDIBLE / FAT_UPTAKE / fat-rendering`
   tables (`_experiments/exp5_deterministic.py`) → seed for **M3** `cooking_factors` +

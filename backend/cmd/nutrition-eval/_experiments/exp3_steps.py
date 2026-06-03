@@ -7,11 +7,11 @@ etc.) are missing-input failures the cooking method would fix.
 
 Run:  python backend/cmd/nutrition-eval/_experiments/exp3_steps.py
 """
-import json, pathlib, time
+import json, pathlib, sys, time
 import anthropic
 
 HERE = pathlib.Path(__file__).resolve().parent
-EVAL_SET = HERE.parent / "recipes.json"
+EVAL_SET = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else HERE.parent / "recipes.json"
 ENV = HERE.parents[2] / ".env"
 MODEL = "claude-sonnet-4-6"
 PRICE = {"in": 3.0, "out": 15.0}
