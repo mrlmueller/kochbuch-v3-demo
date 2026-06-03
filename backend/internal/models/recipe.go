@@ -43,6 +43,7 @@ type Recipe struct {
 	OwnerEmail    string       `json:"owner_email,omitempty"`
 	CreatedBy     *string      `json:"created_by,omitempty"`
 	IsMine        bool         `json:"is_mine,omitempty"`
-	CreatedAt     time.Time    `json:"created_at"`
-	UpdatedAt     time.Time    `json:"updated_at"`
+	CreatedAt     time.Time        `json:"created_at"`
+	UpdatedAt     time.Time        `json:"updated_at"`
+	Nutrition     *PublicNutrition `json:"nutrition,omitempty"`
 }

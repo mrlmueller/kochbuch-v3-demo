@@ -21,6 +21,8 @@ type AIJob struct {
 	Provider     string         `json:"provider"`
 	Model        string         `json:"model"`
 	ImageURLs    []string       `json:"image_urls"`
+	Kind         string         `json:"kind"`
+	RecipeSlug   *string        `json:"recipe_slug,omitempty"`
 	RecipeJSON   map[string]any `json:"recipe_json,omitempty"`
 	Error        string         `json:"error,omitempty"`
 	Attempts     int            `json:"attempts"`
