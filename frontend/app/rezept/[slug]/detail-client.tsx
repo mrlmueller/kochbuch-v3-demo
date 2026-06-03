@@ -294,7 +294,8 @@ interface Props {
 function DesktopDetail({ recipe, categoryName }: Props) {
   const router = useRouter()
   const baseServings = parseServings(recipe.servings)
-  const [scale, setScale] = useState(1)
+  const [servings, setServings] = useState(baseServings)
+  const scale = baseServings > 0 ? servings / baseServings : 1
   const [checkedIngs, setCheckedIngs] = useState<Set<number>>(new Set())
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set())
 
@@ -348,14 +349,14 @@ function DesktopDetail({ recipe, categoryName }: Props) {
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Personen</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <button type="button" onClick={() => setScale(s => Math.max(0.25, s - 0.25))}
+                  <button type="button" onClick={() => setServings(s => Math.max(1, s - 1))}
                     style={{ width: 26, height: 26, borderRadius: '50%', border: '1px solid var(--border)', background: 'white', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                     <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/></svg>
                   </button>
                   <div style={{ fontSize: 22, fontFamily: 'var(--font-serif)', color: 'var(--text)', minWidth: 28, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
-                    {Math.round(baseServings * scale)}
+                    {servings}
                   </div>
-                  <button type="button" onClick={() => setScale(s => s + 0.25)}
+                  <button type="button" onClick={() => setServings(s => s + 1)}
                     style={{ width: 26, height: 26, borderRadius: '50%', border: '1px solid var(--border)', background: 'white', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                     <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
                   </button>
@@ -383,7 +384,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
               Zutaten
             </div>
             <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
-              für {Math.round(baseServings * scale)} {Math.round(baseServings * scale) === 1 ? 'Person' : 'Personen'}
+              für {servings} {servings === 1 ? 'Person' : 'Personen'}
             </div>
             <div>
               {recipe.ingredients.map((ing, i) => {
@@ -495,7 +496,8 @@ export function DetailClient({ recipe, categoryName }: Props) {
   const router = useRouter()
   const { heroRef, imgWrapRef } = useStretchyHero()
   const baseServings = parseServings(recipe.servings)
-  const [scale, setScale] = useState(1)
+  const [servings, setServings] = useState(baseServings)
+  const scale = baseServings > 0 ? servings / baseServings : 1
 
   // Screen wake lock — keep screen on while cooking
   useEffect(() => {
@@ -567,14 +569,14 @@ export function DetailClient({ recipe, categoryName }: Props) {
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Personen</p>
                 {baseServings > 0 ? (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    <button type="button" aria-label="Weniger Portionen" onClick={() => setScale(s => Math.max(0.25, s - 0.25))}
+                    <button type="button" aria-label="Weniger Portionen" onClick={() => setServings(s => Math.max(1, s - 1))}
                       style={{ width: 24, height: 24, border: 'none', background: 'transparent', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
                       <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/></svg>
                     </button>
                     <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', minWidth: 22, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
-                      {Math.round(baseServings * scale)}
+                      {servings}
                     </span>
-                    <button type="button" aria-label="Mehr Portionen" onClick={() => setScale(s => s + 0.25)}
+                    <button type="button" aria-label="Mehr Portionen" onClick={() => setServings(s => s + 1)}
                       style={{ width: 24, height: 24, border: 'none', background: 'transparent', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
                       <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
                     </button>
