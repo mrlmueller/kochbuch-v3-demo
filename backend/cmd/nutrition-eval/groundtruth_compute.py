@@ -12,7 +12,16 @@ Macro tuple order: (kcal, protein_g, fat_g, carbs_g, sugar_g, fibre_g) per 100 g
 Run:  python backend/cmd/nutrition-eval/groundtruth_compute.py
 It writes recipes.json next to itself and prints a summary table.
 """
-import json, os
+import json, os, sys
+
+try:  # Windows consoles default to cp1252 and choke on e.g. U+2011 in titles
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+# DB source (committed): real ingredient lines + steps, keyed by recipe id.
+SOURCE = json.load(open(os.path.join(_HERE, "_db_source.json"), encoding="utf-8"))
 
 # ---- Master per-100g macro table (looked up; raw unless noted) --------------
 M = {
@@ -64,6 +73,44 @@ M = {
     "sriracha":      (100, 2.0,  1.0,  19.0, 15.0, 1.0),
     "sesame":        (573, 17.0, 50.0, 23.0, 0.3, 12.0),
     "brown_sugar":   (380, 0.0,  0.0,  98.0, 97.0, 0.0),
+    # --- M2 additions for the 15 extra recipes (looked up; raw unless noted) --
+    "banana":        (89,  1.1,  0.3,  23.0, 12.0, 2.6),
+    "oats":          (372, 13.5, 7.0,  59.0, 1.0,  10.0),  # Haferflocken, dry
+    "dark_choc":     (540, 6.0,  33.0, 50.0, 45.0, 7.0),   # Zartbitter ~50-60%
+    "egg_white":     (52,  11.0, 0.2,  0.7,  0.7,  0.0),   # ~33 g/white
+    "starch":        (381, 0.3,  0.1,  91.0, 0.0,  0.9),   # Speise-/Kartoffelstaerke
+    "rice_dry":      (358, 6.5,  0.6,  79.0, 0.1,  1.3),   # white short-grain, dry
+    "glass_noodles": (351, 0.2,  0.1,  86.0, 0.0,  0.5),   # Glasnudeln, dry
+    "beef_mince":    (215, 19.0, 15.0, 0.0,  0.0,  0.0),   # Rinderhack raw ~15% fat
+    "stew_meat":     (200, 19.0, 14.0, 0.0,  0.0,  0.0),   # Gulasch beef+pork raw
+    "tomato_paste":  (82,  4.3,  0.5,  19.0, 12.0, 4.0),   # Tomatenmark
+    "bell_pepper":   (31,  1.0,  0.3,  6.0,  4.2,  2.1),   # Paprika, rot
+    "passata":       (32,  1.6,  0.3,  5.8,  4.5,  1.4),   # passierte/Dosentomaten
+    "kidney_beans":  (100, 8.7,  0.5,  17.0, 0.3,  6.4),   # canned, drained
+    "broccoli":      (34,  2.8,  0.4,  7.0,  1.7,  2.6),
+    "carrot":        (41,  0.9,  0.2,  9.6,  4.7,  2.8),
+    "mozzarella":    (280, 22.0, 22.0, 2.2,  1.0,  0.0),
+    "parmesan":      (392, 36.0, 26.0, 3.2,  0.9,  0.0),
+    "chicken_breast":(120, 22.5, 2.6,  0.0,  0.0,  0.0),   # raw
+    "chicken_whole": (216, 17.1, 15.9, 0.0,  0.0,  0.0),   # meat+skin, raw
+    "buttermilk":    (40,  3.3,  0.9,  4.8,  4.8,  0.0),
+    "mushroom":      (22,  3.1,  0.3,  3.3,  2.0,  1.0),   # Champignon
+    "ghee":          (900, 0.2,  99.8, 0.0,  0.0,  0.0),   # Butterschmalz
+    "cabbage":       (25,  1.3,  0.1,  5.8,  3.2,  2.5),   # Weisskohl
+    "bean_sprouts":  (30,  3.0,  0.2,  5.9,  4.1,  1.8),   # Sojasprossen
+    "springroll_wr": (300, 9.0,  1.5,  63.0, 1.0,  2.0),   # Fruehlingsrollenblaetter
+    "rice_paper":    (333, 3.5,  0.3,  80.0, 0.0,  1.5),   # Reispapier
+    "smoked_tofu":   (190, 19.0, 11.0, 1.5,  0.5,  0.5),   # Raeuchertofu
+    "avocado":       (160, 2.0,  15.0, 9.0,  0.7,  7.0),
+    "mango":         (60,  0.8,  0.4,  15.0, 14.0, 1.6),
+    "spring_onion":  (32,  1.8,  0.2,  7.0,  2.3,  2.6),   # Fruehlings-/Lauchzwiebel
+    "lasagne_dry":   (359, 12.0, 1.5,  73.0, 3.0,  3.2),   # like dry pasta
+    "leberkaese":    (280, 12.0, 25.0, 1.0,  0.0,  0.0),
+    "bread_roll":    (272, 8.3,  1.9,  55.5, 2.0,  3.0),   # Weizenbroetchen/Wecken
+    "iceberg":       (14,  0.9,  0.1,  3.0,  2.0,  1.2),
+    "cucumber":      (12,  0.7,  0.1,  2.2,  1.4,  0.5),
+    "radish":        (16,  0.7,  0.1,  3.4,  1.9,  1.6),
+    "fish_sauce":    (35,  5.0,  0.0,  4.0,  4.0,  0.0),
 }
 KEYS = ("kcal", "protein_g", "fat_g", "carbs_g", "sugar_g", "fibre_g")
 
@@ -215,6 +262,101 @@ R(id="lachscreme", title="Lachscreme", category="snacks",
                ("25–50 g","Crème fraîche oder Schmand"),("nach Geschmack","Salz/Pfeffer")],
   comp=[("smoked_salmon",175),("cream_cheese",200),("onion",55),("creme_fraiche",38)])
 
+# ---- M2: 15 more recipes (ingredients + steps pulled from _db_source.json) ---
+# These omit `ingredients=` -> the compute loop fills them from the DB source.
+R(id="bananen-hafer-kekse", title="Bananen-Hafer-Kekse", category="backen-und-suesses",
+  servings=4, uncertainty=15,
+  notes="Baked, no added/lost fat. 1 banana ~120 g peeled; spices negligible.",
+  comp=[("banana",120),("oats",50),("dark_choc",30)])
+
+R(id="biskuit", title="Biskuit", category="backen-und-suesses",
+  servings=8, uncertainty=15,
+  notes="Sponge: 4 egg whites (~33 g) + 4 yolks (~18 g). Dusting sugar dropped. No fat transform.",
+  comp=[("egg_white",132),("sugar",200),("vanillesugar",8),("egg_yolk",72),
+        ("flour405",80),("starch",80)])
+
+R(id="kartoffelsalat", title="Kartoffelsalat", category="grundrezepte-und-saucen",
+  servings=4, uncertainty=12,
+  notes="Boiled waxy potato (yield ~1.0). All 4 EL oil stay in the dressing; broth/vinegar ~0 kcal.",
+  comp=[("potato",500),("onion",150),("oil",60),("mustard_dijon",15)])
+
+R(id="semmelknoedel", title="Klassische Semmelknödel", category="grundrezepte-und-saucen",
+  servings=4, uncertainty=15,
+  notes="4 day-old rolls ~60 g each. Poached (no fat change); butter-sauteed onion stays. "
+        "Parsley negligible; binding breadcrumbs ~20 g.",
+  comp=[("bread_roll",240),("onion",150),("butter",30),("milk",155),
+        ("egg_whole",106),("breadcrumbs",20)])
+
+R(id="pfannkuchen", title="Pfannkuchen", category="grundrezepte-und-saucen",
+  servings=5, uncertainty=15,
+  notes="Thin pancakes; 5 TL oil to grease the pan is largely absorbed -> counted (25 g).",
+  comp=[("flour405",150),("milk",258),("egg_whole",159),("oil",25)])
+
+R(id="sushi-reis", title="Sushi-Reis – Grundrezept (Reiskocher)", category="grundrezepte-und-saucen",
+  servings=3, uncertainty=10,
+  notes="2 cups (240 g) dry rice + sweetened vinegar. Vinegar kcal negligible.",
+  comp=[("rice_dry",240),("sugar",12)])
+
+R(id="chili-con-carne", title="Chili con Carne", category="hauptgerichte",
+  servings=5, uncertainty=18,
+  notes="DB servings blank -> 5 (hearty ~2.3 kg pot). Stew: rendered meat fat + oil stay in the dish.",
+  comp=[("olive_oil",28),("onion",110),("garlic",4),("beef_mince",500),("tomato_paste",50),
+        ("bell_pepper",180),("passata",800),("kidney_beans",250),("corn",140)])
+
+R(id="brokkolicremesuppe", title="Brokkolicremesuppe", category="hauptgerichte",
+  servings=2, uncertainty=15,
+  notes="Roux (butter+flour) + cream + blanched broccoli (macros ~unchanged). No fat loss.",
+  comp=[("broccoli",300),("butter",45),("spring_onion",15),("flour405",30),("cream30",134)])
+
+R(id="gulasch", title="Gulasch (Rind und Schwein)", category="hauptgerichte",
+  servings=2, uncertainty=20,
+  notes="1 kg stew meat braised; fat stays in the gravy (nothing drained). DB servings=2 is low "
+        "(makes ~4) -> per-serving FYI is high; per_recipe is the eval target.",
+  comp=[("oil",22),("stew_meat",1000),("onion",330),("tomato_paste",15),("flour405",20),("garlic",4)])
+
+R(id="lasagne", title="Lasagne", category="hauptgerichte",
+  servings=6, uncertainty=15,
+  notes="Bolognese (meat fat stays, baked) + bechamel + ~10 dry sheets (~150 g) + mozzarella + parmesan.",
+  comp=[("onion",110),("garlic",8),("ground_meat",500),("tomato_paste",30),("carrot",60),
+        ("bell_pepper",120),("passata",400),("butter",15),("flour405",10),("milk",258),
+        ("lasagne_dry",150),("mozzarella",125),("parmesan",60)])
+
+R(id="fried-chicken", title="Fried Chicken", category="hauptgerichte",
+  servings=4, uncertainty=35,
+  notes="HIGH uncertainty: whole chicken ~1.3 kg bone-in -> ~65% edible meat+skin (840 g). "
+        "Buttermilk marinade discarded (~40 g clings). Of 360 g flour/starch dredge only the "
+        "adhering crust counts (~110+40 g). Deep-fry oil uptake ~5%/coated weight. Bath oil is NOT an ingredient.",
+  comp=[("chicken_whole",840),("flour405",110),("starch",40),("buttermilk",40)],
+  oil_g=50)
+
+R(id="haehnchengeschnetzeltes", title="Hähnchengeschnetzeltes mit Pilzen", category="hauptgerichte",
+  servings=4, uncertainty=15,
+  notes="Pan-fried in Butterschmalz (stays) + cream sauce. Fond ~0 kcal.",
+  comp=[("mushroom",250),("onion",110),("garlic",4),("chicken_breast",400),("ghee",28),
+        ("flour405",10),("cream30",250),("soy_dark",5)])
+
+R(id="fruehlingsrollen", title="Frühlingsrollen", category="hauptgerichte",
+  servings=4, uncertainty=30,
+  notes="HIGH uncertainty: wrapper count (~28 of 40 listed, ~280 g) and deep-fry oil uptake (~50 g). "
+        "Glass noodles by dry weight; meat fat sealed in. Ginger/coriander negligible.",
+  comp=[("glass_noodles",100),("cabbage",300),("carrot",120),("spring_onion",30),
+        ("bean_sprouts",150),("ground_meat",300),("soy_dark",30),("fish_sauce",30),
+        ("springroll_wr",280)],
+  oil_g=50)
+
+R(id="sommerrollen", title="Sommerrollen", category="snacks",
+  servings=4, uncertainty=18,
+  notes="Fresh (not fried). Tofu lightly pan-fried in 1 TL oil (stays). Avocado ~140 g flesh, "
+        "mango ~100 g, rice paper ~12 sheets (~150 g). Lime/coriander negligible.",
+  comp=[("rice_paper",150),("glass_noodles",100),("smoked_tofu",175),("oil",5),("iceberg",150),
+        ("carrot",120),("bell_pepper",120),("mushroom",60),("radish",40),("spring_onion",30),
+        ("cucumber",150),("avocado",140),("mango",100)])
+
+R(id="leberkaes-wecken", title="Leberkäs‑Wecken", category="snacks",
+  servings=4, uncertainty=12,
+  notes="4 rolls (~60 g) + 4 slices Leberkäse (~90 g). Pan-warmed (no added fat). Condiments negligible.",
+  comp=[("bread_roll",240),("leberkaese",360)])
+
 # ---- Compute -----------------------------------------------------------------
 def round1(x): return round(x, 1)
 
@@ -234,10 +376,17 @@ for r in RECIPES:
     atw_dev = abs(atw - per["kcal"]) / per["kcal"] * 100 if per["kcal"] else 0
     per_r = {k: round1(per[k]) for k in KEYS}
     total_r = {k: round1(total[k]) for k in KEYS}
+    src = SOURCE[r["id"]]
+    if r.get("ingredients"):
+        ing_out = [{"amount": a, "name": n} for a, n in r["ingredients"]]
+    else:  # pull the real recipe lines from the committed DB source
+        ing_out = [{"amount": (ing.get("display") or "").strip(), "name": ing["name"]}
+                   for ing in src["ingredients"]]
     out.append({
         "id": r["id"], "title": r["title"], "category_slug": r["category"],
         "servings": r["servings"],
-        "ingredients": [{"amount": a, "name": n} for a, n in r["ingredients"]],
+        "ingredients": ing_out,
+        "steps": src["steps"],
         "reference": {
             # per_recipe is the PRIMARY eval target (servings is unreliable and
             # divides out trivially for display). per_serving_derived is FYI only.

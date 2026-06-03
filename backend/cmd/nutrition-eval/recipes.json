@@ -38,6 +38,13 @@
         "name": "Milch"
       }
     ],
+    "steps": [
+      "Backofen auf 180 °C Ober-/Unterhitze vorheizen.",
+      "100 g Butter, 100 g Zucker, 1 Stk. Vanillezucker (Päckchen) und 1 Prise Salz sahnig rühren.",
+      "3 Stk. Eier nacheinander dazugeben und gründlich verrühren.",
+      "300 g Mehl mit 1 Stk. Backpulver (Päckchen) mischen und unterrühren, dann 4 EL Milch einarbeiten, bis der Teig etwas fester als Napfkuchenteig ist.",
+      "Mit einem Esslöffel kleine runde Häufchen mit großem Abstand auf ein gefettetes Backblech setzen und 15–20 Minuten backen, bis sie leicht goldbraun sind."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 2459.2,
@@ -58,14 +65,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 10,
       "notes": "Plain baked dough, no glaze in the data. ~20 small cakes."
-    },
-    "steps": [
-      "Backofen auf 180 °C Ober-/Unterhitze vorheizen.",
-      "100 g Butter, 100 g Zucker, 1 Stk. Vanillezucker (Päckchen) und 1 Prise Salz sahnig rühren.",
-      "3 Stk. Eier nacheinander dazugeben und gründlich verrühren.",
-      "300 g Mehl mit 1 Stk. Backpulver (Päckchen) mischen und unterrühren, dann 4 EL Milch einarbeiten, bis der Teig etwas fester als Napfkuchenteig ist.",
-      "Mit einem Esslöffel kleine runde Häufchen mit großem Abstand auf ein gefettetes Backblech setzen und 15–20 Minuten backen, bis sie leicht goldbraun sind."
-    ]
+    }
   },
   {
     "id": "apfelkuchen",
@@ -114,6 +114,13 @@
         "name": "Aprikosenmarmelade"
       }
     ],
+    "steps": [
+      "Springform (28 cm) fetten. Butter schaumig schlagen, Zucker, Eier, Salz und Zitronen-Backöl einrühren.",
+      "Mehl mit Backpulver mischen und portionsweise zugeben; so viel Milch einrühren, bis der Teig schwer reißend vom Löffel fällt. In die Form streichen.",
+      "Äpfel schälen, vierteln, entkernen, längs mehrfach einritzen und kranzförmig auflegen; ca. 1 cm Rand Teig frei lassen.",
+      "Bei 175–200 °C 40–50 Min. backen.",
+      "Aprikotur: Marmelade mit Wasser aufkochen, durchs Sieb streichen und den heißen Kuchen bestreichen; alternativ den erkalteten Kuchen mit Puderzucker bestäuben."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 2849.7,
@@ -134,14 +141,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "DB servings=2 is WRONG for a 28cm Springform cake -> used 12. Apricot glaze counted."
-    },
-    "steps": [
-      "Springform (28 cm) fetten. Butter schaumig schlagen, Zucker, Eier, Salz und Zitronen-Backöl einrühren.",
-      "Mehl mit Backpulver mischen und portionsweise zugeben; so viel Milch einrühren, bis der Teig schwer reißend vom Löffel fällt. In die Form streichen.",
-      "Äpfel schälen, vierteln, entkernen, längs mehrfach einritzen und kranzförmig auflegen; ca. 1 cm Rand Teig frei lassen.",
-      "Bei 175–200 °C 40–50 Min. backen.",
-      "Aprikotur: Marmelade mit Wasser aufkochen, durchs Sieb streichen und den heißen Kuchen bestreichen; alternativ den erkalteten Kuchen mit Puderzucker bestäuben."
-    ]
+    }
   },
   {
     "id": "apfelkuechle",
@@ -178,6 +178,11 @@
         "name": "Backpulver"
       }
     ],
+    "steps": [
+      "1 Stk Ei mit 2 TL Zucker verrühren.",
+      "125 ml Milch, 3 EL Rum und 2 TL Öl einrühren.",
+      "250 g Mehl und 1 gestr. TL Backpulver zu einem glatten Teig verrühren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 1503.2,
@@ -198,12 +203,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 25,
       "notes": "DATA GAP: apples are NOT in the ingredient list (it's only the batter). Computed batter + deep-fry oil uptake (+7 g/100 g batter). Real dish would add apples."
-    },
-    "steps": [
-      "1 Stk Ei mit 2 TL Zucker verrühren.",
-      "125 ml Milch, 3 EL Rum und 2 TL Öl einrühren.",
-      "250 g Mehl und 1 gestr. TL Backpulver zu einem glatten Teig verrühren."
-    ]
+    }
   },
   {
     "id": "honig-senf-dressing",
@@ -236,6 +236,12 @@
         "name": "Salz"
       }
     ],
+    "steps": [
+      "Olivenöl, Balsamico, Honig, Senf, Pfeffer und Salz abmessen.",
+      "Alles in eine Schüssel geben und 30–60 Sek. kräftig verrühren, bis es emulgiert und cremig ist.",
+      "Abschmecken; nach Wunsch mehr Honig (süßer), Senf (schärfer) oder Essig (säuerlicher) zugeben.",
+      "Sofort verwenden oder in eine Flasche füllen und im Kühlschrank aufbewahren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 428.1,
@@ -256,13 +262,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 12,
       "notes": "Raw emulsion, no transform. Per-serving = dressing portion."
-    },
-    "steps": [
-      "Olivenöl, Balsamico, Honig, Senf, Pfeffer und Salz abmessen.",
-      "Alles in eine Schüssel geben und 30–60 Sek. kräftig verrühren, bis es emulgiert und cremig ist.",
-      "Abschmecken; nach Wunsch mehr Honig (süßer), Senf (schärfer) oder Essig (säuerlicher) zugeben.",
-      "Sofort verwenden oder in eine Flasche füllen und im Kühlschrank aufbewahren."
-    ]
+    }
   },
   {
     "id": "kartoffelpueree",
@@ -291,6 +291,13 @@
         "name": "Muskatnuss"
       }
     ],
+    "steps": [
+      "Kartoffeln schälen, in 1,5–2 cm Würfel schneiden und unter kaltem Wasser abspülen.",
+      "Hohen Topf kalt ausspülen; Kartoffeln mit Milch und Salz hineingeben, unter Rühren aufkochen.",
+      "Hitze stark reduzieren, mit Deckel 20–25 Min. sieden, ab und zu umrühren, bis die Würfel sehr weich sind.",
+      "Butter und Muskat zugeben; Kartoffeln im Topf mit dem Stampfer zu cremigem Püree verarbeiten.",
+      "Mit Salz abschmecken; nach Wunsch mit etwas Butter oder Petersilie servieren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 1607.6,
@@ -311,14 +318,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 10,
       "notes": "Boiled peeled potato (yield ~1.0; macros unchanged) + milk + butter."
-    },
-    "steps": [
-      "Kartoffeln schälen, in 1,5–2 cm Würfel schneiden und unter kaltem Wasser abspülen.",
-      "Hohen Topf kalt ausspülen; Kartoffeln mit Milch und Salz hineingeben, unter Rühren aufkochen.",
-      "Hitze stark reduzieren, mit Deckel 20–25 Min. sieden, ab und zu umrühren, bis die Würfel sehr weich sind.",
-      "Butter und Muskat zugeben; Kartoffeln im Topf mit dem Stampfer zu cremigem Püree verarbeiten.",
-      "Mit Salz abschmecken; nach Wunsch mit etwas Butter oder Petersilie servieren."
-    ]
+    }
   },
   {
     "id": "sauce-hollandaise",
@@ -363,6 +363,13 @@
         "name": "Pfeffer"
       }
     ],
+    "steps": [
+      "3 Stk. Eigelb (Größe L) in einen Rührbecher geben und mit 1 EL Limettensaft, 1 TL Dijonsenf, 1 TL Crème fraîche, 1 TL Zucker sowie etwas Salz mit dem Pürierstab kurz pürieren.",
+      "200 g Butter in einem kleinen Topf schmelzen und kurz aufkochen.",
+      "Die heiße Butter bei laufendem Pürierstab langsam in die Eigelbmasse gießen und dabei weiter pürieren, bis die Sauce cremig ist.",
+      "Mit Salz und Pfeffer abschmecken und optional mit 0,5 TL Weißweinessig abrunden.",
+      "Die Blitz-Hollandaise direkt warm servieren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 1644.4,
@@ -383,14 +390,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Butter + egg yolk emulsion. Per-serving = ~66 g sauce."
-    },
-    "steps": [
-      "3 Stk. Eigelb (Größe L) in einen Rührbecher geben und mit 1 EL Limettensaft, 1 TL Dijonsenf, 1 TL Crème fraîche, 1 TL Zucker sowie etwas Salz mit dem Pürierstab kurz pürieren.",
-      "200 g Butter in einem kleinen Topf schmelzen und kurz aufkochen.",
-      "Die heiße Butter bei laufendem Pürierstab langsam in die Eigelbmasse gießen und dabei weiter pürieren, bis die Sauce cremig ist.",
-      "Mit Salz und Pfeffer abschmecken und optional mit 0,5 TL Weißweinessig abrunden.",
-      "Die Blitz-Hollandaise direkt warm servieren."
-    ]
+    }
   },
   {
     "id": "asiatische-spareribs",
@@ -459,6 +459,15 @@
         "name": "Frühlingslauch"
       }
     ],
+    "steps": [
+      "Ziehe bei 1,5 kg Spareribs die Silberhaut auf der Knochenseite ab und schneide die Rippchen einzeln oder in kleine Stücke zwischen den Knochen auseinander.",
+      "Koche die Spareribs mit 3 EL Salz, 1 halbierten Knolle Knoblauch, 1 geviertelten Zwiebel und 4 EL dunkler Sojasoße in reichlich Wasser 1 Stunde 15 Minuten leise, bis das Fleisch weich, aber noch nicht zerfallen ist.",
+      "Rühre für die Glasur 2 EL Mirin, 1 EL Reisessig, 2 EL Austernsoße, 1 EL dunkle Sojasoße, 1,5 EL süße Sojasoße, 5 EL Hoisin-Soße, 1 TL braunen Zucker, 1 EL Sriracha und 1 EL Sesam glatt.",
+      "Schneide 2 Stk. Frühlingslauch längs in feine Streifen und lege sie in eiskaltes Wasser, damit sie sich für die Deko aufrollen.",
+      "Nimm die vorgekochten Rippchen aus dem Sud, tupfe sie trocken und pinsele sie rundherum großzügig mit der Glasur ein.",
+      "Backe die Rippchen bei 200 °C Umluft 6–8 Minuten, bis die Glasur glänzt und leicht karamellisiert. Bestreiche sie bei Bedarf nach der Hälfte der Zeit noch einmal dünn.",
+      "Richte die heißen Spareribs an und streue die Frühlingslauchstreifen darüber."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 2185.7,
@@ -479,16 +488,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 30,
       "notes": "HARDEST: 1.5 kg bone-in -> ~60% edible meat (900 g). Boiled 75 min (renders fat into discarded sud: fat ret 0.65, protein 0.92, kcal 0.72), then glazed+baked. Boil aromatics (salt/soy/garlic/onion) discarded. Glaze ~80% adheres."
-    },
-    "steps": [
-      "Ziehe bei 1,5 kg Spareribs die Silberhaut auf der Knochenseite ab und schneide die Rippchen einzeln oder in kleine Stücke zwischen den Knochen auseinander.",
-      "Koche die Spareribs mit 3 EL Salz, 1 halbierten Knolle Knoblauch, 1 geviertelten Zwiebel und 4 EL dunkler Sojasoße in reichlich Wasser 1 Stunde 15 Minuten leise, bis das Fleisch weich, aber noch nicht zerfallen ist.",
-      "Rühre für die Glasur 2 EL Mirin, 1 EL Reisessig, 2 EL Austernsoße, 1 EL dunkle Sojasoße, 1,5 EL süße Sojasoße, 5 EL Hoisin-Soße, 1 TL braunen Zucker, 1 EL Sriracha und 1 EL Sesam glatt.",
-      "Schneide 2 Stk. Frühlingslauch längs in feine Streifen und lege sie in eiskaltes Wasser, damit sie sich für die Deko aufrollen.",
-      "Nimm die vorgekochten Rippchen aus dem Sud, tupfe sie trocken und pinsele sie rundherum großzügig mit der Glasur ein.",
-      "Backe die Rippchen bei 200 °C Umluft 6–8 Minuten, bis die Glasur glänzt und leicht karamellisiert. Bestreiche sie bei Bedarf nach der Hälfte der Zeit noch einmal dünn.",
-      "Richte die heißen Spareribs an und streue die Frühlingslauchstreifen darüber."
-    ]
+    }
   },
   {
     "id": "auberginen-hackfleisch-pfanne",
@@ -541,6 +541,14 @@
         "name": "Naturjoghurt"
       }
     ],
+    "steps": [
+      "Auberginen, Zwiebeln, Knoblauch und Tomaten würfeln.",
+      "Öl erhitzen, Hackfleisch krümelig und kräftig anbraten.",
+      "Zwiebeln und Knoblauch zugeben und 2–3 Min. mitbraten.",
+      "Auberginen, Tomaten, Oregano, Paprika, Salz und Pfeffer einrühren.",
+      "Brühe angießen und ca. 20 Min. leise köcheln, bis die Auberginen weich sind.",
+      "Mit Naturjoghurt servieren; dazu passen Reis oder Kartoffeln."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 1990.0,
@@ -561,15 +569,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Pan-fried; added oil + rendered meat fat both stay in the Pfanne (dish basis). Broth (~0 kcal) and serving yogurt dropped."
-    },
-    "steps": [
-      "Auberginen, Zwiebeln, Knoblauch und Tomaten würfeln.",
-      "Öl erhitzen, Hackfleisch krümelig und kräftig anbraten.",
-      "Zwiebeln und Knoblauch zugeben und 2–3 Min. mitbraten.",
-      "Auberginen, Tomaten, Oregano, Paprika, Salz und Pfeffer einrühren.",
-      "Brühe angießen und ca. 20 Min. leise köcheln, bis die Auberginen weich sind.",
-      "Mit Naturjoghurt servieren; dazu passen Reis oder Kartoffeln."
-    ]
+    }
   },
   {
     "id": "kaesespaetzle",
@@ -606,6 +606,12 @@
         "name": "Röstzwiebeln"
       }
     ],
+    "steps": [
+      "Spätzle in Salzwasser nach Packungsangabe bissfest kochen, abgießen und bereitstellen.",
+      "Hitze reduzieren, Sahne in dieselbe Pfanne geben, mit Muskat, Salz und Pfeffer würzen.",
+      "Spätzle in die Pfanne schütten, gründlich mit der Sahne vermengen, dann den geriebenen Käse unterheben.",
+      "Pfanne abdecken, bis der Käse schmilzt und Fäden zieht. Mit Röstzwiebeln und Schnittlauch bestreut servieren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 3062.2,
@@ -626,13 +632,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Ready Spätzle (no transform) + cheese + cream. Röstzwiebeln topping estimated 30 g."
-    },
-    "steps": [
-      "Spätzle in Salzwasser nach Packungsangabe bissfest kochen, abgießen und bereitstellen.",
-      "Hitze reduzieren, Sahne in dieselbe Pfanne geben, mit Muskat, Salz und Pfeffer würzen.",
-      "Spätzle in die Pfanne schütten, gründlich mit der Sahne vermengen, dann den geriebenen Käse unterheben.",
-      "Pfanne abdecken, bis der Käse schmilzt und Fäden zieht. Mit Röstzwiebeln und Schnittlauch bestreut servieren."
-    ]
+    }
   },
   {
     "id": "schnitzel",
@@ -669,6 +669,14 @@
         "name": "Pflanzenöl"
       }
     ],
+    "steps": [
+      "Silberhaut der Schweinelende entfernen; Lende in ca. 3 cm Scheiben schneiden.",
+      "Scheiben sehr dünn plattieren (3–4 mm).",
+      "Panierstraße aufbauen: Teller mit Mehl; Teller mit 3–4 Eiern, Salz, Pfeffer, wenig Muskat verquirlen (Bedenke die gewürze müssen für alle schnitzel reichen also nicht zu wenig nehmen) ; Teller mit Paniermehl.",
+      "Pfanne mit reichlich Öl auf 170–180 °C erhitzen (Schnitzel sollen im Fett schwimmen).",
+      "Mehlieren, durch Ei ziehen, in Paniermehl wenden; überschüssiges Mehl/Brösel abklopfen.",
+      "Schnitzel portionsweise 1–2 Min. je Seite goldbraun frittieren, auf Küchenpapier abtropfen lassen und sofort servieren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 1688.4,
@@ -689,15 +697,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 20,
       "notes": "Breaded pork loin (700 g, midpoint of 600-800), deep-fried. Breading adhering estimated (flour 15, egg 40, breadcrumbs 60 g); oil uptake +6 g/100 g breaded."
-    },
-    "steps": [
-      "Silberhaut der Schweinelende entfernen; Lende in ca. 3 cm Scheiben schneiden.",
-      "Scheiben sehr dünn plattieren (3–4 mm).",
-      "Panierstraße aufbauen: Teller mit Mehl; Teller mit 3–4 Eiern, Salz, Pfeffer, wenig Muskat verquirlen (Bedenke die gewürze müssen für alle schnitzel reichen also nicht zu wenig nehmen) ; Teller mit Paniermehl.",
-      "Pfanne mit reichlich Öl auf 170–180 °C erhitzen (Schnitzel sollen im Fett schwimmen).",
-      "Mehlieren, durch Ei ziehen, in Paniermehl wenden; überschüssiges Mehl/Brösel abklopfen.",
-      "Schnitzel portionsweise 1–2 Min. je Seite goldbraun frittieren, auf Küchenpapier abtropfen lassen und sofort servieren."
-    ]
+    }
   },
   {
     "id": "spaghetti-bolognese",
@@ -734,6 +734,12 @@
         "name": "Salz/Pfeffer"
       }
     ],
+    "steps": [
+      "Großen Topf Wasser aufsetzen, salzen; Nudeln nach Packungsangabe al dente kochen.",
+      "Öl in einer Pfanne erhitzen; Hackfleisch 5–6 Min. krümelig und kräftig anbraten.",
+      "Tomatensoße zugießen; Kräuter, Salz, Pfeffer und eine Prise Zucker einrühren und 5–10 Min. leise köcheln.",
+      "Nudeln abgießen, mit der Soße mischen oder auf Tellern anrichten und Soße darübergeben."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 2291.3,
@@ -754,13 +760,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 18,
       "notes": "'Eine Packung' Nudeln unquantified -> estimated 250 g for 2 servings. Meat fat + 1 EL oil stay in sauce."
-    },
-    "steps": [
-      "Großen Topf Wasser aufsetzen, salzen; Nudeln nach Packungsangabe al dente kochen.",
-      "Öl in einer Pfanne erhitzen; Hackfleisch 5–6 Min. krümelig und kräftig anbraten.",
-      "Tomatensoße zugießen; Kräuter, Salz, Pfeffer und eine Prise Zucker einrühren und 5–10 Min. leise köcheln.",
-      "Nudeln abgießen, mit der Soße mischen oder auf Tellern anrichten und Soße darübergeben."
-    ]
+    }
   },
   {
     "id": "tortilla-omelett",
@@ -801,6 +801,14 @@
         "name": "Salz/Pfeffer"
       }
     ],
+    "steps": [
+      "1 TL Butter in einer Pfanne bei mittlerer Hitze schmelzen und 1 kleine Tomate in Scheiben darin je Seite 2–3 Minuten braten, bis sie leicht weich und etwas goldbraun ist; mit Salz und Pfeffer würzen und 1 EL gehackte Petersilie darüberstreuen.",
+      "2 Eier in einer Schüssel mit Salz und Pfeffer verquirlen und optional 2 EL Milch unterrühren.",
+      "Die Eiermischung über die Tomaten in der Pfanne gießen und 1–2 Minuten stocken lassen, bis die Oberfläche leicht anzieht.",
+      "1 große Tortilla direkt obenauf legen, die Pfanne abdecken und 2–3 Minuten garen, bis alles zusammenhält.",
+      "Das Ganze mithilfe eines Tellers wenden, sodass die Tortilla unten liegt, 50 g geriebenen Käse auf eine Hälfte geben und zu einem Halbmond zusammenklappen.",
+      "Noch einmal 1–2 Minuten pro Seite braten, bis die Tortilla goldbraun und knusprig ist; in Stücke schneiden und warm servieren."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 597.2,
@@ -821,15 +829,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Single serving. Pan-fried in 1 TL butter (counted)."
-    },
-    "steps": [
-      "1 TL Butter in einer Pfanne bei mittlerer Hitze schmelzen und 1 kleine Tomate in Scheiben darin je Seite 2–3 Minuten braten, bis sie leicht weich und etwas goldbraun ist; mit Salz und Pfeffer würzen und 1 EL gehackte Petersilie darüberstreuen.",
-      "2 Eier in einer Schüssel mit Salz und Pfeffer verquirlen und optional 2 EL Milch unterrühren.",
-      "Die Eiermischung über die Tomaten in der Pfanne gießen und 1–2 Minuten stocken lassen, bis die Oberfläche leicht anzieht.",
-      "1 große Tortilla direkt obenauf legen, die Pfanne abdecken und 2–3 Minuten garen, bis alles zusammenhält.",
-      "Das Ganze mithilfe eines Tellers wenden, sodass die Tortilla unten liegt, 50 g geriebenen Käse auf eine Hälfte geben und zu einem Halbmond zusammenklappen.",
-      "Noch einmal 1–2 Minuten pro Seite braten, bis die Tortilla goldbraun und knusprig ist; in Stücke schneiden und warm servieren."
-    ]
+    }
   },
   {
     "id": "mais-airfryer",
@@ -849,6 +849,11 @@
         "amount": "0,5 TL",
         "name": "Salz"
       }
+    ],
+    "steps": [
+      "2 Stk. Maiskolben in eine Schüssel geben.",
+      "1 EL Öl und 0,5 TL Salz dazugeben und die Maiskolben rundum darin wenden.",
+      "Die Maiskolben bei 180 °C 15 Minuten im Airfryer garen und dabei 2–3 Mal wenden."
     ],
     "reference": {
       "per_recipe": {
@@ -870,12 +875,7 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "2 cobs ~ 200 g kernels; 1 EL oil brushed on (stays)."
-    },
-    "steps": [
-      "2 Stk. Maiskolben in eine Schüssel geben.",
-      "1 EL Öl und 0,5 TL Salz dazugeben und die Maiskolben rundum darin wenden.",
-      "Die Maiskolben bei 180 °C 15 Minuten im Airfryer garen und dabei 2–3 Mal wenden."
-    ]
+    }
   },
   {
     "id": "lachscreme",
@@ -908,6 +908,12 @@
         "name": "Salz/Pfeffer"
       }
     ],
+    "steps": [
+      "Zwiebel schälen und fein würfeln, Lachs grob zerkleinern.",
+      "Frischkäse, Lachs, Zwiebel und Zitronenschale mit Pürierstab/Mixer cremig pürieren.",
+      "Crème fraîche portionsweise unterrühren, bis die gewünschte Konsistenz erreicht ist.",
+      "Mit Salz und Pfeffer abschmecken, in eine Schale füllen und mit Kräutern bestreuen."
+    ],
     "reference": {
       "per_recipe": {
         "kcal": 1146.0,
@@ -928,12 +934,1234 @@
       "source": "computed:USDA+DE(BLS-aligned)",
       "uncertainty_pct": 15,
       "notes": "Raw spread. Salmon 175 g (midpoint 150-200), crème fraîche 38 g (midpoint 25-50)."
-    },
+    }
+  },
+  {
+    "id": "bananen-hafer-kekse",
+    "title": "Bananen-Hafer-Kekse",
+    "category_slug": "backen-und-suesses",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "1 Stk",
+        "name": "Banane"
+      },
+      {
+        "amount": "50 g",
+        "name": "Haferflocken"
+      },
+      {
+        "amount": "0,5 TL",
+        "name": "Zimt"
+      },
+      {
+        "amount": "0,5 TL",
+        "name": "Vanille"
+      },
+      {
+        "amount": "30 g",
+        "name": "Zartbitterschokolade"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Salz"
+      }
+    ],
     "steps": [
-      "Zwiebel schälen und fein würfeln, Lachs grob zerkleinern.",
-      "Frischkäse, Lachs, Zwiebel und Zitronenschale mit Pürierstab/Mixer cremig pürieren.",
-      "Crème fraîche portionsweise unterrühren, bis die gewünschte Konsistenz erreicht ist.",
-      "Mit Salz und Pfeffer abschmecken, in eine Schale füllen und mit Kräutern bestreuen."
-    ]
+      "Backofen auf 180 °C Ober-/Unterhitze vorheizen.",
+      "1 Stk Banane mit einer Gabel zerdrücken.",
+      "50 g Haferflocken, 0,5 TL Zimt, 0,5 TL Vanille und 1 Prise Salz unter die Banane rühren.",
+      "30 g Zartbitterschokolade grob hacken und unter den Teig mischen.",
+      "Aus der Masse kleine Häufchen formen, auf ein Backblech mit Backpapier setzen und leicht flachdrücken.",
+      "12 Minuten bei 180 °C Ober-/Unterhitze backen und kurz abkühlen lassen."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 454.8,
+        "protein_g": 9.9,
+        "fat_g": 13.8,
+        "carbs_g": 72.1,
+        "sugar_g": 28.4,
+        "fibre_g": 10.2
+      },
+      "per_serving_derived": {
+        "kcal": 113.7,
+        "protein_g": 2.5,
+        "fat_g": 3.4,
+        "carbs_g": 18.0,
+        "sugar_g": 7.1,
+        "fibre_g": 2.6
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Baked, no added/lost fat. 1 banana ~120 g peeled; spices negligible."
+    }
+  },
+  {
+    "id": "biskuit",
+    "title": "Biskuit",
+    "category_slug": "backen-und-suesses",
+    "servings": 8,
+    "ingredients": [
+      {
+        "amount": "4 Stk",
+        "name": "Eiweiß"
+      },
+      {
+        "amount": "4 EL",
+        "name": "kaltes Wasser"
+      },
+      {
+        "amount": "200 g",
+        "name": "Zucker"
+      },
+      {
+        "amount": "1 Pck",
+        "name": "Vanillinzucker"
+      },
+      {
+        "amount": "4 Stk",
+        "name": "Eigelb"
+      },
+      {
+        "amount": "80 g",
+        "name": "Mehl"
+      },
+      {
+        "amount": "80 g",
+        "name": "Speisestärke"
+      },
+      {
+        "amount": "1 gestr. TL",
+        "name": "Backpulver"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Zucker (zum Bestreuen)"
+      }
+    ],
+    "steps": [
+      "4 Stk Eiweiß mit 4 EL kaltem Wasser steif schlagen.",
+      "200 g Zucker und 1 Pck Vanillinzucker nach und nach einrieseln lassen und weiter schlagen.",
+      "4 Stk Eigelb vorsichtig unterziehen.",
+      "80 g Mehl, 80 g Speisestärke und 1 gestr. TL Backpulver mischen und vorsichtig unterheben.",
+      "Teig auf ein mit Papier belegtes Backblech streichen und bei 180–200 °C 12–15 Minuten backen.",
+      "Sofort auf zuckerbestreutes Papier stürzen und das Papier bzw. die Folie abziehen; zum Lösen das Papier mit kaltem Wasser anfeuchten."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 1714.9,
+        "protein_g": 34.2,
+        "fat_g": 20.2,
+        "carbs_g": 341.8,
+        "sugar_g": 209.5,
+        "fibre_g": 3.3
+      },
+      "per_serving_derived": {
+        "kcal": 214.4,
+        "protein_g": 4.3,
+        "fat_g": 2.5,
+        "carbs_g": 42.7,
+        "sugar_g": 26.2,
+        "fibre_g": 0.4
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Sponge: 4 egg whites (~33 g) + 4 yolks (~18 g). Dusting sugar dropped. No fat transform."
+    }
+  },
+  {
+    "id": "kartoffelsalat",
+    "title": "Kartoffelsalat",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "500 g",
+        "name": "Kartoffeln, festkochend oder vorwiegend festkochend"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Salz"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Zwiebeln, mittelgroß"
+      },
+      {
+        "amount": "4 EL",
+        "name": "Pflanzenöl, neutral (geteilt)"
+      },
+      {
+        "amount": "100 ml",
+        "name": "Fleisch- oder Gemüsebrühe"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Weißweinessig"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Senf, mittelscharf"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Pfeffer"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Zucker"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Muskat, gerieben"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Petersilie, frisch gehackt"
+      }
+    ],
+    "steps": [
+      "Kartoffeln waschen, mit Schale in kaltem Wasser aufsetzen, salzen und bei mittlerer Hitze 30–35 Min. garen; abgießen und kurz ausdampfen lassen.",
+      "Währenddessen Zwiebeln fein würfeln; in 1 EL Öl glasig dünsten. Brühe zugeben und erhitzen.",
+      "Vom Herd nehmen; Essig, 1 EL Öl, Senf, Salz, Pfeffer, Zucker und Muskat einrühren.",
+      "Lauwarme Kartoffeln pellen und in ca. 2 mm Scheiben direkt in die Schüssel schneiden.",
+      "Warmes Dressing darübergeben, vorsichtig mischen; 30 Min. ziehen lassen, dabei 1–2 Mal wenden.",
+      "Mit Salz und Pfeffer abschmecken; 2 EL Öl unterheben, mit Petersilie bestreuen und servieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 991.9,
+        "protein_g": 13.1,
+        "fat_g": 61.7,
+        "carbs_g": 102.4,
+        "sugar_g": 10.5,
+        "fibre_g": 13.5
+      },
+      "per_serving_derived": {
+        "kcal": 248.0,
+        "protein_g": 3.3,
+        "fat_g": 15.4,
+        "carbs_g": 25.6,
+        "sugar_g": 2.6,
+        "fibre_g": 3.4
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 12,
+      "notes": "Boiled waxy potato (yield ~1.0). All 4 EL oil stay in the dressing; broth/vinegar ~0 kcal."
+    }
+  },
+  {
+    "id": "semmelknoedel",
+    "title": "Klassische Semmelknödel",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "4 Stk.",
+        "name": "Weizenbrötchen, vom Vortag (ca. 60 g/Stk.)"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Salz (für den Teig)"
+      },
+      {
+        "amount": "1 große",
+        "name": "Zwiebel, fein gewürfelt"
+      },
+      {
+        "amount": "30 g",
+        "name": "Blattpetersilie, fein gehackt"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Butter"
+      },
+      {
+        "amount": "150 ml",
+        "name": "Milch (3,5 %), erwärmt"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Eier (Größe M), verquirlt"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Schwarzer Pfeffer, frisch gemahlen"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Semmelbrösel (zum Binden)"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Salz (für das Kochwasser)"
+      }
+    ],
+    "steps": [
+      "Brötchen klein würfeln und mit 1 TL Salz mischen. Zwiebel fein würfeln, Petersilie hacken.",
+      "Butter schmelzen, Zwiebel und Petersilie 3–4 Min. glasig dünsten; Milch erwärmen. Beides über die Brötchen geben, gründlich mischen und 10 Min. quellen lassen.",
+      "Großen Topf mit reichlich Wasser und 1 EL Salz erhitzen. Eier verquirlen, mit Pfeffer zur Masse geben; kräftig verkneten. Konsistenz mit Semmelbröseln (zu weich) oder etwas Milch (zu fest) justieren.",
+      "Mit nassen Händen ca. 8 gleich große, glatte Knödel formen.",
+      "Knödel in knapp siedendes, nicht kochendes Wasser legen, Hitze reduzieren und 18–22 Min. ziehen lassen, bis sie aufsteigen.",
+      "Mit Schaumkelle herausheben, gut abtropfen und sofort mit viel Soße servieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 1257.8,
+        "protein_g": 42.7,
+        "fat_g": 45.7,
+        "carbs_g": 169.8,
+        "sugar_g": 19.6,
+        "fibre_g": 10.6
+      },
+      "per_serving_derived": {
+        "kcal": 314.4,
+        "protein_g": 10.7,
+        "fat_g": 11.4,
+        "carbs_g": 42.4,
+        "sugar_g": 4.9,
+        "fibre_g": 2.6
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "4 day-old rolls ~60 g each. Poached (no fat change); butter-sauteed onion stays. Parsley negligible; binding breadcrumbs ~20 g."
+    }
+  },
+  {
+    "id": "pfannkuchen",
+    "title": "Pfannkuchen",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 5,
+    "ingredients": [
+      {
+        "amount": "150 g",
+        "name": "Weizenmehl (Type 405)"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Salz"
+      },
+      {
+        "amount": "250 ml",
+        "name": "Vollmilch"
+      },
+      {
+        "amount": "3 Stk.",
+        "name": "Eier"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Mineralwasser"
+      },
+      {
+        "amount": "5 TL",
+        "name": "Pflanzenöl (alternativ Butterschmalz)"
+      }
+    ],
+    "steps": [
+      "Mehl und Salz in eine Schüssel geben, mit Milch glatt rühren, bis keine Klümpchen mehr sichtbar sind.",
+      "Eier unterrühren, dann Mineralwasser kurz einarbeiten; Teig 10 Min. im Kühlschrank ruhen lassen.",
+      "Beschichtete Pfanne auf mittlerer bis hoher Hitze erhitzen, 1 TL Öl oder etwas Butterschmalz zugeben.",
+      "Pro Pfannkuchen Teig eingießen und die Pfanne schwenken, damit er dünn bis zum Rand läuft.",
+      "Etwa 1 Min. backen, bis die Oberfläche gestockt ist; wenden und weitere ca. 30 Sek. goldgelb backen.",
+      "Für jeden weiteren Pfannkuchen 1 TL Öl zugeben; gestapelt warmhalten und nach Wunsch süß oder herzhaft servieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 1140.7,
+        "protein_g": 43.8,
+        "fat_g": 50.9,
+        "carbs_g": 121.5,
+        "sugar_g": 14.1,
+        "fibre_g": 4.8
+      },
+      "per_serving_derived": {
+        "kcal": 228.1,
+        "protein_g": 8.8,
+        "fat_g": 10.2,
+        "carbs_g": 24.3,
+        "sugar_g": 2.8,
+        "fibre_g": 1.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Thin pancakes; 5 TL oil to grease the pan is largely absorbed -> counted (25 g)."
+    }
+  },
+  {
+    "id": "sushi-reis",
+    "title": "Sushi-Reis – Grundrezept (Reiskocher)",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 3,
+    "ingredients": [
+      {
+        "amount": "2 cups (240 g)",
+        "name": "Sushi-Reis, rundkörnig"
+      },
+      {
+        "amount": "2 cups (240 ml)",
+        "name": "Wasser"
+      },
+      {
+        "amount": "3 EL",
+        "name": "Reisessig (für selbstgemachten Sushi-Essig)"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Zucker"
+      },
+      {
+        "amount": "½ TL",
+        "name": "Salz, gestrichen"
+      }
+    ],
+    "steps": [
+      "Reis in kaltem Wasser 3–4× waschen, bis das Wasser klar ist. In frischem Wasser 30 Min. bedeckt quellen lassen, abgießen.",
+      "Reis in den Reiskocher geben",
+      "Reisessig, Zucker und Salz vermischen, bis sich Zucker löst (dauert eine halbe stunde -> immer mal wieder umrühren)",
+      "Reis in eine große Schüssel geben, Sushi-Essig über den heißen Reis träufeln.",
+      "Mit schneidenden Bewegungen unterheben, nicht drücken",
+      "Den Reis Lauwarm verarbeiten"
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 907.2,
+        "protein_g": 15.6,
+        "fat_g": 1.4,
+        "carbs_g": 201.6,
+        "sugar_g": 12.2,
+        "fibre_g": 3.1
+      },
+      "per_serving_derived": {
+        "kcal": 302.4,
+        "protein_g": 5.2,
+        "fat_g": 0.5,
+        "carbs_g": 67.2,
+        "sugar_g": 4.1,
+        "fibre_g": 1.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 10,
+      "notes": "2 cups (240 g) dry rice + sweetened vinegar. Vinegar kcal negligible."
+    }
+  },
+  {
+    "id": "chili-con-carne",
+    "title": "Chili con Carne",
+    "category_slug": "hauptgerichte",
+    "servings": 5,
+    "ingredients": [
+      {
+        "amount": "2 EL",
+        "name": "Olivenöl"
+      },
+      {
+        "amount": "1",
+        "name": "Zwiebel, fein gewürfelt"
+      },
+      {
+        "amount": "1",
+        "name": "Knoblauchzehe, gehackt"
+      },
+      {
+        "amount": "500 g",
+        "name": "Rinderhackfleisch"
+      },
+      {
+        "amount": "1–2 TL",
+        "name": "Paprikapulver edelsüß"
+      },
+      {
+        "amount": "50 g",
+        "name": "Tomatenmark"
+      },
+      {
+        "amount": "1–2",
+        "name": "rote Paprikaschoten, klein gewürfelt"
+      },
+      {
+        "amount": "800 g",
+        "name": "passierte Tomaten"
+      },
+      {
+        "amount": "250 g",
+        "name": "Kidneybohnen (abgetropft)"
+      },
+      {
+        "amount": "140 g",
+        "name": "Mais (abgetropft)"
+      },
+      {
+        "amount": "¼ TL",
+        "name": "Cayennepfeffer"
+      },
+      {
+        "amount": "Prise",
+        "name": "Zucker"
+      },
+      {
+        "amount": "Salz",
+        "name": "nach Geschmack"
+      }
+    ],
+    "steps": [
+      "Zwiebel und Knoblauch in Öl in einer weiten Pfanne glasig dünsten.",
+      "Hackfleisch zugeben, salzen und auf hoher Hitze krümelig anbraten, bis kräftige Röstaromen entstehen.",
+      "Paprikapulver und Tomatenmark einrühren, 1 Minute mitschwitzen lassen.",
+      "Paprikawürfel untermischen, dann passierte Tomaten, Bohnen und Mais zugeben. Mit Cayenne, Zucker und Salz abschmecken.",
+      "20 Minuten bei mittlerer Hitze köcheln lassen. Mit Créme Fraîche und Petersilie servieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 2095.7,
+        "protein_g": 139.4,
+        "fat_g": 109.5,
+        "carbs_g": 147.3,
+        "sugar_g": 63.8,
+        "fibre_g": 38.7
+      },
+      "per_serving_derived": {
+        "kcal": 419.1,
+        "protein_g": 27.9,
+        "fat_g": 21.9,
+        "carbs_g": 29.5,
+        "sugar_g": 12.8,
+        "fibre_g": 7.7
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 18,
+      "notes": "DB servings blank -> 5 (hearty ~2.3 kg pot). Stew: rendered meat fat + oil stay in the dish."
+    }
+  },
+  {
+    "id": "brokkolicremesuppe",
+    "title": "Brokkolicremesuppe",
+    "category_slug": "hauptgerichte",
+    "servings": 2,
+    "ingredients": [
+      {
+        "amount": "300 g",
+        "name": "Brokkoli, in Röschen (Strunk gewürfelt)"
+      },
+      {
+        "amount": "250 ml",
+        "name": "Wasser"
+      },
+      {
+        "amount": "3 EL",
+        "name": "Butter"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Frühlingszwiebel, fein geschnitten"
+      },
+      {
+        "amount": "3 EL",
+        "name": "Mehl"
+      },
+      {
+        "amount": "250 ml",
+        "name": "Hühnerbrühe"
+      },
+      {
+        "amount": "130 ml",
+        "name": "Sahne"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Pfeffer"
+      }
+    ],
+    "steps": [
+      "Brokkoli in Röschen teilen (Strunk schälen und würfeln). Wasser in einem Topf zum Kochen bringen, salzen und Brokkoli 5 Min. blanchieren; Brokkoli herausnehmen und Kochwasser auffangen.",
+      "Butter in einem Topf bei mittlerer Hitze schmelzen. Frühlingszwiebel 1–2 Min. anschwitzen, Mehl einrühren und 1–2 Min. hell anschwitzen, bis es leicht blubbert.",
+      "Brokkoli, das aufgefangene Kochwasser und die Brühe unter Rühren zugießen, aufkochen und 2–3 Min. köcheln lassen.",
+      "Suppe mit dem Pürierstab fein mixen. Sahne einrühren, 1 Min. erwärmen (nicht stark kochen) und mit Salz und Pfeffer abschmecken."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 926.5,
+        "protein_g": 15.4,
+        "fat_g": 78.2,
+        "carbs_g": 48.3,
+        "sugar_g": 10.3,
+        "fibre_g": 9.1
+      },
+      "per_serving_derived": {
+        "kcal": 463.2,
+        "protein_g": 7.7,
+        "fat_g": 39.1,
+        "carbs_g": 24.1,
+        "sugar_g": 5.1,
+        "fibre_g": 4.6
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Roux (butter+flour) + cream + blanched broccoli (macros ~unchanged). No fat loss."
+    }
+  },
+  {
+    "id": "gulasch",
+    "title": "Gulasch (Rind und Schwein)",
+    "category_slug": "hauptgerichte",
+    "servings": 2,
+    "ingredients": [
+      {
+        "amount": "1–2 EL",
+        "name": "Öl zum Anbraten"
+      },
+      {
+        "amount": "1 kg",
+        "name": "Gulaschfleisch, halb Rind/halb Schwein"
+      },
+      {
+        "amount": "3",
+        "name": "Zwiebeln"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Tomatenmark"
+      },
+      {
+        "amount": "20 g",
+        "name": "Mehl oder Kartoffelstärke"
+      },
+      {
+        "amount": "Schuss",
+        "name": "kaltes Wasser"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "heißes Wasser"
+      },
+      {
+        "amount": "1",
+        "name": "Knoblauchzehe, ganz"
+      },
+      {
+        "amount": "1",
+        "name": "Chilischote, ganz"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Schwarzer Pfeffer"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Paprikapulver"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Thymian"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Italienische Kräuter"
+      }
+    ],
+    "steps": [
+      "Zwiebeln grob schneiden (nicht würfeln); Knoblauch und Chilischote bereitlegen. Wasser im Wasserkocher erhitzen.",
+      "Öl stark erhitzen und das Fleisch portionsweise sehr heiß anbraten, bis kräftige Röstaromen entstehen; herausnehmen.",
+      "Im Bratfett Zwiebeln goldbraun braten, Tomatenmark 1 Min. mitrösten.",
+      "Fleisch zurückgeben, mit Mehl/Stärke bestäuben und kurz rühren; mit einem Schuss kaltem Wasser ablöschen.",
+      "Nach und nach kochendes Wasser zugießen, bis eine sämige Soße entsteht; salzen, pfeffern und mit Paprika, Thymian und italienischen Kräutern würzen. Knoblauch und Chilischote zugeben.",
+      "Zugedeckt bei kleiner Hitze 30–60 Min. schmoren, bis das Rind zart ist; Chili/Knoblauch entfernen, abschmecken und servieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 2414.3,
+        "protein_g": 196.5,
+        "fat_g": 162.6,
+        "carbs_g": 49.3,
+        "sugar_g": 15.8,
+        "fibre_g": 6.9
+      },
+      "per_serving_derived": {
+        "kcal": 1207.2,
+        "protein_g": 98.3,
+        "fat_g": 81.3,
+        "carbs_g": 24.6,
+        "sugar_g": 7.9,
+        "fibre_g": 3.5
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 20,
+      "notes": "1 kg stew meat braised; fat stays in the gravy (nothing drained). DB servings=2 is low (makes ~4) -> per-serving FYI is high; per_recipe is the eval target."
+    }
+  },
+  {
+    "id": "lasagne",
+    "title": "Lasagne",
+    "category_slug": "hauptgerichte",
+    "servings": 6,
+    "ingredients": [
+      {
+        "amount": "1",
+        "name": "Zwiebel, fein gewürfelt"
+      },
+      {
+        "amount": "2",
+        "name": "Knoblauchzehen, fein gehackt"
+      },
+      {
+        "amount": "500 g",
+        "name": "Hackfleisch, gemischt"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Tomatenmark"
+      },
+      {
+        "amount": "1 kleine",
+        "name": "Karotte, in kleinen Würfeln"
+      },
+      {
+        "amount": "1 kleine",
+        "name": "Paprika, klein gewürfelt (optional)"
+      },
+      {
+        "amount": "400 g",
+        "name": "Tomaten aus der Dose (stückig oder passierte)"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Italienische Kräuter, getrocknet"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Chiliflocken, mild"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Schwarzer Pfeffer"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Butter"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Mehl"
+      },
+      {
+        "amount": "200–300 ml",
+        "name": "Milch"
+      },
+      {
+        "amount": "50 ml",
+        "name": "Gemüsebrühe"
+      },
+      {
+        "amount": "8–12 Stk.",
+        "name": "Lasagneblätter, ungekocht"
+      },
+      {
+        "amount": "125 g",
+        "name": "Mozzarella, in kleinen Stücken"
+      },
+      {
+        "amount": "60 g",
+        "name": "Parmesan, frisch gerieben"
+      }
+    ],
+    "steps": [
+      "Backofen auf 200 °C Ober-/Unterhitze vorheizen. Zwiebel, Knoblauch, Karotte und ggf. Paprika fein würfeln; Parmesan reiben.",
+      "Hackfleisch mit Zwiebeln und Knoblauch in heißer Pfanne 5–6 Min. kräftig anbraten; Tomatenmark 30 Sek. mitrösten.",
+      "Karotte und Paprika zugeben, 2–3 Min. mitbraten; mit Tomaten ablöschen, 15 Min. köcheln. Mit Salz, Pfeffer, Kräutern und milden Chiliflocken abschmecken; Sauce saftig lassen.",
+      "Für die Béchamel Butter schmelzen, Mehl einrühren und 1 Min. anschwitzen; Milch nach und nach zugeben, mit Gemüsebrühe dicklich rühren; salzen und pfeffern.",
+      "Form einfetten. Schichten: Bolognese – Lasagneblätter – Bolognese – Béchamel in Schlieren; wiederholen.",
+      "Oben Lasagneblätter, Bolognese, Béchamel, Mozzarella und Parmesan verteilen.",
+      "45 Min. bei 200 °C auf mittlerer Schiene backen; 10 Min. ruhen lassen und servieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 3006.6,
+        "protein_g": 180.7,
+        "fat_g": 173.9,
+        "carbs_g": 188.5,
+        "sugar_g": 52.9,
+        "fibre_g": 18.2
+      },
+      "per_serving_derived": {
+        "kcal": 501.1,
+        "protein_g": 30.1,
+        "fat_g": 29.0,
+        "carbs_g": 31.4,
+        "sugar_g": 8.8,
+        "fibre_g": 3.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Bolognese (meat fat stays, baked) + bechamel + ~10 dry sheets (~150 g) + mozzarella + parmesan."
+    }
+  },
+  {
+    "id": "fried-chicken",
+    "title": "Fried Chicken",
+    "category_slug": "hauptgerichte",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "---",
+        "name": "Marinade:"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Hähnchen, in 8 Teile zerlegt"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Salz"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Knoblauchpulver"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Zwiebelpulver"
+      },
+      {
+        "amount": "480 ml",
+        "name": "Buttermilch"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Scharfe Sauce (Hot Sauce)"
+      },
+      {
+        "amount": "---",
+        "name": "Panade:"
+      },
+      {
+        "amount": "240 g",
+        "name": "Weizenmehl"
+      },
+      {
+        "amount": "120 g",
+        "name": "Speisestärke"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Salz"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Paprikapulver"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Schwarzer Pfeffer"
+      },
+      {
+        "amount": "---",
+        "name": "Zum Frittieren:"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Erdnussöl (oder neutrales Bratöl)"
+      },
+      {
+        "amount": "nach Belieben",
+        "name": "Flockensalz"
+      }
+    ],
+    "steps": [
+      "Hähnchenstücke aus dem Kühlschrank nehmen, trocken tupfen und in eine große Schüssel geben. Salz, Knoblauchpulver und Zwiebelpulver mischen, über das Hähnchen streuen und alles gründlich durchmengen, bis jedes Stück rundum gewürzt ist (auch in Hautfalten und an Schnittkanten).",
+      "Buttermilch und Hot Sauce in die Schüssel gießen und das Hähnchen darin wenden, bis alle Stücke gut benetzt sind. Abdecken und im Kühlschrank mindestens 2 Std. marinieren; am besten über Nacht, damit die Buttermilch das Fleisch zart macht.",
+      "Mehl, Speisestärke, Salz, Paprika und Pfeffer in einer Schüssel gründlich mischen. Parallel Öl in Fritteuse oder schwerem Topf hoch erhitzen und dann auf ca. 160–165 °C einpendeln lassen; wenn das Öl zu heiß wird, bräunt die Haut zu schnell, bevor das Fleisch gar ist.",
+      "Ein Blech mit Küchenpapier (oder besser: Rost) vorbereiten. Hähnchenstücke einzeln aus der Marinade nehmen und kurz abtropfen lassen, aber nicht trocken wischen. In der Mehlmischung rundum wälzen und die Panade gut andrücken, besonders an Haut und Gelenken. Überschuss abklopfen und die panierten Stücke 5 Min. liegen lassen, bis die Oberfläche leicht „pappig“ wird – so hält die Kruste später besser.",
+      "Hähnchen portionsweise frittieren, damit die Temperatur nicht stark abfällt: maximal 3–4 Stücke gleichzeitig. Stücke vorsichtig von dir weg ins Öl geben. Bei gleichmäßiger Hitze goldbraun frittieren und alle paar Minuten wenden, damit die Kruste gleichmäßig färbt und nichts am Boden festklebt.",
+      "Garzeiten als Orientierung: dunkles Fleisch (Keulen/Flügel) ca. 12–14 Min., Bruststücke ca. 8–10 Min. Sicher ist es, wenn die Kerntemperatur an der dicksten Stelle 74 °C erreicht. Fertige Stücke auf das vorbereitete Blech/den Rost legen, sofort optional mit etwas Flockensalz bestreuen und die nächste Charge frittieren."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 2815.6,
+        "protein_g": 156.1,
+        "fat_g": 185.1,
+        "carbs_g": 117.5,
+        "sugar_g": 2.7,
+        "fibre_g": 3.9
+      },
+      "per_serving_derived": {
+        "kcal": 703.9,
+        "protein_g": 39.0,
+        "fat_g": 46.3,
+        "carbs_g": 29.4,
+        "sugar_g": 0.7,
+        "fibre_g": 1.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 35,
+      "notes": "HIGH uncertainty: whole chicken ~1.3 kg bone-in -> ~65% edible meat+skin (840 g). Buttermilk marinade discarded (~40 g clings). Of 360 g flour/starch dredge only the adhering crust counts (~110+40 g). Deep-fry oil uptake ~5%/coated weight. Bath oil is NOT an ingredient."
+    }
+  },
+  {
+    "id": "haehnchengeschnetzeltes",
+    "title": "Hähnchengeschnetzeltes mit Pilzen",
+    "category_slug": "hauptgerichte",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "250 g",
+        "name": "Champignons (braun)"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Zwiebel (mittelgroß)"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Knoblauchzehe"
+      },
+      {
+        "amount": "400 g",
+        "name": "Hähnchenbrustfilet"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Butterschmalz"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Mehl"
+      },
+      {
+        "amount": "200 ml",
+        "name": "Geflügelfond"
+      },
+      {
+        "amount": "250 g",
+        "name": "Schlagsahne (ca. 30% Fett)"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Sojasoße"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Muskatnuss (frisch gerieben)"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Salz"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Pfeffer"
+      },
+      {
+        "amount": "0,25 Bund",
+        "name": "Petersilie (gehackt)"
+      }
+    ],
+    "steps": [
+      "250 g Champignons putzen und in ca. 3 mm dicke Scheiben schneiden, 1 Stk. Zwiebel schälen und in Streifen schneiden sowie 1 Stk. Knoblauchzehe fein hacken.",
+      "400 g Hähnchenbrustfilet trocken tupfen, in ca. 1 cm breite Streifen schneiden und leicht salzen.",
+      "1 EL Butterschmalz in einer großen Pfanne erhitzen und das Hähnchen in zwei Portionen bei hoher Hitze je ca. 3 Minuten scharf anbraten, dann pfeffern und warmhalten.",
+      "1 EL Butterschmalz in derselben Pfanne erhitzen, Champignons, Zwiebel und Knoblauch dazugeben, mit 1 EL Mehl bestäuben und bei mittlerer Hitze 2 Minuten dünsten.",
+      "Mit 200 ml Geflügelfond ablöschen und kurz köcheln lassen, dann 250 g Schlagsahne einrühren und ca. 5 Minuten sanft köcheln, bis die Soße cremig eindickt.",
+      "Mit 1 TL Sojasoße, Salz, Pfeffer und Muskat abschmecken, das angebratene Hähnchen zurück in die Soße geben und 1–2 Minuten darin ziehen lassen, dann mit 0,25 Bund gehackter Petersilie bestreuen."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 1607.3,
+        "protein_g": 106.9,
+        "fat_g": 114.3,
+        "carbs_g": 35.8,
+        "sugar_g": 18.3,
+        "fibre_g": 4.8
+      },
+      "per_serving_derived": {
+        "kcal": 401.8,
+        "protein_g": 26.7,
+        "fat_g": 28.6,
+        "carbs_g": 8.9,
+        "sugar_g": 4.6,
+        "fibre_g": 1.2
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Pan-fried in Butterschmalz (stays) + cream sauce. Fond ~0 kcal."
+    }
+  },
+  {
+    "id": "fruehlingsrollen",
+    "title": "Frühlingsrollen",
+    "category_slug": "hauptgerichte",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "---",
+        "name": "Füllung:"
+      },
+      {
+        "amount": "100 g",
+        "name": "Glasnudeln"
+      },
+      {
+        "amount": "300 g",
+        "name": "Weißkohl, sehr fein"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Möhren, sehr fein"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Lauchzwiebeln, sehr fein"
+      },
+      {
+        "amount": "150 g",
+        "name": "Sojasprossen"
+      },
+      {
+        "amount": "25 g",
+        "name": "Ingwer, fein gerieben"
+      },
+      {
+        "amount": "3–4 Stiele",
+        "name": "Koriander, gehackt"
+      },
+      {
+        "amount": "300 g",
+        "name": "Hackfleisch"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Sojasauce"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Fischsauce"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Salz"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Pfeffer"
+      },
+      {
+        "amount": "---",
+        "name": "Zum Rollen & Frittieren:"
+      },
+      {
+        "amount": "40 Stk.",
+        "name": "Frühlingsrollenblätter"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Speisestärke (Kleber)"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Wasser zum Anrühren"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Pflanzenöl zum Frittieren"
+      }
+    ],
+    "steps": [
+      "Glasnudeln mit kochendem Wasser übergießen, 2–3 Min. ziehen lassen, abgießen, gut abtropfen und grob schneiden. Weißkohl, Möhren und Lauchzwiebeln sehr fein schneiden; Ingwer reiben; Koriander hacken.",
+      "Füllung mischen: Glasnudeln, Sojasprossen, Kohl, Möhren, Lauchzwiebeln, Ingwer, Koriander, Hackfleisch, Sojasauce, Fischsauce, Salz und Pfeffer gründlich vermengen.",
+      "Speisestärke mit wenig Wasser zu einem glatten Kleber rühren. Je 1 EL Füllung auf ein Blatt setzen, Seiten einschlagen, straff aufrollen und mit Stärke-Kleber verschließen.",
+      "Öl auf ca. 170 °C erhitzen (alternativ Holzstäbchen-Test: steigen Bläschen auf). Rollen portionsweise 4–6 Min. goldbraun frittieren; auf Küchenpapier abtropfen lassen.",
+      "Heiß servieren, nach Wunsch mit Sojasauce oder Dip."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 2628.3,
+        "protein_g": 94.8,
+        "fat_g": 118.2,
+        "carbs_g": 305.3,
+        "sugar_g": 26.4,
+        "fibre_g": 20.4
+      },
+      "per_serving_derived": {
+        "kcal": 657.1,
+        "protein_g": 23.7,
+        "fat_g": 29.6,
+        "carbs_g": 76.3,
+        "sugar_g": 6.6,
+        "fibre_g": 5.1
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 30,
+      "notes": "HIGH uncertainty: wrapper count (~28 of 40 listed, ~280 g) and deep-fry oil uptake (~50 g). Glass noodles by dry weight; meat fat sealed in. Ginger/coriander negligible."
+    }
+  },
+  {
+    "id": "sommerrollen",
+    "title": "Sommerrollen",
+    "category_slug": "snacks",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "ca. 12 Stk.",
+        "name": "Reispapier"
+      },
+      {
+        "amount": "100 g",
+        "name": "Glasnudeln"
+      },
+      {
+        "amount": "175 g",
+        "name": "Räuchertofu"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Pflanzenöl"
+      },
+      {
+        "amount": "2 Prisen",
+        "name": "Salz"
+      },
+      {
+        "amount": "2 Prisen",
+        "name": "schwarzer Pfeffer"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Eisbergsalat (sehr klein)"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Möhren"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "rote Paprika"
+      },
+      {
+        "amount": "4 Stk.",
+        "name": "Champignons"
+      },
+      {
+        "amount": "4 Stk.",
+        "name": "Radieschen"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Frühlingszwiebeln"
+      },
+      {
+        "amount": "0,5 Stk.",
+        "name": "Gurke"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Avocado"
+      },
+      {
+        "amount": "0,5 Stk.",
+        "name": "Mango"
+      },
+      {
+        "amount": "0,5 Stk.",
+        "name": "Limette"
+      },
+      {
+        "amount": "2 Stiel",
+        "name": "Koriander"
+      }
+    ],
+    "steps": [
+      "100 g Glasnudeln nach Packungsangabe garen und abkühlen lassen; eine Schüssel mit kaltem Wasser zum Einweichen der Reispapierblätter auf den Esstisch stellen.",
+      "1 Stk. Eisbergsalat (sehr klein) in feine Streifen schneiden; 2 Stk. Möhren schälen und in dünne Stifte schneiden; 1 Stk. rote Paprika entkernen und in Streifen schneiden; 0,5 Stk. Mango schälen und in Streifen schneiden; 4 Stk. Champignons putzen und in Scheiben schneiden; 4 Stk. Radieschen in Scheiben schneiden; 2 Stk. Frühlingszwiebeln in feine Ringe schneiden.",
+      "0,5 Stk. Gurke längs halbieren, vierteln, Kerngehäuse entfernen und in Streifen schneiden; 1 Stk. Avocado in Scheiben schneiden und mit Saft von 0,5 Stk. Limette beträufeln.",
+      "175 g Räuchertofu in feine Scheiben schneiden und in 1 TL Pflanzenöl in einer Pfanne von beiden Seiten anbraten; mit 2 Prisen Salz und 2 Prisen schwarzem Pfeffer würzen. 90 g gesalzene Erdnüsse grob hacken; 2 Stiel Koriander waschen und trocken schütteln.",
+      "Je 1 Reispapierblatt kurz in kaltem Wasser einweichen und auf eine leicht feuchte Unterlage legen; etwas Glasnudeln, ca. 1 TL gehackte Erdnüsse, 1 Scheibe Räuchertofu sowie Gemüse, Avocado, Kräuter in die Mitte geben und mit etwas Limettensaft beträufeln.",
+      "Reispapier von unten über die Füllung klappen, Seiten einschlagen und straff aufrollen; direkt servieren, z. B. mit Sojasauce."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 1665.8,
+        "protein_g": 49.7,
+        "fat_g": 47.4,
+        "carbs_g": 268.2,
+        "sugar_g": 34.3,
+        "fibre_g": 25.5
+      },
+      "per_serving_derived": {
+        "kcal": 416.5,
+        "protein_g": 12.4,
+        "fat_g": 11.8,
+        "carbs_g": 67.0,
+        "sugar_g": 8.6,
+        "fibre_g": 6.4
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 18,
+      "notes": "Fresh (not fried). Tofu lightly pan-fried in 1 TL oil (stays). Avocado ~140 g flesh, mango ~100 g, rice paper ~12 sheets (~150 g). Lime/coriander negligible."
+    }
+  },
+  {
+    "id": "leberkaes-wecken",
+    "title": "Leberkäs‑Wecken",
+    "category_slug": "snacks",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "4 Stk.",
+        "name": "Wecken/Brötchen"
+      },
+      {
+        "amount": "4 Scheiben",
+        "name": "Leberkäse (je 80–100 g)"
+      },
+      {
+        "amount": "nach Belieben",
+        "name": "Senf, normal oder mittelscharf"
+      },
+      {
+        "amount": "nach Belieben",
+        "name": "Ketchup"
+      },
+      {
+        "amount": "nach Belieben",
+        "name": "Gewürzgurken"
+      }
+    ],
+    "steps": [
+      "Leberkäse in einer Pfanne je Seite 2–3 Min. warm machen, nicht wirklich braten.",
+      "Brötchen mit Senf/Ketchup bestreichen, Leberkäse einlegen; nach Wunsch mit Gurkenscheiben belegen."
+    ],
+    "reference": {
+      "per_recipe": {
+        "kcal": 1660.8,
+        "protein_g": 63.1,
+        "fat_g": 94.6,
+        "carbs_g": 136.8,
+        "sugar_g": 4.8,
+        "fibre_g": 7.2
+      },
+      "per_serving_derived": {
+        "kcal": 415.2,
+        "protein_g": 15.8,
+        "fat_g": 23.6,
+        "carbs_g": 34.2,
+        "sugar_g": 1.2,
+        "fibre_g": 1.8
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 12,
+      "notes": "4 rolls (~60 g) + 4 slices Leberkäse (~90 g). Pan-warmed (no added fat). Condiments negligible."
+    }
   }
 ]

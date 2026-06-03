@@ -1,0 +1,2147 @@
+{
+ "amerikaner": {
+  "title": "Amerikaner",
+  "category_slug": "backen-und-suesses",
+  "servings": "20",
+  "ingredients": [
+   {
+    "name": "Butter",
+    "unit": "g",
+    "amount": 100,
+    "display": "100 g"
+   },
+   {
+    "name": "Zucker",
+    "unit": "g",
+    "amount": 100,
+    "display": "100 g"
+   },
+   {
+    "name": "Vanillezucker (Päckchen)",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Salz",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Eier",
+    "unit": "Stk",
+    "amount": 3,
+    "display": "3 Stk."
+   },
+   {
+    "name": "Mehl",
+    "unit": "g",
+    "amount": 300,
+    "display": "300 g"
+   },
+   {
+    "name": "Backpulver (Päckchen)",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Milch",
+    "unit": "EL",
+    "amount": 4,
+    "display": "4 EL"
+   }
+  ],
+  "steps": [
+   "Backofen auf 180 °C Ober-/Unterhitze vorheizen.",
+   "100 g Butter, 100 g Zucker, 1 Stk. Vanillezucker (Päckchen) und 1 Prise Salz sahnig rühren.",
+   "3 Stk. Eier nacheinander dazugeben und gründlich verrühren.",
+   "300 g Mehl mit 1 Stk. Backpulver (Päckchen) mischen und unterrühren, dann 4 EL Milch einarbeiten, bis der Teig etwas fester als Napfkuchenteig ist.",
+   "Mit einem Esslöffel kleine runde Häufchen mit großem Abstand auf ein gefettetes Backblech setzen und 15–20 Minuten backen, bis sie leicht goldbraun sind."
+  ]
+ },
+ "apfelkuchen": {
+  "title": "Apfelkuchen",
+  "category_slug": "backen-und-suesses",
+  "servings": "2",
+  "ingredients": [
+   {
+    "name": "Butter oder Margarine",
+    "unit": "g",
+    "amount": 125,
+    "display": "125 g"
+   },
+   {
+    "name": "Zucker",
+    "unit": "g",
+    "amount": 125,
+    "display": "125 g"
+   },
+   {
+    "name": "Eier",
+    "unit": "Stk",
+    "amount": 3,
+    "display": "3 Stk."
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "Prise"
+   },
+   {
+    "name": "Zitronen-Backöl",
+    "unit": "",
+    "amount": 0,
+    "display": "4 Tropfen"
+   },
+   {
+    "name": "Weizenmehl",
+    "unit": "g",
+    "amount": 200,
+    "display": "200 g"
+   },
+   {
+    "name": "Backpulver",
+    "unit": "g",
+    "amount": 6,
+    "display": "6 g"
+   },
+   {
+    "name": "Milch",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1–4 EL"
+   },
+   {
+    "name": "Äpfel",
+    "unit": "g",
+    "amount": 750,
+    "display": "750 g"
+   },
+   {
+    "name": "Aprikosenmarmelade (zum Aprikotieren, optional)",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Wasser (für die Aprikotur)",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Puderzucker (Alternative zur Aprikotur)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   }
+  ],
+  "steps": [
+   "Springform (28 cm) fetten. Butter schaumig schlagen, Zucker, Eier, Salz und Zitronen-Backöl einrühren.",
+   "Mehl mit Backpulver mischen und portionsweise zugeben; so viel Milch einrühren, bis der Teig schwer reißend vom Löffel fällt. In die Form streichen.",
+   "Äpfel schälen, vierteln, entkernen, längs mehrfach einritzen und kranzförmig auflegen; ca. 1 cm Rand Teig frei lassen.",
+   "Bei 175–200 °C 40–50 Min. backen.",
+   "Aprikotur: Marmelade mit Wasser aufkochen, durchs Sieb streichen und den heißen Kuchen bestreichen; alternativ den erkalteten Kuchen mit Puderzucker bestäuben."
+  ]
+ },
+ "apfelkuechle": {
+  "title": "Apfelküchle",
+  "category_slug": "backen-und-suesses",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Ei",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk"
+   },
+   {
+    "name": "Zucker",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Milch",
+    "unit": "ml",
+    "amount": 125,
+    "display": "125 ml"
+   },
+   {
+    "name": "Rum",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Öl",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Mehl",
+    "unit": "g",
+    "amount": 250,
+    "display": "250 g"
+   },
+   {
+    "name": "Backpulver",
+    "unit": "g",
+    "amount": 1,
+    "display": "1 gestr. TL"
+   }
+  ],
+  "steps": [
+   "1 Stk Ei mit 2 TL Zucker verrühren.",
+   "125 ml Milch, 3 EL Rum und 2 TL Öl einrühren.",
+   "250 g Mehl und 1 gestr. TL Backpulver zu einem glatten Teig verrühren."
+  ]
+ },
+ "honig-senf-dressing": {
+  "title": "Honig-Senf-Dressing",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Olivenöl",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Balsamico, mild",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Honig",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Senf",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Schwarzer Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Msp"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Msp"
+   }
+  ],
+  "steps": [
+   "Olivenöl, Balsamico, Honig, Senf, Pfeffer und Salz abmessen.",
+   "Alles in eine Schüssel geben und 30–60 Sek. kräftig verrühren, bis es emulgiert und cremig ist.",
+   "Abschmecken; nach Wunsch mehr Honig (süßer), Senf (schärfer) oder Essig (säuerlicher) zugeben.",
+   "Sofort verwenden oder in eine Flasche füllen und im Kühlschrank aufbewahren."
+  ]
+ },
+ "kartoffelpueree": {
+  "title": "Kartoffelpüree",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Kartoffeln, mehlig kochend",
+    "unit": "kg",
+    "amount": 1,
+    "display": "1 kg"
+   },
+   {
+    "name": "Milch",
+    "unit": "ml",
+    "amount": 400,
+    "display": "400 ml"
+   },
+   {
+    "name": "Salz",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Butter",
+    "unit": "g",
+    "amount": 80,
+    "display": "80 g"
+   },
+   {
+    "name": "Muskatnuss, frisch gerieben (optional)",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Msp"
+   }
+  ],
+  "steps": [
+   "Kartoffeln schälen, in 1,5–2 cm Würfel schneiden und unter kaltem Wasser abspülen.",
+   "Hohen Topf kalt ausspülen; Kartoffeln mit Milch und Salz hineingeben, unter Rühren aufkochen.",
+   "Hitze stark reduzieren, mit Deckel 20–25 Min. sieden, ab und zu umrühren, bis die Würfel sehr weich sind.",
+   "Butter und Muskat zugeben; Kartoffeln im Topf mit dem Stampfer zu cremigem Püree verarbeiten.",
+   "Mit Salz abschmecken; nach Wunsch mit etwas Butter oder Petersilie servieren."
+  ]
+ },
+ "sauce-hollandaise": {
+  "title": "Sauce Hollandaise",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Butter",
+    "unit": "g",
+    "amount": 200,
+    "display": "200 g"
+   },
+   {
+    "name": "Eigelb (Größe L)",
+    "unit": "Stk",
+    "amount": 3,
+    "display": "3 Stk."
+   },
+   {
+    "name": "Limettensaft (frisch gepresst)",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Dijonsenf",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Crème fraîche",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Zucker",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Weißweinessig",
+    "unit": "TL",
+    "amount": 0.5,
+    "display": "0,5 TL"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   }
+  ],
+  "steps": [
+   "3 Stk. Eigelb (Größe L) in einen Rührbecher geben und mit 1 EL Limettensaft, 1 TL Dijonsenf, 1 TL Crème fraîche, 1 TL Zucker sowie etwas Salz mit dem Pürierstab kurz pürieren.",
+   "200 g Butter in einem kleinen Topf schmelzen und kurz aufkochen.",
+   "Die heiße Butter bei laufendem Pürierstab langsam in die Eigelbmasse gießen und dabei weiter pürieren, bis die Sauce cremig ist.",
+   "Mit Salz und Pfeffer abschmecken und optional mit 0,5 TL Weißweinessig abrunden.",
+   "Die Blitz-Hollandaise direkt warm servieren."
+  ]
+ },
+ "asiatische-spareribs": {
+  "title": "Asiatische Spareribs aus dem Ofen",
+  "category_slug": "hauptgerichte",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Spareribs",
+    "unit": "kg",
+    "amount": 1.5,
+    "display": "1,5 kg"
+   },
+   {
+    "name": "Salz",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Knoblauch",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Knolle"
+   },
+   {
+    "name": "Zwiebel",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "dunkle Sojasoße",
+    "unit": "EL",
+    "amount": 4,
+    "display": "4 EL"
+   },
+   {
+    "name": "Glasur:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Mirin",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Reisessig",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Austernsoße",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "dunkle Sojasoße",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "süße Sojasoße",
+    "unit": "EL",
+    "amount": 1.5,
+    "display": "1,5 EL"
+   },
+   {
+    "name": "Hoisin-Soße",
+    "unit": "EL",
+    "amount": 5,
+    "display": "5 EL"
+   },
+   {
+    "name": "brauner Zucker",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Sriracha",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Sesam",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Deko:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Frühlingslauch",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   }
+  ],
+  "steps": [
+   "Ziehe bei 1,5 kg Spareribs die Silberhaut auf der Knochenseite ab und schneide die Rippchen einzeln oder in kleine Stücke zwischen den Knochen auseinander.",
+   "Koche die Spareribs mit 3 EL Salz, 1 halbierten Knolle Knoblauch, 1 geviertelten Zwiebel und 4 EL dunkler Sojasoße in reichlich Wasser 1 Stunde 15 Minuten leise, bis das Fleisch weich, aber noch nicht zerfallen ist.",
+   "Rühre für die Glasur 2 EL Mirin, 1 EL Reisessig, 2 EL Austernsoße, 1 EL dunkle Sojasoße, 1,5 EL süße Sojasoße, 5 EL Hoisin-Soße, 1 TL braunen Zucker, 1 EL Sriracha und 1 EL Sesam glatt.",
+   "Schneide 2 Stk. Frühlingslauch längs in feine Streifen und lege sie in eiskaltes Wasser, damit sie sich für die Deko aufrollen.",
+   "Nimm die vorgekochten Rippchen aus dem Sud, tupfe sie trocken und pinsele sie rundherum großzügig mit der Glasur ein.",
+   "Backe die Rippchen bei 200 °C Umluft 6–8 Minuten, bis die Glasur glänzt und leicht karamellisiert. Bestreiche sie bei Bedarf nach der Hälfte der Zeit noch einmal dünn.",
+   "Richte die heißen Spareribs an und streue die Frühlingslauchstreifen darüber."
+  ]
+ },
+ "auberginen-hackfleisch-pfanne": {
+  "title": "Auberginen Hackfleisch Pfanne",
+  "category_slug": "hauptgerichte",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Auberginen, gewürfelt",
+    "unit": "",
+    "amount": 2,
+    "display": "2"
+   },
+   {
+    "name": "Zwiebeln, gewürfelt",
+    "unit": "",
+    "amount": 2,
+    "display": "2"
+   },
+   {
+    "name": "Knoblauchzehen, fein gehackt",
+    "unit": "",
+    "amount": 2,
+    "display": "2"
+   },
+   {
+    "name": "Tomaten, gewürfelt",
+    "unit": "",
+    "amount": 5,
+    "display": "5"
+   },
+   {
+    "name": "Olivenöl",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Hackfleisch",
+    "unit": "g",
+    "amount": 500,
+    "display": "500 g"
+   },
+   {
+    "name": "Oregano, getrocknet",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Paprikapulver, rosenscharf",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Salz und Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Gemüsebrühe",
+    "unit": "ml",
+    "amount": 500,
+    "display": "500 ml"
+   },
+   {
+    "name": "Naturjoghurt, zum Servieren",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   }
+  ],
+  "steps": [
+   "Auberginen, Zwiebeln, Knoblauch und Tomaten würfeln.",
+   "Öl erhitzen, Hackfleisch krümelig und kräftig anbraten.",
+   "Zwiebeln und Knoblauch zugeben und 2–3 Min. mitbraten.",
+   "Auberginen, Tomaten, Oregano, Paprika, Salz und Pfeffer einrühren.",
+   "Brühe angießen und ca. 20 Min. leise köcheln, bis die Auberginen weich sind.",
+   "Mit Naturjoghurt servieren; dazu passen Reis oder Kartoffeln."
+  ]
+ },
+ "kaesespaetzle": {
+  "title": "Käsespätzle",
+  "category_slug": "hauptgerichte",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "fertige Spätzle",
+    "unit": "g",
+    "amount": 1000,
+    "display": "1000 g"
+   },
+   {
+    "name": "für das Kochwasser",
+    "unit": "",
+    "amount": 0,
+    "display": "Salz"
+   },
+   {
+    "name": "würziger Hartkäse, grob gerieben",
+    "unit": "g",
+    "amount": 250,
+    "display": "250 g"
+   },
+   {
+    "name": "Sahne",
+    "unit": "g",
+    "amount": 75,
+    "display": "75 g"
+   },
+   {
+    "name": "Muskat",
+    "unit": "",
+    "amount": 0,
+    "display": "Prise"
+   },
+   {
+    "name": "zum Abschmecken",
+    "unit": "",
+    "amount": 0,
+    "display": "Salz & Pfeffer"
+   },
+   {
+    "name": "",
+    "unit": "",
+    "amount": 0,
+    "display": "Optional:"
+   },
+   {
+    "name": "Schnittlauch, Röllchen",
+    "unit": "Bund",
+    "amount": 0.5,
+    "display": "½ Bund"
+   }
+  ],
+  "steps": [
+   "Spätzle in Salzwasser nach Packungsangabe bissfest kochen, abgießen und bereitstellen.",
+   "Hitze reduzieren, Sahne in dieselbe Pfanne geben, mit Muskat, Salz und Pfeffer würzen.",
+   "Spätzle in die Pfanne schütten, gründlich mit der Sahne vermengen, dann den geriebenen Käse unterheben.",
+   "Pfanne abdecken, bis der Käse schmilzt und Fäden zieht. Mit Röstzwiebeln und Schnittlauch bestreut servieren."
+  ]
+ },
+ "schnitzel": {
+  "title": "Schnitzel",
+  "category_slug": "hauptgerichte",
+  "servings": "2",
+  "ingredients": [
+   {
+    "name": "Schweinelende",
+    "unit": "",
+    "amount": 0,
+    "display": "600  bis 800 gramm"
+   },
+   {
+    "name": "Mehl",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Eier",
+    "unit": "Stk",
+    "amount": 3,
+    "display": "3–4 Stk."
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Schwarzer Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Muskatnuss, frisch gerieben",
+    "unit": "",
+    "amount": 0,
+    "display": "Prise"
+   },
+   {
+    "name": "Paniermehl",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Pflanzenöl",
+    "unit": "",
+    "amount": 0,
+    "display": "zum Frittieren"
+   }
+  ],
+  "steps": [
+   "Silberhaut der Schweinelende entfernen; Lende in ca. 3 cm Scheiben schneiden.",
+   "Scheiben sehr dünn plattieren (3–4 mm).",
+   "Panierstraße aufbauen: Teller mit Mehl; Teller mit 3–4 Eiern, Salz, Pfeffer, wenig Muskat verquirlen (Bedenke die gewürze müssen für alle schnitzel reichen also nicht zu wenig nehmen) ; Teller mit Paniermehl.",
+   "Pfanne mit reichlich Öl auf 170–180 °C erhitzen (Schnitzel sollen im Fett schwimmen).",
+   "Mehlieren, durch Ei ziehen, in Paniermehl wenden; überschüssiges Mehl/Brösel abklopfen.",
+   "Schnitzel portionsweise 1–2 Min. je Seite goldbraun frittieren, auf Küchenpapier abtropfen lassen und sofort servieren."
+  ]
+ },
+ "spaghetti-bolognese": {
+  "title": "Spaghetti Bolognese (einfach)",
+  "category_slug": "hauptgerichte",
+  "servings": "2",
+  "ingredients": [
+   {
+    "name": "Nudeln",
+    "unit": "",
+    "amount": 0,
+    "display": "Eine Packung"
+   },
+   {
+    "name": "Bratöl",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Hackfleisch, gemischt",
+    "unit": "g",
+    "amount": 400,
+    "display": "400 g"
+   },
+   {
+    "name": "Tomatensoße mit Basilikum (Glas)",
+    "unit": "g",
+    "amount": 400,
+    "display": "400 g"
+   },
+   {
+    "name": "Italienische Kräuter, getrocknet",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Zucker",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Schwarzer Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   }
+  ],
+  "steps": [
+   "Großen Topf Wasser aufsetzen, salzen; Nudeln nach Packungsangabe al dente kochen.",
+   "Öl in einer Pfanne erhitzen; Hackfleisch 5–6 Min. krümelig und kräftig anbraten.",
+   "Tomatensoße zugießen; Kräuter, Salz, Pfeffer und eine Prise Zucker einrühren und 5–10 Min. leise köcheln.",
+   "Nudeln abgießen, mit der Soße mischen oder auf Tellern anrichten und Soße darübergeben."
+  ]
+ },
+ "tortilla-omelett": {
+  "title": "Tortilla-Omelett mit Tomate und Käse",
+  "category_slug": "snacks",
+  "servings": "1",
+  "ingredients": [
+   {
+    "name": "große Tortilla",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Butter",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "kleine Tomate, in Scheiben",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "frische Petersilie, gehackt",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Eier",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Milch (optional)",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "geriebener Käse (Cheddar oder Mozzarella)",
+    "unit": "g",
+    "amount": 50,
+    "display": "50 g"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "schwarzer Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   }
+  ],
+  "steps": [
+   "1 TL Butter in einer Pfanne bei mittlerer Hitze schmelzen und 1 kleine Tomate in Scheiben darin je Seite 2–3 Minuten braten, bis sie leicht weich und etwas goldbraun ist; mit Salz und Pfeffer würzen und 1 EL gehackte Petersilie darüberstreuen.",
+   "2 Eier in einer Schüssel mit Salz und Pfeffer verquirlen und optional 2 EL Milch unterrühren.",
+   "Die Eiermischung über die Tomaten in der Pfanne gießen und 1–2 Minuten stocken lassen, bis die Oberfläche leicht anzieht.",
+   "1 große Tortilla direkt obenauf legen, die Pfanne abdecken und 2–3 Minuten garen, bis alles zusammenhält.",
+   "Das Ganze mithilfe eines Tellers wenden, sodass die Tortilla unten liegt, 50 g geriebenen Käse auf eine Hälfte geben und zu einem Halbmond zusammenklappen.",
+   "Noch einmal 1–2 Minuten pro Seite braten, bis die Tortilla goldbraun und knusprig ist; in Stücke schneiden und warm servieren."
+  ]
+ },
+ "mais-airfryer": {
+  "title": "Mais (Airfryer)",
+  "category_slug": "snacks",
+  "servings": "2",
+  "ingredients": [
+   {
+    "name": "Maiskolben",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Öl",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Salz",
+    "unit": "TL",
+    "amount": 0.5,
+    "display": "0,5 TL"
+   }
+  ],
+  "steps": [
+   "2 Stk. Maiskolben in eine Schüssel geben.",
+   "1 EL Öl und 0,5 TL Salz dazugeben und die Maiskolben rundum darin wenden.",
+   "Die Maiskolben bei 180 °C 15 Minuten im Airfryer garen und dabei 2–3 Mal wenden."
+  ]
+ },
+ "lachscreme": {
+  "title": "Lachscreme",
+  "category_slug": "snacks",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Räucherlachs oder Stremellachs, grob zerkleinert",
+    "unit": "g",
+    "amount": 150,
+    "display": "150–200 g"
+   },
+   {
+    "name": "Frischkäse",
+    "unit": "g",
+    "amount": 200,
+    "display": "200 g"
+   },
+   {
+    "name": "Zwiebel, fein gewürfelt",
+    "unit": "Stk",
+    "amount": 0.5,
+    "display": "½–1 Stk."
+   },
+   {
+    "name": "Zitronenschale, fein abgerieben",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1–2 TL"
+   },
+   {
+    "name": "Crème fraîche oder Schmand",
+    "unit": "g",
+    "amount": 25,
+    "display": "25–50 g"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Dill, Schnittlauch oder Petersilie (zum Bestreuen)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   }
+  ],
+  "steps": [
+   "Zwiebel schälen und fein würfeln, Lachs grob zerkleinern.",
+   "Frischkäse, Lachs, Zwiebel und Zitronenschale mit Pürierstab/Mixer cremig pürieren.",
+   "Crème fraîche portionsweise unterrühren, bis die gewünschte Konsistenz erreicht ist.",
+   "Mit Salz und Pfeffer abschmecken, in eine Schale füllen und mit Kräutern bestreuen."
+  ]
+ },
+ "bananen-hafer-kekse": {
+  "title": "Bananen-Hafer-Kekse",
+  "category_slug": "backen-und-suesses",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Banane",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Stk"
+   },
+   {
+    "name": "Haferflocken",
+    "unit": "",
+    "amount": 0,
+    "display": "50 g"
+   },
+   {
+    "name": "Zimt",
+    "unit": "",
+    "amount": 0,
+    "display": "0,5 TL"
+   },
+   {
+    "name": "Vanille",
+    "unit": "",
+    "amount": 0,
+    "display": "0,5 TL"
+   },
+   {
+    "name": "Zartbitterschokolade",
+    "unit": "",
+    "amount": 0,
+    "display": "30 g"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Prise"
+   }
+  ],
+  "steps": [
+   "Backofen auf 180 °C Ober-/Unterhitze vorheizen.",
+   "1 Stk Banane mit einer Gabel zerdrücken.",
+   "50 g Haferflocken, 0,5 TL Zimt, 0,5 TL Vanille und 1 Prise Salz unter die Banane rühren.",
+   "30 g Zartbitterschokolade grob hacken und unter den Teig mischen.",
+   "Aus der Masse kleine Häufchen formen, auf ein Backblech mit Backpapier setzen und leicht flachdrücken.",
+   "12 Minuten bei 180 °C Ober-/Unterhitze backen und kurz abkühlen lassen."
+  ]
+ },
+ "biskuit": {
+  "title": "Biskuit",
+  "category_slug": "backen-und-suesses",
+  "servings": "8",
+  "ingredients": [
+   {
+    "name": "Eiweiß",
+    "unit": "Stk",
+    "amount": 4,
+    "display": "4 Stk"
+   },
+   {
+    "name": "kaltes Wasser",
+    "unit": "EL",
+    "amount": 4,
+    "display": "4 EL"
+   },
+   {
+    "name": "Zucker",
+    "unit": "g",
+    "amount": 200,
+    "display": "200 g"
+   },
+   {
+    "name": "Vanillinzucker",
+    "unit": "",
+    "amount": 0,
+    "display": "1 Pck"
+   },
+   {
+    "name": "Eigelb",
+    "unit": "Stk",
+    "amount": 4,
+    "display": "4 Stk"
+   },
+   {
+    "name": "Mehl",
+    "unit": "g",
+    "amount": 80,
+    "display": "80 g"
+   },
+   {
+    "name": "Speisestärke",
+    "unit": "g",
+    "amount": 80,
+    "display": "80 g"
+   },
+   {
+    "name": "Backpulver",
+    "unit": "g",
+    "amount": 1,
+    "display": "1 gestr. TL"
+   },
+   {
+    "name": "Zucker (zum Bestreuen)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   }
+  ],
+  "steps": [
+   "4 Stk Eiweiß mit 4 EL kaltem Wasser steif schlagen.",
+   "200 g Zucker und 1 Pck Vanillinzucker nach und nach einrieseln lassen und weiter schlagen.",
+   "4 Stk Eigelb vorsichtig unterziehen.",
+   "80 g Mehl, 80 g Speisestärke und 1 gestr. TL Backpulver mischen und vorsichtig unterheben.",
+   "Teig auf ein mit Papier belegtes Backblech streichen und bei 180–200 °C 12–15 Minuten backen.",
+   "Sofort auf zuckerbestreutes Papier stürzen und das Papier bzw. die Folie abziehen; zum Lösen das Papier mit kaltem Wasser anfeuchten."
+  ]
+ },
+ "kartoffelsalat": {
+  "title": "Kartoffelsalat",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Kartoffeln, festkochend oder vorwiegend festkochend",
+    "unit": "g",
+    "amount": 500,
+    "display": "500 g"
+   },
+   {
+    "name": "Salz",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Zwiebeln, mittelgroß",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Pflanzenöl, neutral (geteilt)",
+    "unit": "EL",
+    "amount": 4,
+    "display": "4 EL"
+   },
+   {
+    "name": "Fleisch- oder Gemüsebrühe",
+    "unit": "ml",
+    "amount": 100,
+    "display": "100 ml"
+   },
+   {
+    "name": "Weißweinessig",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Senf, mittelscharf",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Pfeffer",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Zucker",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Muskat, gerieben",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Petersilie, frisch gehackt",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   }
+  ],
+  "steps": [
+   "Kartoffeln waschen, mit Schale in kaltem Wasser aufsetzen, salzen und bei mittlerer Hitze 30–35 Min. garen; abgießen und kurz ausdampfen lassen.",
+   "Währenddessen Zwiebeln fein würfeln; in 1 EL Öl glasig dünsten. Brühe zugeben und erhitzen.",
+   "Vom Herd nehmen; Essig, 1 EL Öl, Senf, Salz, Pfeffer, Zucker und Muskat einrühren.",
+   "Lauwarme Kartoffeln pellen und in ca. 2 mm Scheiben direkt in die Schüssel schneiden.",
+   "Warmes Dressing darübergeben, vorsichtig mischen; 30 Min. ziehen lassen, dabei 1–2 Mal wenden.",
+   "Mit Salz und Pfeffer abschmecken; 2 EL Öl unterheben, mit Petersilie bestreuen und servieren."
+  ]
+ },
+ "semmelknoedel": {
+  "title": "Klassische Semmelknödel",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Weizenbrötchen, vom Vortag (ca. 60 g/Stk.)",
+    "unit": "Stk",
+    "amount": 4,
+    "display": "4 Stk."
+   },
+   {
+    "name": "Salz (für den Teig)",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Zwiebel, fein gewürfelt",
+    "unit": "g",
+    "amount": 1,
+    "display": "1 große"
+   },
+   {
+    "name": "Blattpetersilie, fein gehackt",
+    "unit": "g",
+    "amount": 30,
+    "display": "30 g"
+   },
+   {
+    "name": "Butter",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Milch (3,5 %), erwärmt",
+    "unit": "ml",
+    "amount": 150,
+    "display": "150 ml"
+   },
+   {
+    "name": "Eier (Größe M), verquirlt",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Schwarzer Pfeffer, frisch gemahlen",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Semmelbrösel (zum Binden)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Salz (für das Kochwasser)",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   }
+  ],
+  "steps": [
+   "Brötchen klein würfeln und mit 1 TL Salz mischen. Zwiebel fein würfeln, Petersilie hacken.",
+   "Butter schmelzen, Zwiebel und Petersilie 3–4 Min. glasig dünsten; Milch erwärmen. Beides über die Brötchen geben, gründlich mischen und 10 Min. quellen lassen.",
+   "Großen Topf mit reichlich Wasser und 1 EL Salz erhitzen. Eier verquirlen, mit Pfeffer zur Masse geben; kräftig verkneten. Konsistenz mit Semmelbröseln (zu weich) oder etwas Milch (zu fest) justieren.",
+   "Mit nassen Händen ca. 8 gleich große, glatte Knödel formen.",
+   "Knödel in knapp siedendes, nicht kochendes Wasser legen, Hitze reduzieren und 18–22 Min. ziehen lassen, bis sie aufsteigen.",
+   "Mit Schaumkelle herausheben, gut abtropfen und sofort mit viel Soße servieren."
+  ]
+ },
+ "pfannkuchen": {
+  "title": "Pfannkuchen",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "5",
+  "ingredients": [
+   {
+    "name": "Weizenmehl (Type 405)",
+    "unit": "g",
+    "amount": 150,
+    "display": "150 g"
+   },
+   {
+    "name": "Salz",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Vollmilch",
+    "unit": "ml",
+    "amount": 250,
+    "display": "250 ml"
+   },
+   {
+    "name": "Eier",
+    "unit": "Stk",
+    "amount": 3,
+    "display": "3 Stk."
+   },
+   {
+    "name": "Mineralwasser",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Pflanzenöl (alternativ Butterschmalz)",
+    "unit": "TL",
+    "amount": 5,
+    "display": "5 TL"
+   }
+  ],
+  "steps": [
+   "Mehl und Salz in eine Schüssel geben, mit Milch glatt rühren, bis keine Klümpchen mehr sichtbar sind.",
+   "Eier unterrühren, dann Mineralwasser kurz einarbeiten; Teig 10 Min. im Kühlschrank ruhen lassen.",
+   "Beschichtete Pfanne auf mittlerer bis hoher Hitze erhitzen, 1 TL Öl oder etwas Butterschmalz zugeben.",
+   "Pro Pfannkuchen Teig eingießen und die Pfanne schwenken, damit er dünn bis zum Rand läuft.",
+   "Etwa 1 Min. backen, bis die Oberfläche gestockt ist; wenden und weitere ca. 30 Sek. goldgelb backen.",
+   "Für jeden weiteren Pfannkuchen 1 TL Öl zugeben; gestapelt warmhalten und nach Wunsch süß oder herzhaft servieren."
+  ]
+ },
+ "sushi-reis": {
+  "title": "Sushi-Reis – Grundrezept (Reiskocher)",
+  "category_slug": "grundrezepte-und-saucen",
+  "servings": "3",
+  "ingredients": [
+   {
+    "name": "Sushi-Reis, rundkörnig",
+    "unit": "",
+    "amount": 0,
+    "display": "2 cups (240 g)"
+   },
+   {
+    "name": "Wasser",
+    "unit": "",
+    "amount": 0,
+    "display": "2 cups (240 ml)"
+   },
+   {
+    "name": "Reisessig (für selbstgemachten Sushi-Essig)",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Zucker",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Salz, gestrichen",
+    "unit": "TL",
+    "amount": 0.5,
+    "display": "½ TL"
+   }
+  ],
+  "steps": [
+   "Reis in kaltem Wasser 3–4× waschen, bis das Wasser klar ist. In frischem Wasser 30 Min. bedeckt quellen lassen, abgießen.",
+   "Reis in den Reiskocher geben",
+   "Reisessig, Zucker und Salz vermischen, bis sich Zucker löst (dauert eine halbe stunde -> immer mal wieder umrühren)",
+   "Reis in eine große Schüssel geben, Sushi-Essig über den heißen Reis träufeln.",
+   "Mit schneidenden Bewegungen unterheben, nicht drücken",
+   "Den Reis Lauwarm verarbeiten"
+  ]
+ },
+ "chili-con-carne": {
+  "title": "Chili con Carne",
+  "category_slug": "hauptgerichte",
+  "servings": "",
+  "ingredients": [
+   {
+    "name": "Olivenöl",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Zwiebel, fein gewürfelt",
+    "unit": "",
+    "amount": 1,
+    "display": "1"
+   },
+   {
+    "name": "Knoblauchzehe, gehackt",
+    "unit": "",
+    "amount": 1,
+    "display": "1"
+   },
+   {
+    "name": "Rinderhackfleisch",
+    "unit": "g",
+    "amount": 500,
+    "display": "500 g"
+   },
+   {
+    "name": "Paprikapulver edelsüß",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1–2 TL"
+   },
+   {
+    "name": "Tomatenmark",
+    "unit": "g",
+    "amount": 50,
+    "display": "50 g"
+   },
+   {
+    "name": "rote Paprikaschoten, klein gewürfelt",
+    "unit": "",
+    "amount": 1,
+    "display": "1–2"
+   },
+   {
+    "name": "passierte Tomaten",
+    "unit": "g",
+    "amount": 800,
+    "display": "800 g"
+   },
+   {
+    "name": "Kidneybohnen (abgetropft)",
+    "unit": "g",
+    "amount": 250,
+    "display": "250 g"
+   },
+   {
+    "name": "Mais (abgetropft)",
+    "unit": "g",
+    "amount": 140,
+    "display": "140 g"
+   },
+   {
+    "name": "Cayennepfeffer",
+    "unit": "TL",
+    "amount": 0.25,
+    "display": "¼ TL"
+   },
+   {
+    "name": "Zucker",
+    "unit": "",
+    "amount": 0,
+    "display": "Prise"
+   },
+   {
+    "name": "nach Geschmack",
+    "unit": "",
+    "amount": 0,
+    "display": "Salz"
+   }
+  ],
+  "steps": [
+   "Zwiebel und Knoblauch in Öl in einer weiten Pfanne glasig dünsten.",
+   "Hackfleisch zugeben, salzen und auf hoher Hitze krümelig anbraten, bis kräftige Röstaromen entstehen.",
+   "Paprikapulver und Tomatenmark einrühren, 1 Minute mitschwitzen lassen.",
+   "Paprikawürfel untermischen, dann passierte Tomaten, Bohnen und Mais zugeben. Mit Cayenne, Zucker und Salz abschmecken.",
+   "20 Minuten bei mittlerer Hitze köcheln lassen. Mit Créme Fraîche und Petersilie servieren."
+  ]
+ },
+ "brokkolicremesuppe": {
+  "title": "Brokkolicremesuppe",
+  "category_slug": "hauptgerichte",
+  "servings": "2",
+  "ingredients": [
+   {
+    "name": "Brokkoli, in Röschen (Strunk gewürfelt)",
+    "unit": "g",
+    "amount": 300,
+    "display": "300 g"
+   },
+   {
+    "name": "Wasser",
+    "unit": "ml",
+    "amount": 250,
+    "display": "250 ml"
+   },
+   {
+    "name": "Butter",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Frühlingszwiebel, fein geschnitten",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Mehl",
+    "unit": "EL",
+    "amount": 3,
+    "display": "3 EL"
+   },
+   {
+    "name": "Hühnerbrühe",
+    "unit": "ml",
+    "amount": 250,
+    "display": "250 ml"
+   },
+   {
+    "name": "Sahne",
+    "unit": "ml",
+    "amount": 130,
+    "display": "130 ml"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   }
+  ],
+  "steps": [
+   "Brokkoli in Röschen teilen (Strunk schälen und würfeln). Wasser in einem Topf zum Kochen bringen, salzen und Brokkoli 5 Min. blanchieren; Brokkoli herausnehmen und Kochwasser auffangen.",
+   "Butter in einem Topf bei mittlerer Hitze schmelzen. Frühlingszwiebel 1–2 Min. anschwitzen, Mehl einrühren und 1–2 Min. hell anschwitzen, bis es leicht blubbert.",
+   "Brokkoli, das aufgefangene Kochwasser und die Brühe unter Rühren zugießen, aufkochen und 2–3 Min. köcheln lassen.",
+   "Suppe mit dem Pürierstab fein mixen. Sahne einrühren, 1 Min. erwärmen (nicht stark kochen) und mit Salz und Pfeffer abschmecken."
+  ]
+ },
+ "gulasch": {
+  "title": "Gulasch (Rind und Schwein)",
+  "category_slug": "hauptgerichte",
+  "servings": "2",
+  "ingredients": [
+   {
+    "name": "Öl zum Anbraten",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1–2 EL"
+   },
+   {
+    "name": "Gulaschfleisch, halb Rind/halb Schwein",
+    "unit": "kg",
+    "amount": 1,
+    "display": "1 kg"
+   },
+   {
+    "name": "Zwiebeln",
+    "unit": "",
+    "amount": 3,
+    "display": "3"
+   },
+   {
+    "name": "Tomatenmark",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Mehl oder Kartoffelstärke",
+    "unit": "g",
+    "amount": 20,
+    "display": "20 g"
+   },
+   {
+    "name": "kaltes Wasser",
+    "unit": "",
+    "amount": 0,
+    "display": "Schuss"
+   },
+   {
+    "name": "heißes Wasser",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Knoblauchzehe, ganz",
+    "unit": "",
+    "amount": 1,
+    "display": "1"
+   },
+   {
+    "name": "Chilischote, ganz",
+    "unit": "",
+    "amount": 1,
+    "display": "1"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Schwarzer Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Paprikapulver",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Thymian",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Italienische Kräuter",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   }
+  ],
+  "steps": [
+   "Zwiebeln grob schneiden (nicht würfeln); Knoblauch und Chilischote bereitlegen. Wasser im Wasserkocher erhitzen.",
+   "Öl stark erhitzen und das Fleisch portionsweise sehr heiß anbraten, bis kräftige Röstaromen entstehen; herausnehmen.",
+   "Im Bratfett Zwiebeln goldbraun braten, Tomatenmark 1 Min. mitrösten.",
+   "Fleisch zurückgeben, mit Mehl/Stärke bestäuben und kurz rühren; mit einem Schuss kaltem Wasser ablöschen.",
+   "Nach und nach kochendes Wasser zugießen, bis eine sämige Soße entsteht; salzen, pfeffern und mit Paprika, Thymian und italienischen Kräutern würzen. Knoblauch und Chilischote zugeben.",
+   "Zugedeckt bei kleiner Hitze 30–60 Min. schmoren, bis das Rind zart ist; Chili/Knoblauch entfernen, abschmecken und servieren."
+  ]
+ },
+ "lasagne": {
+  "title": "Lasagne",
+  "category_slug": "hauptgerichte",
+  "servings": "6",
+  "ingredients": [
+   {
+    "name": "Zwiebel, fein gewürfelt",
+    "unit": "",
+    "amount": 1,
+    "display": "1"
+   },
+   {
+    "name": "Knoblauchzehen, fein gehackt",
+    "unit": "",
+    "amount": 2,
+    "display": "2"
+   },
+   {
+    "name": "Hackfleisch, gemischt",
+    "unit": "g",
+    "amount": 500,
+    "display": "500 g"
+   },
+   {
+    "name": "Tomatenmark",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Karotte, in kleinen Würfeln",
+    "unit": "",
+    "amount": 0,
+    "display": "1 kleine"
+   },
+   {
+    "name": "Paprika, klein gewürfelt (optional)",
+    "unit": "",
+    "amount": 0,
+    "display": "1 kleine"
+   },
+   {
+    "name": "Tomaten aus der Dose (stückig oder passierte)",
+    "unit": "g",
+    "amount": 400,
+    "display": "400 g"
+   },
+   {
+    "name": "Italienische Kräuter, getrocknet",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Chiliflocken, mild",
+    "unit": "Prise",
+    "amount": 1,
+    "display": "1 Prise"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Schwarzer Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Butter",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Mehl",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Milch",
+    "unit": "ml",
+    "amount": 200,
+    "display": "200–300 ml"
+   },
+   {
+    "name": "Gemüsebrühe",
+    "unit": "ml",
+    "amount": 50,
+    "display": "50 ml"
+   },
+   {
+    "name": "Lasagneblätter, ungekocht",
+    "unit": "Stk",
+    "amount": 8,
+    "display": "8–12 Stk."
+   },
+   {
+    "name": "Mozzarella, in kleinen Stücken",
+    "unit": "g",
+    "amount": 125,
+    "display": "125 g"
+   },
+   {
+    "name": "Parmesan, frisch gerieben",
+    "unit": "g",
+    "amount": 60,
+    "display": "60 g"
+   }
+  ],
+  "steps": [
+   "Backofen auf 200 °C Ober-/Unterhitze vorheizen. Zwiebel, Knoblauch, Karotte und ggf. Paprika fein würfeln; Parmesan reiben.",
+   "Hackfleisch mit Zwiebeln und Knoblauch in heißer Pfanne 5–6 Min. kräftig anbraten; Tomatenmark 30 Sek. mitrösten.",
+   "Karotte und Paprika zugeben, 2–3 Min. mitbraten; mit Tomaten ablöschen, 15 Min. köcheln. Mit Salz, Pfeffer, Kräutern und milden Chiliflocken abschmecken; Sauce saftig lassen.",
+   "Für die Béchamel Butter schmelzen, Mehl einrühren und 1 Min. anschwitzen; Milch nach und nach zugeben, mit Gemüsebrühe dicklich rühren; salzen und pfeffern.",
+   "Form einfetten. Schichten: Bolognese – Lasagneblätter – Bolognese – Béchamel in Schlieren; wiederholen.",
+   "Oben Lasagneblätter, Bolognese, Béchamel, Mozzarella und Parmesan verteilen.",
+   "45 Min. bei 200 °C auf mittlerer Schiene backen; 10 Min. ruhen lassen und servieren."
+  ]
+ },
+ "fried-chicken": {
+  "title": "Fried Chicken",
+  "category_slug": "hauptgerichte",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Marinade:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Hähnchen, in 8 Teile zerlegt",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Salz",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Knoblauchpulver",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Zwiebelpulver",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Buttermilch",
+    "unit": "ml",
+    "amount": 480,
+    "display": "480 ml"
+   },
+   {
+    "name": "Scharfe Sauce (Hot Sauce)",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Panade:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Weizenmehl",
+    "unit": "g",
+    "amount": 240,
+    "display": "240 g"
+   },
+   {
+    "name": "Speisestärke",
+    "unit": "g",
+    "amount": 120,
+    "display": "120 g"
+   },
+   {
+    "name": "Salz",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Paprikapulver",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Schwarzer Pfeffer",
+    "unit": "TL",
+    "amount": 2,
+    "display": "2 TL"
+   },
+   {
+    "name": "Zum Frittieren:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Erdnussöl (oder neutrales Bratöl)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Flockensalz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   }
+  ],
+  "steps": [
+   "Hähnchenstücke aus dem Kühlschrank nehmen, trocken tupfen und in eine große Schüssel geben. Salz, Knoblauchpulver und Zwiebelpulver mischen, über das Hähnchen streuen und alles gründlich durchmengen, bis jedes Stück rundum gewürzt ist (auch in Hautfalten und an Schnittkanten).",
+   "Buttermilch und Hot Sauce in die Schüssel gießen und das Hähnchen darin wenden, bis alle Stücke gut benetzt sind. Abdecken und im Kühlschrank mindestens 2 Std. marinieren; am besten über Nacht, damit die Buttermilch das Fleisch zart macht.",
+   "Mehl, Speisestärke, Salz, Paprika und Pfeffer in einer Schüssel gründlich mischen. Parallel Öl in Fritteuse oder schwerem Topf hoch erhitzen und dann auf ca. 160–165 °C einpendeln lassen; wenn das Öl zu heiß wird, bräunt die Haut zu schnell, bevor das Fleisch gar ist.",
+   "Ein Blech mit Küchenpapier (oder besser: Rost) vorbereiten. Hähnchenstücke einzeln aus der Marinade nehmen und kurz abtropfen lassen, aber nicht trocken wischen. In der Mehlmischung rundum wälzen und die Panade gut andrücken, besonders an Haut und Gelenken. Überschuss abklopfen und die panierten Stücke 5 Min. liegen lassen, bis die Oberfläche leicht „pappig“ wird – so hält die Kruste später besser.",
+   "Hähnchen portionsweise frittieren, damit die Temperatur nicht stark abfällt: maximal 3–4 Stücke gleichzeitig. Stücke vorsichtig von dir weg ins Öl geben. Bei gleichmäßiger Hitze goldbraun frittieren und alle paar Minuten wenden, damit die Kruste gleichmäßig färbt und nichts am Boden festklebt.",
+   "Garzeiten als Orientierung: dunkles Fleisch (Keulen/Flügel) ca. 12–14 Min., Bruststücke ca. 8–10 Min. Sicher ist es, wenn die Kerntemperatur an der dicksten Stelle 74 °C erreicht. Fertige Stücke auf das vorbereitete Blech/den Rost legen, sofort optional mit etwas Flockensalz bestreuen und die nächste Charge frittieren."
+  ]
+ },
+ "haehnchengeschnetzeltes": {
+  "title": "Hähnchengeschnetzeltes mit Pilzen",
+  "category_slug": "hauptgerichte",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Champignons (braun)",
+    "unit": "g",
+    "amount": 250,
+    "display": "250 g"
+   },
+   {
+    "name": "Zwiebel (mittelgroß)",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Knoblauchzehe",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Hähnchenbrustfilet",
+    "unit": "g",
+    "amount": 400,
+    "display": "400 g"
+   },
+   {
+    "name": "Butterschmalz",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Mehl",
+    "unit": "EL",
+    "amount": 1,
+    "display": "1 EL"
+   },
+   {
+    "name": "Geflügelfond",
+    "unit": "ml",
+    "amount": 200,
+    "display": "200 ml"
+   },
+   {
+    "name": "Schlagsahne (ca. 30% Fett)",
+    "unit": "g",
+    "amount": 250,
+    "display": "250 g"
+   },
+   {
+    "name": "Sojasoße",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Muskatnuss (frisch gerieben)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Salz",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Petersilie (gehackt)",
+    "unit": "Bund",
+    "amount": 0.25,
+    "display": "0,25 Bund"
+   }
+  ],
+  "steps": [
+   "250 g Champignons putzen und in ca. 3 mm dicke Scheiben schneiden, 1 Stk. Zwiebel schälen und in Streifen schneiden sowie 1 Stk. Knoblauchzehe fein hacken.",
+   "400 g Hähnchenbrustfilet trocken tupfen, in ca. 1 cm breite Streifen schneiden und leicht salzen.",
+   "1 EL Butterschmalz in einer großen Pfanne erhitzen und das Hähnchen in zwei Portionen bei hoher Hitze je ca. 3 Minuten scharf anbraten, dann pfeffern und warmhalten.",
+   "1 EL Butterschmalz in derselben Pfanne erhitzen, Champignons, Zwiebel und Knoblauch dazugeben, mit 1 EL Mehl bestäuben und bei mittlerer Hitze 2 Minuten dünsten.",
+   "Mit 200 ml Geflügelfond ablöschen und kurz köcheln lassen, dann 250 g Schlagsahne einrühren und ca. 5 Minuten sanft köcheln, bis die Soße cremig eindickt.",
+   "Mit 1 TL Sojasoße, Salz, Pfeffer und Muskat abschmecken, das angebratene Hähnchen zurück in die Soße geben und 1–2 Minuten darin ziehen lassen, dann mit 0,25 Bund gehackter Petersilie bestreuen."
+  ]
+ },
+ "fruehlingsrollen": {
+  "title": "Frühlingsrollen",
+  "category_slug": "hauptgerichte",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Füllung:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Glasnudeln",
+    "unit": "g",
+    "amount": 100,
+    "display": "100 g"
+   },
+   {
+    "name": "Weißkohl, sehr fein",
+    "unit": "g",
+    "amount": 300,
+    "display": "300 g"
+   },
+   {
+    "name": "Möhren, sehr fein",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Lauchzwiebeln, sehr fein",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Sojasprossen",
+    "unit": "g",
+    "amount": 150,
+    "display": "150 g"
+   },
+   {
+    "name": "Ingwer, fein gerieben",
+    "unit": "g",
+    "amount": 25,
+    "display": "25 g"
+   },
+   {
+    "name": "Koriander, gehackt",
+    "unit": "l",
+    "amount": 3,
+    "display": "3–4 Stiele"
+   },
+   {
+    "name": "Hackfleisch",
+    "unit": "g",
+    "amount": 300,
+    "display": "300 g"
+   },
+   {
+    "name": "Sojasauce",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Fischsauce",
+    "unit": "EL",
+    "amount": 2,
+    "display": "2 EL"
+   },
+   {
+    "name": "Salz",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Pfeffer",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Geschmack"
+   },
+   {
+    "name": "Zum Rollen & Frittieren:",
+    "unit": "",
+    "amount": 0,
+    "display": "---"
+   },
+   {
+    "name": "Frühlingsrollenblätter",
+    "unit": "Stk",
+    "amount": 40,
+    "display": "40 Stk."
+   },
+   {
+    "name": "Speisestärke (Kleber)",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Wasser zum Anrühren",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   },
+   {
+    "name": "Pflanzenöl zum Frittieren",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Bedarf"
+   }
+  ],
+  "steps": [
+   "Glasnudeln mit kochendem Wasser übergießen, 2–3 Min. ziehen lassen, abgießen, gut abtropfen und grob schneiden. Weißkohl, Möhren und Lauchzwiebeln sehr fein schneiden; Ingwer reiben; Koriander hacken.",
+   "Füllung mischen: Glasnudeln, Sojasprossen, Kohl, Möhren, Lauchzwiebeln, Ingwer, Koriander, Hackfleisch, Sojasauce, Fischsauce, Salz und Pfeffer gründlich vermengen.",
+   "Speisestärke mit wenig Wasser zu einem glatten Kleber rühren. Je 1 EL Füllung auf ein Blatt setzen, Seiten einschlagen, straff aufrollen und mit Stärke-Kleber verschließen.",
+   "Öl auf ca. 170 °C erhitzen (alternativ Holzstäbchen-Test: steigen Bläschen auf). Rollen portionsweise 4–6 Min. goldbraun frittieren; auf Küchenpapier abtropfen lassen.",
+   "Heiß servieren, nach Wunsch mit Sojasauce oder Dip."
+  ]
+ },
+ "sommerrollen": {
+  "title": "Sommerrollen",
+  "category_slug": "snacks",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Reispapier",
+    "unit": "",
+    "amount": 0,
+    "display": "ca. 12 Stk."
+   },
+   {
+    "name": "Glasnudeln",
+    "unit": "g",
+    "amount": 100,
+    "display": "100 g"
+   },
+   {
+    "name": "Räuchertofu",
+    "unit": "g",
+    "amount": 175,
+    "display": "175 g"
+   },
+   {
+    "name": "Pflanzenöl",
+    "unit": "TL",
+    "amount": 1,
+    "display": "1 TL"
+   },
+   {
+    "name": "Salz",
+    "unit": "Prise",
+    "amount": 2,
+    "display": "2 Prisen"
+   },
+   {
+    "name": "schwarzer Pfeffer",
+    "unit": "Prise",
+    "amount": 2,
+    "display": "2 Prisen"
+   },
+   {
+    "name": "Eisbergsalat (sehr klein)",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Möhren",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "rote Paprika",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Champignons",
+    "unit": "Stk",
+    "amount": 4,
+    "display": "4 Stk."
+   },
+   {
+    "name": "Radieschen",
+    "unit": "Stk",
+    "amount": 4,
+    "display": "4 Stk."
+   },
+   {
+    "name": "Frühlingszwiebeln",
+    "unit": "Stk",
+    "amount": 2,
+    "display": "2 Stk."
+   },
+   {
+    "name": "Gurke",
+    "unit": "Stk",
+    "amount": 0.5,
+    "display": "0,5 Stk."
+   },
+   {
+    "name": "Avocado",
+    "unit": "Stk",
+    "amount": 1,
+    "display": "1 Stk."
+   },
+   {
+    "name": "Mango",
+    "unit": "Stk",
+    "amount": 0.5,
+    "display": "0,5 Stk."
+   },
+   {
+    "name": "Limette",
+    "unit": "Stk",
+    "amount": 0.5,
+    "display": "0,5 Stk."
+   },
+   {
+    "name": "Koriander",
+    "unit": "",
+    "amount": 0,
+    "display": "2 Stiel"
+   }
+  ],
+  "steps": [
+   "100 g Glasnudeln nach Packungsangabe garen und abkühlen lassen; eine Schüssel mit kaltem Wasser zum Einweichen der Reispapierblätter auf den Esstisch stellen.",
+   "1 Stk. Eisbergsalat (sehr klein) in feine Streifen schneiden; 2 Stk. Möhren schälen und in dünne Stifte schneiden; 1 Stk. rote Paprika entkernen und in Streifen schneiden; 0,5 Stk. Mango schälen und in Streifen schneiden; 4 Stk. Champignons putzen und in Scheiben schneiden; 4 Stk. Radieschen in Scheiben schneiden; 2 Stk. Frühlingszwiebeln in feine Ringe schneiden.",
+   "0,5 Stk. Gurke längs halbieren, vierteln, Kerngehäuse entfernen und in Streifen schneiden; 1 Stk. Avocado in Scheiben schneiden und mit Saft von 0,5 Stk. Limette beträufeln.",
+   "175 g Räuchertofu in feine Scheiben schneiden und in 1 TL Pflanzenöl in einer Pfanne von beiden Seiten anbraten; mit 2 Prisen Salz und 2 Prisen schwarzem Pfeffer würzen. 90 g gesalzene Erdnüsse grob hacken; 2 Stiel Koriander waschen und trocken schütteln.",
+   "Je 1 Reispapierblatt kurz in kaltem Wasser einweichen und auf eine leicht feuchte Unterlage legen; etwas Glasnudeln, ca. 1 TL gehackte Erdnüsse, 1 Scheibe Räuchertofu sowie Gemüse, Avocado, Kräuter in die Mitte geben und mit etwas Limettensaft beträufeln.",
+   "Reispapier von unten über die Füllung klappen, Seiten einschlagen und straff aufrollen; direkt servieren, z. B. mit Sojasauce."
+  ]
+ },
+ "leberkaes-wecken": {
+  "title": "Leberkäs‑Wecken",
+  "category_slug": "snacks",
+  "servings": "4",
+  "ingredients": [
+   {
+    "name": "Wecken/Brötchen",
+    "unit": "Stk",
+    "amount": 4,
+    "display": "4 Stk."
+   },
+   {
+    "name": "Leberkäse (je 80–100 g)",
+    "unit": "",
+    "amount": 0,
+    "display": "4 Scheiben"
+   },
+   {
+    "name": "Senf, normal oder mittelscharf",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   },
+   {
+    "name": "Ketchup",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   },
+   {
+    "name": "Gewürzgurken",
+    "unit": "",
+    "amount": 0,
+    "display": "nach Belieben"
+   }
+  ],
+  "steps": [
+   "Leberkäse in einer Pfanne je Seite 2–3 Min. warm machen, nicht wirklich braten.",
+   "Brötchen mit Senf/Ketchup bestreichen, Leberkäse einlegen; nach Wunsch mit Gurkenscheiben belegen."
+  ]
+ }
+}

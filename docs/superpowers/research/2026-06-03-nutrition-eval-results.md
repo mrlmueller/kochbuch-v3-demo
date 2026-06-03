@@ -56,6 +56,26 @@ The LLM never invents a nutrient value or a gram amount. Matching is frozen in a
 curated table (deterministic, auditable), so the same recipe always yields the same
 numbers. This is the research's Architecture B, now proven on our own recipes.
 
+## Eval set expanded 14 → 29 (held-out generalization check)
+
+To make the production gate trustworthy and test for over-fitting, the ground truth
+was grown from 14 to **29 recipes**, adding coverage the first set lacked: more
+deep-frying (Fried Chicken, Frühlingsrollen), stews/soups (Chili con Carne, Gulasch,
+Brokkolicremesuppe), a baked composite (Lasagne), legumes/fibre (kidney beans), rice
+(Sushi-Reis), fresh/raw (Sommerrollen), salads (Kartoffelsalat), simple bakes, dumplings,
+pancakes, a cream-sauce sauté, and a meat-in-bread snack. ~35 new per-100g values were
+looked up (German/composite items web-verified: Leberkäse, Räuchertofu, Glasnudeln,
+Tomatenmark, kidney beans, whole-chicken bone fraction, stew meat, Weizenbrötchen).
+
+Reproducibility: `groundtruth_compute.py` now pulls the real ingredient lines **and**
+steps from a committed `_db_source.json` (keyed by recipe id), so the entire set
+regenerates in one run. Every recipe's **Atwater self-check is ≤11% (mostly ≤3%)**,
+confirming the macro table is internally consistent across all 29.
+
+The 15 new recipes are **held out** from the exp1–5 tuning, so re-running the deterministic
+estimator (exp5) on them is a direct over-fitting test: if the table-driven approach was
+tuned to the original 14, accuracy will drop on the unseen 15. That run is the next gate.
+
 ## Seeds for the production build
 - The prototype's `UNIT_ML / PIECE_G / PACK_G / EDIBLE / FAT_UPTAKE / fat-rendering`
   tables (`_experiments/exp5_deterministic.py`) → seed for **M3** `cooking_factors` +
