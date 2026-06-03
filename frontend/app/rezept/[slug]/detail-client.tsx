@@ -482,7 +482,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
       {/* Nutrition — full-width section below the body (donut design) */}
       {recipe.nutrition && (
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '0 40px 96px' }}>
-          <div style={{ maxWidth: 420, margin: '0 auto' }}>
+          <div style={{ maxWidth: 400, margin: '0 auto' }}>
             <NutritionCard perServing={recipe.nutrition.per_serving} />
           </div>
         </section>

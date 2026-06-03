@@ -1,10 +1,10 @@
 import type { Macros } from '@/lib/api'
 
-// Nutrition donut — the compact "Donut" design the user chose: a small ring
-// (kcal in the centre) sitting BESIDE a simple legend (colour dot · label ·
-// value, no bars), with a tight inline sugar/fibre footer. The ring + legend
-// are forced side-by-side (nowrap); the legend flexes down rather than
-// wrapping below. Theme-aware via the page's CSS vars.
+// Nutrition donut — matches the reference "Donut" design exactly: a 132px ring
+// with the kcal hero in its centre, sitting BESIDE a simple legend (colour dot ·
+// label · value, no bars), with a tight inline sugar/fibre footer. The ring +
+// legend stay side-by-side (the legend flexes/wraps its text rather than
+// dropping below). Theme-aware via the page's CSS vars.
 
 const SERIF = 'var(--font-serif)'
 const NUM: React.CSSProperties = { fontVariantNumeric: 'tabular-nums' }
@@ -16,7 +16,7 @@ const MACRO_COLORS = [
   'color-mix(in srgb, var(--accent) 60%, transparent)',
   'color-mix(in srgb, var(--accent) 33%, transparent)',
 ]
-const RING_BG = 'color-mix(in srgb, var(--accent) 12%, transparent)'
+const RING_BG = 'color-mix(in srgb, var(--accent) 8%, transparent)'
 
 export function NutritionCard({ perServing }: { perServing: Macros }) {
   const n = perServing
@@ -31,8 +31,8 @@ export function NutritionCard({ perServing }: { perServing: Macros }) {
   ]
   const total = macros.reduce((s, m) => s + m.value, 0) || 1
 
-  // Donut geometry.
-  const R = 46, SW = 13, C = 2 * Math.PI * R
+  // Donut geometry (reference dimensions).
+  const R = 52, SW = 14, C = 2 * Math.PI * R
   let offset = 0
   const segs = macros.map((m, i) => {
     const frac = m.value / total
@@ -44,37 +44,37 @@ export function NutritionCard({ perServing }: { perServing: Macros }) {
   return (
     <section aria-label="Nährwerte pro Portion">
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
-        <h2 style={{ fontSize: 21, fontWeight: 700, color: 'var(--text)', fontFamily: SERIF, letterSpacing: -0.3, margin: 0, lineHeight: 1 }}>Nährwerte</h2>
-        <span style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic', fontFamily: SERIF }}>pro Person · geschätzt</span>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', fontFamily: SERIF, letterSpacing: -0.3, margin: 0, lineHeight: 1 }}>Nährwerte</h2>
+        <span style={{ fontSize: 11.5, color: 'var(--muted)', fontStyle: 'italic', fontFamily: SERIF }}>pro Person · geschätzt</span>
       </div>
 
-      <div style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border)', borderRadius: 18, padding: 18, display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'nowrap' }}>
+      <div style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border)', borderRadius: 18, padding: 22, display: 'flex', alignItems: 'center', gap: 24 }}>
         {/* Ring with kcal in the centre */}
-        <div style={{ position: 'relative', width: 112, height: 112, flexShrink: 0 }}>
-          <svg width="112" height="112" viewBox="0 0 112 112">
-            <circle cx="56" cy="56" r={R} fill="none" strokeWidth={SW} style={{ stroke: RING_BG }} />
+        <div style={{ position: 'relative', width: 132, height: 132, flexShrink: 0 }}>
+          <svg width="132" height="132" viewBox="0 0 132 132">
+            <circle cx="66" cy="66" r={R} fill="none" strokeWidth={SW} style={{ stroke: RING_BG }} />
             {segs.map((s, i) => (
-              <circle key={i} cx="56" cy="56" r={R} fill="none" strokeWidth={SW}
+              <circle key={i} cx="66" cy="66" r={R} fill="none" strokeWidth={SW}
                 strokeDasharray={`${s.dash} ${C - s.dash}`} strokeDashoffset={-s.off}
-                transform="rotate(-90 56 56)" strokeLinecap="butt" style={{ stroke: s.color }} />
+                transform="rotate(-90 66 66)" strokeLinecap="butt" style={{ stroke: s.color }} />
             ))}
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 27, fontFamily: SERIF, color: 'var(--text)', lineHeight: 1, ...NUM }}>{round(n.kcal)}</span>
-            <span style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 600 }}>kcal</span>
+            <span style={{ fontSize: 30, fontFamily: SERIF, color: 'var(--text)', lineHeight: 1, ...NUM }}>{round(n.kcal)}</span>
+            <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>kcal</span>
           </div>
         </div>
 
         {/* Legend (dot · label · value) + inline footer */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
           {macros.map((m, i) => (
             <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
               <span style={{ width: 10, height: 10, borderRadius: 3, background: MACRO_COLORS[i], flexShrink: 0 }} />
-              <span style={{ flex: 1, fontSize: 13.5, color: 'var(--text)', minWidth: 0 }}>{m.label}</span>
-              <span style={{ fontSize: 14, color: 'var(--text)', fontWeight: 700, whiteSpace: 'nowrap', ...NUM }}>{m.value} g</span>
+              <span style={{ flex: 1, fontSize: 13, color: 'var(--text)', minWidth: 0 }}>{m.label}</span>
+              <span style={{ fontSize: 13.5, color: 'var(--text)', fontWeight: 700, whiteSpace: 'nowrap', ...NUM }}>{m.value} g</span>
             </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, marginTop: 3, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', gap: 20, marginTop: 4, paddingTop: 10, borderTop: '1px solid var(--border)', flexWrap: 'wrap' }}>
             {minor.map((m) => (
               <span key={m.label} style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
                 {m.label} <b style={{ color: 'var(--text)', fontWeight: 700, ...NUM }}>{m.value} g</b>
