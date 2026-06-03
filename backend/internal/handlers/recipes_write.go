@@ -97,6 +97,9 @@ func UpdateRecipe(store db.Store) http.HandlerFunc {
 			writeDbError(w, err)
 			return
 		}
+		// Best-effort: mark nutrition outdated when the recipe changes.
+		// No row in recipe_nutrition is a silent no-op.
+		_ = store.MarkNutritionOutdated(r.Context(), slug)
 		// If the image was replaced or cleared, clean up the previous one.
 		if existing.ImageURL != "" && existing.ImageURL != recipe.ImageURL {
 			cleanupCloudinaryAsync(slug, existing.ImageURL)

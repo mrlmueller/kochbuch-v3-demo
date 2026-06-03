@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"backend/internal/db"
+	"backend/internal/models"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -24,8 +25,16 @@ func ListRecipeConfirmations(store db.Store) http.HandlerFunc {
 		if slugs == nil {
 			slugs = []string{}
 		}
+		statuses, err := store.ListNutritionStatuses(r.Context())
+		if err != nil {
+			jsonError(w, "Datenbankfehler", http.StatusInternalServerError)
+			return
+		}
+		if statuses == nil {
+			statuses = map[string]models.NutritionStatus{}
+		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string][]string{"confirmed": slugs})
+		json.NewEncoder(w).Encode(map[string]any{"confirmed": slugs, "nutrition": statuses})
 	}
 }
 

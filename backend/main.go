@@ -130,6 +130,8 @@ func main() {
 			r.Get("/api/admin/recipes", handlers.ListAdminRecipes(store))
 			r.Get("/api/admin/recipes/status", handlers.ListRecipeConfirmations(store))
 			r.Patch("/api/admin/recipes/{slug}/confirm", handlers.SetRecipeConfirmed(store))
+			r.Post("/api/admin/recipes/{slug}/nutrition", handlers.EnqueueRecipeNutrition(store))
+			r.Get("/api/admin/recipes/{slug}/nutrition", handlers.GetRecipeNutrition(store))
 			r.Get("/api/admin/ai-stats", handlers.GetAIStats(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
 			r.Get("/api/admin/users/{id}", handlers.GetUserDetail(store, aiLimits))
