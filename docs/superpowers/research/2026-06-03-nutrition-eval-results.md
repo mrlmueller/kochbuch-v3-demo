@@ -164,6 +164,30 @@ error). Gate to hold in production: **kcal ≤ ~11 % MAPE / ~80 % within ±20 % 
 vague-amount recipes, ≤ ~8 % when grams are given**, near-zero bias. Sugar/fibre stay
 weakest (~20–36 % MAPE → secondary display, show uncertainty). Eval spend ≈ $8.
 
+## Optional reviewer/critic pass (exp9)
+
+A second GENERIC "critic" LLM (sees the recipe + stage-1 line items + the per-recipe
+AND per-serving totals; revises only values it can justify as clearly unrealistic,
+leaves plausible ones alone) was A/B'd against exp8 on the **same** stage-1 estimates
+(our 29-set):
+
+| kcal | stage-1 (exp8) | + reviewer |
+|---|--:|--:|
+| MAPE | 10.5 % | **8.7 %** |
+| within ±20 % | 83 % | **86 %** |
+| bias | +3.3 % | **+0.6 %** |
+
+Also improved protein (11.0→9.7) / carbs (14.3→12.2) / fibre (22.4→20.5); fat and
+sugar ~flat. It fixed real over-counts (Spareribs +38→+18, Mais +41→+26, Schnitzel
++14→+10, Lachscreme −16→−8) but **occasionally overcorrected** (Bolognese +31→−20,
+Kartoffelsalat −7→−21) — the predicted "a second estimate can regress a good one" risk.
+
+Verdict: a **real but modest** kcal gain plus near-zero bias, at **2× API calls**.
+Because nutrition is computed **once per recipe and cached** (not per view), the cost is
+acceptable — worth keeping as an **optional refine stage**, ideally a *conservative*
+reviewer (touch only clear outliers, small nudges) to avoid the overcorrections.
+External-set confirmation not yet run (budget).
+
 ## Seeds for the production build
 - The prototype's `UNIT_ML / PIECE_G / PACK_G / EDIBLE / FAT_UPTAKE / fat-rendering`
   tables (`_experiments/exp5_deterministic.py`) → seed for **M3** `cooking_factors` +
