@@ -45,17 +45,17 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
         </div>
       </div>
 
-      {/* Ingredient rows */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' }}>
+      {/* Ingredient rows — flat list (matches the desktop / reference) */}
+      <div>
         {ingredients.length === 0 ? (
-          <p style={{ padding: '12px 16px', fontSize: 14, color: 'var(--muted)' }}>Keine Zutaten angegeben.</p>
+          <p style={{ padding: '12px 2px', fontSize: 14, color: 'var(--muted)' }}>Keine Zutaten angegeben.</p>
         ) : ingredients.map((ing, i) => {
           if (isIngredientDivider(ing)) {
             return (
               <div
                 key={i}
                 style={{
-                  padding: i === 0 ? '12px 16px 6px' : '18px 16px 6px',
+                  padding: i === 0 ? '2px 2px 8px' : '18px 2px 8px',
                   borderBottom: i < ingredients.length - 1 ? '0.5px solid var(--border)' : 'none',
                 }}
               >
@@ -74,9 +74,9 @@ export function IngredientList({ ingredients, servingsRaw }: Props) {
               tabIndex={0}
               onClick={() => toggle(i)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggle(i) }}
-              className="flex items-center gap-3 px-4 cursor-pointer"
+              className="flex items-center gap-3 cursor-pointer"
               style={{
-                padding: '12px 16px',
+                padding: '13px 2px',
                 borderBottom: i < ingredients.length - 1 ? '0.5px solid var(--border)' : 'none',
                 opacity: isChecked ? 0.42 : 1,
                 transition: 'opacity 0.15s',
