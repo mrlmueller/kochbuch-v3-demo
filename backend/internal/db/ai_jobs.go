@@ -90,7 +90,7 @@ func (s *PostgresStore) CreateAIJob(
 
 const aiJobCols = `id, user_id, status, provider, model, image_urls,
     recipe_json, error, attempts, input_tokens, output_tokens, cost_usd,
-    created_at, started_at, finished_at`
+    created_at, started_at, finished_at, kind, recipe_slug`
 
 type rowScanner interface {
 	Scan(dest ...any) error
@@ -100,11 +100,12 @@ func scanAIJobRow(r rowScanner) (*models.AIJob, error) {
 	var j models.AIJob
 	var images, recipeJSON []byte
 	var errStr *string
+	var recipeSlug *string
 	if err := r.Scan(
 		&j.ID, &j.UserID, &j.Status, &j.Provider, &j.Model,
 		&images, &recipeJSON, &errStr, &j.Attempts,
 		&j.InputTokens, &j.OutputTokens, &j.CostUSD,
-		&j.CreatedAt, &j.StartedAt, &j.FinishedAt,
+		&j.CreatedAt, &j.StartedAt, &j.FinishedAt, &j.Kind, &recipeSlug,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
@@ -122,6 +123,7 @@ func scanAIJobRow(r rowScanner) (*models.AIJob, error) {
 	if errStr != nil {
 		j.Error = *errStr
 	}
+	j.RecipeSlug = recipeSlug
 	return &j, nil
 }
 

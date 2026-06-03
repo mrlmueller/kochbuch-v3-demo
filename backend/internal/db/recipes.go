@@ -127,6 +127,23 @@ func (s *PostgresStore) GetRecipeBySlug(ctx context.Context, slug string) (*mode
 	if err := json.Unmarshal(stepsJSON, &r.Steps); err != nil {
 		return nil, fmt.Errorf("unmarshal steps: %w", err)
 	}
+
+	// Per-serving nutrition for the public payload (per-serving only).
+	var perS []byte
+	var outdated bool
+	err = s.pool.QueryRow(ctx,
+		`SELECT per_serving, outdated FROM recipe_nutrition WHERE recipe_slug = $1`, slug).
+		Scan(&perS, &outdated)
+	if err == nil {
+		var pn models.PublicNutrition
+		if json.Unmarshal(perS, &pn.PerServing) == nil {
+			pn.Outdated = outdated
+			r.Nutrition = &pn
+		}
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
 	return &r, nil
 }
 

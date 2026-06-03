@@ -30,6 +30,14 @@ type MockStore struct {
 	ConfirmErr       error
 	LastConfirmSlug  string
 	LastConfirmValue bool
+
+	// Nutrition
+	NutritionBySlug      map[string]*models.RecipeNutrition
+	NutritionStatuses    map[string]models.NutritionStatus
+	Confirmed            bool
+	LastNutritionJobSlug string
+	SetNutritionCalls    []models.RecipeNutrition
+	OutdatedCalls        []string
 }
 
 func (m *MockStore) GetCategories(_ context.Context) ([]models.Category, error) {
@@ -158,4 +166,31 @@ func (m *MockStore) GetTodayAILimitOverride(_ context.Context, _ string) (*int, 
 }
 func (m *MockStore) SetTodayAILimitOverride(_ context.Context, _ string, _ int) error {
 	return m.Err
+}
+
+// Nutrition
+
+func (m *MockStore) IsRecipeConfirmed(_ context.Context, _ string) (bool, error) {
+	return m.Confirmed, m.Err
+}
+func (m *MockStore) CreateNutritionJob(_ context.Context, _, slug string) (string, error) {
+	m.LastNutritionJobSlug = slug
+	return "job-1", m.Err
+}
+func (m *MockStore) GetRecipeNutrition(_ context.Context, slug string) (*models.RecipeNutrition, error) {
+	if m.NutritionBySlug == nil {
+		return nil, m.Err
+	}
+	return m.NutritionBySlug[slug], m.Err
+}
+func (m *MockStore) SetRecipeNutrition(_ context.Context, n models.RecipeNutrition) error {
+	m.SetNutritionCalls = append(m.SetNutritionCalls, n)
+	return m.Err
+}
+func (m *MockStore) MarkNutritionOutdated(_ context.Context, slug string) error {
+	m.OutdatedCalls = append(m.OutdatedCalls, slug)
+	return m.Err
+}
+func (m *MockStore) ListNutritionStatuses(_ context.Context) (map[string]models.NutritionStatus, error) {
+	return m.NutritionStatuses, m.Err
 }
