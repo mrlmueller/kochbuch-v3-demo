@@ -74,10 +74,10 @@ export function NutritionCard({ perServing }: { perServing: Macros }) {
               <span style={{ fontSize: 13.5, color: 'var(--text)', fontWeight: 700, whiteSpace: 'nowrap', ...NUM }}>{m.value} g</span>
             </div>
           ))}
-          <div style={{ display: 'flex', gap: 20, marginTop: 4, paddingTop: 10, borderTop: '1px solid var(--border)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 16, marginTop: 4, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
             {minor.map((m) => (
-              <span key={m.label} style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
-                {m.label} <b style={{ color: 'var(--text)', fontWeight: 700, ...NUM }}>{m.value} g</b>
+              <span key={m.label} style={{ flex: 1, fontSize: 12, color: 'var(--muted)', lineHeight: 1.45 }}>
+                {m.label} <b style={{ color: 'var(--text)', fontWeight: 700, whiteSpace: 'nowrap', ...NUM }}>{m.value} g</b>
               </span>
             ))}
           </div>
