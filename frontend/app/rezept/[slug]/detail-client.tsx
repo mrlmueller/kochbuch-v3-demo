@@ -12,6 +12,7 @@ import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings, isIngredientDivider, ingredientDividerTitle } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
+import { NutritionCard, NutritionCardDesktop } from '@/components/nutrition-card'
 
 // Renders the Bearbeiten/Löschen buttons when the current user created
 // this recipe. Looks up the user via the cached useMe() hook so the
@@ -293,7 +294,8 @@ interface Props {
 function DesktopDetail({ recipe, categoryName }: Props) {
   const router = useRouter()
   const baseServings = parseServings(recipe.servings)
-  const [scale, setScale] = useState(1)
+  const [servings, setServings] = useState(baseServings)
+  const scale = baseServings > 0 ? servings / baseServings : 1
   const [checkedIngs, setCheckedIngs] = useState<Set<number>>(new Set())
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set())
 
@@ -347,14 +349,14 @@ function DesktopDetail({ recipe, categoryName }: Props) {
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Personen</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <button type="button" onClick={() => setScale(s => Math.max(0.25, s - 0.25))}
+                  <button type="button" onClick={() => setServings(s => Math.max(1, s - 1))}
                     style={{ width: 26, height: 26, borderRadius: '50%', border: '1px solid var(--border)', background: 'white', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                     <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/></svg>
                   </button>
                   <div style={{ fontSize: 22, fontFamily: 'var(--font-serif)', color: 'var(--text)', minWidth: 28, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
-                    {Math.round(baseServings * scale)}
+                    {servings}
                   </div>
-                  <button type="button" onClick={() => setScale(s => s + 0.25)}
+                  <button type="button" onClick={() => setServings(s => s + 1)}
                     style={{ width: 26, height: 26, borderRadius: '50%', border: '1px solid var(--border)', background: 'white', color: 'var(--text)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                     <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
                   </button>
@@ -382,7 +384,7 @@ function DesktopDetail({ recipe, categoryName }: Props) {
               Zutaten
             </div>
             <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
-              für {Math.round(baseServings * scale)} {Math.round(baseServings * scale) === 1 ? 'Person' : 'Personen'}
+              für {servings} {servings === 1 ? 'Person' : 'Personen'}
             </div>
             <div>
               {recipe.ingredients.map((ing, i) => {
@@ -477,6 +479,13 @@ function DesktopDetail({ recipe, categoryName }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Nutrition — full-width section below the body (rich desktop donut) */}
+      {recipe.nutrition && (
+        <section style={{ maxWidth: 1320, margin: '0 auto', padding: '0 40px 96px' }}>
+          <NutritionCardDesktop perServing={recipe.nutrition.per_serving} />
+        </section>
+      )}
     </div>
   )
 }
@@ -486,6 +495,9 @@ function DesktopDetail({ recipe, categoryName }: Props) {
 export function DetailClient({ recipe, categoryName }: Props) {
   const router = useRouter()
   const { heroRef, imgWrapRef } = useStretchyHero()
+  const baseServings = parseServings(recipe.servings)
+  const [servings, setServings] = useState(baseServings)
+  const scale = baseServings > 0 ? servings / baseServings : 1
 
   // Screen wake lock — keep screen on while cooking
   useEffect(() => {
@@ -543,7 +555,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
           </div>
         </div>
 
-        <div className="flex justify-center gap-8 px-5 py-6" style={{ borderBottom: '0.5px solid var(--border)' }}>
+        <div className="flex justify-center gap-8 px-5 py-6">
           <div className="text-center">
             <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Zeit</p>
             <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
@@ -555,9 +567,25 @@ export function DetailClient({ recipe, categoryName }: Props) {
               <div style={{ width: 1, background: 'var(--border)' }} />
               <div className="text-center">
                 <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.8, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Personen</p>
-                <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
-                  {recipe.servings}
-                </p>
+                {baseServings > 0 ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <button type="button" aria-label="Weniger Portionen" onClick={() => setServings(s => Math.max(1, s - 1))}
+                      style={{ width: 24, height: 24, border: 'none', background: 'transparent', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
+                      <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14"/></svg>
+                    </button>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)', minWidth: 22, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                      {servings}
+                    </span>
+                    <button type="button" aria-label="Mehr Portionen" onClick={() => setServings(s => s + 1)}
+                      style={{ width: 24, height: 24, border: 'none', background: 'transparent', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}>
+                      <svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-serif)' }}>
+                    {recipe.servings}
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -569,7 +597,7 @@ export function DetailClient({ recipe, categoryName }: Props) {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--accent)' }}>Zutaten</p>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
-          <IngredientList ingredients={recipe.ingredients} servingsRaw={recipe.servings} />
+          <IngredientList ingredients={recipe.ingredients} scale={scale} />
         </div>
 
         <div className="px-6 py-2">
@@ -580,6 +608,12 @@ export function DetailClient({ recipe, categoryName }: Props) {
           </div>
           <StepList steps={recipe.steps} />
         </div>
+
+        {recipe.nutrition && (
+          <div className="px-6 pt-4">
+            <NutritionCard perServing={recipe.nutrition.per_serving} />
+          </div>
+        )}
 
         {recipe.notes && (
           <div className="mx-6 mt-6 p-4 rounded-2xl flex gap-3"

@@ -45,7 +45,7 @@ func TestListRecipeConfirmations_empty_returnsEmptyArray(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.JSONEq(t, `{"confirmed":[]}`, w.Body.String())
+	assert.JSONEq(t, `{"confirmed":[],"nutrition":{}}`, w.Body.String())
 }
 
 func TestSetRecipeConfirmed_setsTrue(t *testing.T) {

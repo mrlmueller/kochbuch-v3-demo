@@ -14,11 +14,12 @@ import (
 )
 
 type WorkerOpts struct {
-	Workers     int
-	MaxAttempts int
-	PollEvery   time.Duration
-	Resolve     func(provider, model string) (Extractor, error)
-	Categories  func(ctx context.Context) ([]string, error)
+	Workers          int
+	MaxAttempts      int
+	PollEvery        time.Duration
+	Resolve          func(provider, model string) (Extractor, error)
+	ResolveNutrition func(provider, model string) (NutritionEstimator, error)
+	Categories       func(ctx context.Context) ([]string, error)
 }
 
 type WorkerPool struct {
@@ -39,6 +40,11 @@ func NewWorkerPool(store db.Store, opts WorkerOpts) *WorkerPool {
 	if opts.Resolve == nil {
 		opts.Resolve = func(provider, model string) (Extractor, error) {
 			return Get(provider + ":" + model)
+		}
+	}
+	if opts.ResolveNutrition == nil {
+		opts.ResolveNutrition = func(provider, model string) (NutritionEstimator, error) {
+			return GetNutrition(provider + ":" + model)
 		}
 	}
 	return &WorkerPool{store: store, opts: opts}
@@ -87,6 +93,11 @@ func (p *WorkerPool) RunOnce(ctx context.Context) error {
 }
 
 func (p *WorkerPool) handle(ctx context.Context, job *models.AIJob) {
+	if job.Kind == "nutrition" {
+		p.handleNutrition(ctx, job)
+		return
+	}
+
 	extractor, err := p.opts.Resolve(job.Provider, job.Model)
 	if err != nil {
 		_ = p.store.SetAIJobFailed(ctx, job.ID, "model not available: "+err.Error())
@@ -119,6 +130,47 @@ func (p *WorkerPool) handle(ctx context.Context, job *models.AIJob) {
 		time.Since(start).Milliseconds(), res.InputTokens, res.OutputTokens, cost)
 
 	_ = p.store.SetAIJobReady(ctx, job.ID, toRecipePayload(res), res.InputTokens, res.OutputTokens, cost)
+}
+
+func (p *WorkerPool) handleNutrition(ctx context.Context, job *models.AIJob) {
+	if job.RecipeSlug == nil {
+		_ = p.store.SetAIJobFailed(ctx, job.ID, "nutrition job missing recipe_slug")
+		return
+	}
+	recipe, err := p.store.GetRecipeBySlug(ctx, *job.RecipeSlug)
+	if err != nil {
+		_ = p.store.SetAIJobFailed(ctx, job.ID, "load recipe: "+err.Error())
+		return
+	}
+	if recipe == nil {
+		_ = p.store.SetAIJobFailed(ctx, job.ID, "recipe not found: "+*job.RecipeSlug)
+		return
+	}
+	est, err := p.opts.ResolveNutrition(job.Provider, job.Model)
+	if err != nil {
+		_ = p.store.SetAIJobFailed(ctx, job.ID, "model not available: "+err.Error())
+		return
+	}
+	res, err := est.Estimate(ctx, *recipe)
+	if err != nil {
+		if job.Attempts < p.opts.MaxAttempts {
+			_ = p.store.RequeueAIJob(ctx, job.ID)
+			return
+		}
+		_ = p.store.SetAIJobFailed(ctx, job.ID, err.Error())
+		return
+	}
+	cost := CostUSD(est.Provider(), est.Model(), res.InputTokens, res.OutputTokens)
+	if err := p.store.SetRecipeNutrition(ctx, models.RecipeNutrition{
+		RecipeSlug: *job.RecipeSlug, PerRecipe: res.PerRecipe, PerServing: res.PerServing,
+		ServingsUsed: res.ServingsUsed, LineItems: res.LineItems, Model: est.Model(),
+		InputTokens: res.InputTokens, OutputTokens: res.OutputTokens, CostUSD: cost,
+	}); err != nil {
+		_ = p.store.SetAIJobFailed(ctx, job.ID, "store nutrition: "+err.Error())
+		return
+	}
+	_ = p.store.SetAIJobReady(ctx, job.ID,
+		map[string]any{"per_recipe": res.PerRecipe}, res.InputTokens, res.OutputTokens, cost)
 }
 
 // toRecipePayload converts the AI's prompt-shape Result into the partial

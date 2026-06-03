@@ -18,9 +18,16 @@ export interface RecipeListItem {
   created_by?: string | null
   is_mine?: boolean
 }
+export interface Macros {
+  kcal: number; protein_g: number; fat_g: number
+  carbs_g: number; sugar_g: number; fibre_g: number
+}
+export interface PublicNutrition { per_serving: Macros; outdated?: boolean }
+
 export interface Recipe extends RecipeListItem {
   ingredients: Ingredient[]; steps: string[]
   notes: string; created_at: string; updated_at: string
+  nutrition?: PublicNutrition | null
 }
 export interface RecipeFilter { category?: string; q?: string; owner?: 'me' }
 export interface ListRecipesResponse {
@@ -216,6 +223,14 @@ export interface AIStatsBucket {
   cost_usd: number
 }
 
+export interface AIStatsByKind {
+  kind: string
+  jobs: number
+  input_tokens: number
+  output_tokens: number
+  cost_usd: number
+}
+
 export interface AIStatsByModel {
   provider: string
   model: string
@@ -236,6 +251,7 @@ export interface AIStatsByUser {
 export interface AIStatsRecentItem {
   job_id: string
   user_email: string
+  kind: string
   provider: string
   model: string
   status: string
@@ -250,6 +266,7 @@ export interface AIStats {
   totals: AIStatsBucket
   last_7d: AIStatsBucket
   last_30d: AIStatsBucket
+  by_kind: AIStatsByKind[]
   by_model: AIStatsByModel[]
   by_user: AIStatsByUser[]
   recent: AIStatsRecentItem[]
@@ -328,4 +345,35 @@ export async function clientImageSearch(q: string): Promise<ImageSearchResult[]>
   await throwIfError(res)
   const data = await res.json() as { items: ImageSearchResult[] }
   return data.items ?? []
+}
+
+// ─── Admin: per-recipe nutrition control ─────────────────
+
+export interface NutritionDetail {
+  status?: 'none'
+  per_recipe?: Macros
+  per_serving?: Macros
+  cost_usd?: number
+  outdated?: boolean
+  computed_at?: string
+}
+
+export async function clientComputeNutrition(slug: string): Promise<string> {
+  const res = await fetch(`/api/proxy/admin/recipes/${slug}/nutrition`, { method: 'POST' })
+  if (!res.ok) throw new Error((await res.json().catch(() => ({} as { error?: string }))).error ?? 'Fehler')
+  const data = (await res.json().catch(() => ({}))) as { job_id?: string }
+  return data.job_id ?? ''
+}
+
+export async function clientGetNutritionDetail(slug: string): Promise<NutritionDetail> {
+  const res = await fetch(`/api/proxy/admin/recipes/${slug}/nutrition`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Fehler')
+  return res.json()
+}
+
+export async function clientGetNutritionStatuses(): Promise<Record<string, 'current' | 'outdated'>> {
+  const res = await fetch('/api/proxy/admin/recipes/status', { cache: 'no-store' })
+  if (!res.ok) return {}
+  const data = await res.json()
+  return data.nutrition ?? {}
 }

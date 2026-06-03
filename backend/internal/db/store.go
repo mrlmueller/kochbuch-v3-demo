@@ -35,6 +35,14 @@ type Store interface {
 
 	// Recipe calibration status (admin-only; never in public payloads)
 	ListConfirmedSlugs(ctx context.Context) ([]string, error)
+	IsRecipeConfirmed(ctx context.Context, slug string) (bool, error)
+
+	// Nutrition
+	CreateNutritionJob(ctx context.Context, userID, recipeSlug string) (string, error)
+	GetRecipeNutrition(ctx context.Context, slug string) (*models.RecipeNutrition, error)
+	SetRecipeNutrition(ctx context.Context, n models.RecipeNutrition) error
+	MarkNutritionOutdated(ctx context.Context, slug string) error
+	ListNutritionStatuses(ctx context.Context) (map[string]models.NutritionStatus, error)
 
 	// Users
 	GetUsers(ctx context.Context) ([]models.User, error)

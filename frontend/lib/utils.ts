@@ -26,6 +26,34 @@ export function ingredientDividerTitle(ing: { name: string }): string {
   return ing.name.replace(/\s*:\s*$/, '').trim()
 }
 
+const UNICODE_FRACTIONS: Record<string, number> = {
+  '½': 0.5, '⅓': 1 / 3, '⅔': 2 / 3, '¼': 0.25, '¾': 0.75,
+  '⅕': 0.2, '⅖': 0.4, '⅗': 0.6, '⅘': 0.8,
+  '⅙': 1 / 6, '⅚': 5 / 6, '⅛': 0.125, '⅜': 0.375, '⅝': 0.625, '⅞': 0.875,
+}
+
+/**
+ * Parse a free-text amount string into a numeric quantity + trailing unit so it
+ * can be scaled. The AI extraction pipeline stores the whole quantity as text in
+ * `display` (e.g. "200 g", "2 EL", "½ TL") with amount 0, so without this those
+ * amounts could never scale with the serving control.
+ *
+ * Returns null when there's nothing numeric to scale ("nach Bedarf", "etwas")
+ * or for ranges like "2-3 EL" — callers should then show the text unchanged.
+ */
+export function parseDisplayAmount(display: string): { amount: number; unit: string } | null {
+  const s = display.trim()
+  if (!s) return null
+  // Ranges ("2-3 EL", "2–3 EL") have no single value to scale — leave as-is.
+  if (/^[\d.,]+\s*[-–]\s*[\d.,]/.test(s)) return null
+  const m = s.match(/^([0-9]+(?:[.,][0-9]+)?|[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])\s*(.*)$/u)
+  if (!m) return null
+  const tok = m[1]
+  const amount = tok in UNICODE_FRACTIONS ? UNICODE_FRACTIONS[tok] : parseFloat(tok.replace(',', '.'))
+  if (!isFinite(amount) || amount <= 0) return null
+  return { amount, unit: m[2].trim() }
+}
+
 /**
  * Format an ingredient amount with serving scale and unit conversion.
  * Returns the display string to show (e.g. "750 g", "3 EL", "nach Bedarf").
@@ -37,7 +65,15 @@ export function formatIngredientAmount(
   scale: number,
   unitMode: 'metric' | 'imperial' | 'cups'
 ): string {
-  if (amount === 0) return display  // unparseable — show as-is
+  if (amount === 0) {
+    // AI-extracted recipes carry the quantity as free text in `display` (amount
+    // 0). Parse it so they scale too; fall back to the raw text when there's
+    // nothing numeric to scale (e.g. "nach Bedarf", section dividers).
+    const parsed = parseDisplayAmount(display)
+    if (!parsed) return display
+    amount = parsed.amount
+    unit = parsed.unit
+  }
 
   let a = amount * scale
   let u = unit

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import type { RecipeListItem, Category } from '@/lib/api'
 import { clientDeleteRecipe } from '@/lib/api'
 import { useAdminConfirmations } from '@/lib/use-admin-confirmations'
+import { useNutritionStatuses } from '@/lib/use-nutrition-statuses'
 
 interface Props {
   recipes: RecipeListItem[]
@@ -13,6 +14,7 @@ interface Props {
 }
 
 type OwnerFilter = 'all' | 'global' | 'user'
+type NutFilter = 'all' | 'none' | 'current' | 'outdated'
 
 const T = { accent: '#C2410C', text: '#2A1F14', muted: '#7A6B5A', border: 'rgba(120,90,60,0.16)', surface: '#fff', danger: '#B91C1C' }
 
@@ -38,6 +40,29 @@ function CalToggle({ slug, confirmed, onToggle }: { slug: string; confirmed: boo
   )
 }
 
+// Non-interactive label showing per-row nutrition status.
+function NutBadge({ status }: { status: 'none' | 'current' | 'outdated' }) {
+  if (status === 'current') {
+    return (
+      <span title="Nährwerte berechnet" style={{ fontSize: 11, fontWeight: 600, color: '#16A34A', whiteSpace: 'nowrap' }}>
+        ✓ Nährwerte
+      </span>
+    )
+  }
+  if (status === 'outdated') {
+    return (
+      <span title="Nährwerte veraltet" style={{ fontSize: 11, fontWeight: 600, color: '#D97706', whiteSpace: 'nowrap' }}>
+        veraltet
+      </span>
+    )
+  }
+  return (
+    <span title="Keine Nährwerte" style={{ fontSize: 11, color: '#7A6B5A', whiteSpace: 'nowrap' }}>
+      —
+    </span>
+  )
+}
+
 export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const router = useRouter()
   const [recipes, setRecipes] = useState(initial)
@@ -49,7 +74,9 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [calFilter, setCalFilter] = useState<'all' | 'open' | 'confirmed'>('all')
+  const [nutFilter, setNutFilter] = useState<NutFilter>('all')
   const { isConfirmed, setConfirmed } = useAdminConfirmations()
+  const { nutritionStatus } = useNutritionStatuses()
   const confirmedCount = useMemo(() => recipes.filter(r => isConfirmed(r.slug)).length, [recipes, isConfirmed])
 
   const toggleConfirmed = async (slug: string, value: boolean) => {
@@ -70,14 +97,27 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
     else if (ownerFilter === 'user') r = r.filter(x => !!x.owner_id)
     if (calFilter === 'confirmed') r = r.filter(x => isConfirmed(x.slug))
     else if (calFilter === 'open') r = r.filter(x => !isConfirmed(x.slug))
+    if (nutFilter === 'none') r = r.filter(x => nutritionStatus(x.slug) === 'none')
+    else if (nutFilter === 'current') r = r.filter(x => nutritionStatus(x.slug) === 'current')
+    else if (nutFilter === 'outdated') r = r.filter(x => nutritionStatus(x.slug) === 'outdated')
     if (query.trim()) {
       const q = query.toLowerCase()
       r = r.filter(x => x.title.toLowerCase().includes(q) || (x.owner_email ?? '').toLowerCase().includes(q))
     }
     if (sort === 'name') r.sort((a, b) => a.title.localeCompare(b.title))
     else if (sort === 'time') r.sort((a, b) => a.time_minutes - b.time_minutes)
+    else if (sort === 'nut-missing') r.sort((a, b) => {
+      const aMissing = nutritionStatus(a.slug) === 'none' ? 0 : 1
+      const bMissing = nutritionStatus(b.slug) === 'none' ? 0 : 1
+      return aMissing - bMissing || a.title.localeCompare(b.title)
+    })
+    else if (sort === 'confirmed') r.sort((a, b) => {
+      const aC = isConfirmed(a.slug) ? 0 : 1
+      const bC = isConfirmed(b.slug) ? 0 : 1
+      return aC - bC || a.title.localeCompare(b.title)
+    })
     return r
-  }, [recipes, query, cat, ownerFilter, sort, calFilter, isConfirmed])
+  }, [recipes, query, cat, ownerFilter, sort, calFilter, isConfirmed, nutFilter, nutritionStatus])
 
   const handleDelete = async (slug: string) => {
     setDeleting(true)
@@ -146,6 +186,21 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
         ))}
       </div>
 
+      {/* Nutrient filter chips */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, overflowX: 'auto', paddingBottom: 2 }}>
+        {(['all', 'none', 'current', 'outdated'] as NutFilter[]).map(f => (
+          <button key={f} type="button" onClick={() => setNutFilter(f)} style={{
+            padding: '7px 14px', borderRadius: 999, whiteSpace: 'nowrap',
+            border: `1px solid ${nutFilter === f ? T.accent : T.border}`,
+            background: nutFilter === f ? T.accent : 'transparent',
+            color: nutFilter === f ? '#fff' : T.text,
+            fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            {f === 'all' ? 'Alle' : f === 'none' ? 'Keine' : f === 'current' ? 'Berechnet' : 'Veraltet'}
+          </button>
+        ))}
+      </div>
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Rezept oder Eigentümer suchen…"
@@ -157,6 +212,8 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
         <select value={sort} onChange={e => setSort(e.target.value)} style={selStyle}>
           <option value="name">Name A–Z</option>
           <option value="time">Zeit (kurz → lang)</option>
+          <option value="nut-missing">Nährwerte fehlend zuerst</option>
+          <option value="confirmed">Kalibriert zuerst</option>
         </select>
       </div>
 
@@ -175,7 +232,8 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
               {c && <span style={{ display: 'inline-block', justifySelf: 'start', padding: '3px 9px', borderRadius: 999, background: `${c.accent}20`, color: c.accent, fontSize: 11, fontWeight: 600 }}>{c.name}</span>}
               <p style={{ fontSize: 12, color: r.owner_email ? T.text : T.muted, margin: 0, fontStyle: r.owner_email ? 'normal' : 'italic' }}>{r.owner_email || 'Global'}</p>
               <p style={{ fontSize: 13, color: T.text, margin: 0 }}>{r.time_minutes} min</p>
-              <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'flex-end' }}>
+                <NutBadge status={nutritionStatus(r.slug)} />
                 <CalToggle slug={r.slug} confirmed={isConfirmed(r.slug)} onToggle={toggleConfirmed} />
                 <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)} aria-label="Bearbeiten">✎</Link>
                 <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)} aria-label="Löschen">✕</button>
@@ -203,7 +261,8 @@ export function AdminRecipeList({ recipes: initial, categories }: Props) {
                   </div>
                 </div>
               </Link>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center' }}>
+                <NutBadge status={nutritionStatus(r.slug)} />
                 <CalToggle slug={r.slug} confirmed={isConfirmed(r.slug)} onToggle={toggleConfirmed} />
                 <Link href={`/admin/${r.slug}`} style={iconBtnStyle(T.text)} aria-label="Bearbeiten">✎</Link>
                 <button onClick={() => setConfirmSlug(r.slug)} style={iconBtnStyle(T.danger)} aria-label="Löschen">✕</button>

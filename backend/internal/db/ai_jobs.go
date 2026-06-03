@@ -90,7 +90,7 @@ func (s *PostgresStore) CreateAIJob(
 
 const aiJobCols = `id, user_id, status, provider, model, image_urls,
     recipe_json, error, attempts, input_tokens, output_tokens, cost_usd,
-    created_at, started_at, finished_at`
+    created_at, started_at, finished_at, kind, recipe_slug`
 
 type rowScanner interface {
 	Scan(dest ...any) error
@@ -100,11 +100,12 @@ func scanAIJobRow(r rowScanner) (*models.AIJob, error) {
 	var j models.AIJob
 	var images, recipeJSON []byte
 	var errStr *string
+	var recipeSlug *string
 	if err := r.Scan(
 		&j.ID, &j.UserID, &j.Status, &j.Provider, &j.Model,
 		&images, &recipeJSON, &errStr, &j.Attempts,
 		&j.InputTokens, &j.OutputTokens, &j.CostUSD,
-		&j.CreatedAt, &j.StartedAt, &j.FinishedAt,
+		&j.CreatedAt, &j.StartedAt, &j.FinishedAt, &j.Kind, &recipeSlug,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
@@ -122,6 +123,7 @@ func scanAIJobRow(r rowScanner) (*models.AIJob, error) {
 	if errStr != nil {
 		j.Error = *errStr
 	}
+	j.RecipeSlug = recipeSlug
 	return &j, nil
 }
 
@@ -343,7 +345,15 @@ func (s *PostgresStore) SetTodayAILimitOverride(ctx context.Context, userID stri
 // round-trip per bucket but each is cheap (count + sum over a single
 // indexed table).
 func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error) {
-	out := &models.AIStats{GeneratedAt: time.Now().UTC()}
+	// Initialise the breakdown slices so they marshal as [] (not null) when a
+	// bucket is empty — the admin Kosten page indexes .length / .map on them.
+	out := &models.AIStats{
+		GeneratedAt: time.Now().UTC(),
+		ByKind:      []models.AIStatsByKind{},
+		ByModel:     []models.AIStatsByModel{},
+		ByUser:      []models.AIStatsByUser{},
+		Recent:      []models.AIStatsRecentItem{},
+	}
 
 	now := time.Now().UTC()
 	cut7 := now.AddDate(0, 0, -7)
@@ -358,6 +368,30 @@ func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error)
 	if err := s.scanBucket(ctx, &out.Last30d, "AND created_at >= $1", cut30); err != nil {
 		return nil, fmt.Errorf("last30d: %w", err)
 	}
+
+	// Per-task-kind breakdown (extraction vs nutrition; only successful jobs).
+	kindRows, err := s.pool.Query(ctx, `
+		SELECT kind,
+		       COUNT(*),
+		       COALESCE(SUM(input_tokens), 0),
+		       COALESCE(SUM(output_tokens), 0),
+		       COALESCE(SUM(cost_usd), 0)
+		FROM ai_jobs
+		WHERE status IN ('ready', 'consumed')
+		GROUP BY kind
+		ORDER BY SUM(cost_usd) DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("by_kind: %w", err)
+	}
+	for kindRows.Next() {
+		var k models.AIStatsByKind
+		if err := kindRows.Scan(&k.Kind, &k.Jobs, &k.InputTokens, &k.OutputTokens, &k.CostUSD); err != nil {
+			kindRows.Close()
+			return nil, fmt.Errorf("scan by_kind: %w", err)
+		}
+		out.ByKind = append(out.ByKind, k)
+	}
+	kindRows.Close()
 
 	// Per-model breakdown (only successful jobs — failures had no cost).
 	rows, err := s.pool.Query(ctx, `
@@ -413,7 +447,7 @@ func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error)
 
 	// Recent 25 jobs across all users (any status).
 	rows, err = s.pool.Query(ctx, `
-		SELECT j.id, COALESCE(u.email, ''), j.provider, j.model, j.status,
+		SELECT j.id, COALESCE(u.email, ''), j.kind, j.provider, j.model, j.status,
 		       j.input_tokens, j.output_tokens, j.cost_usd, j.created_at
 		FROM ai_jobs j
 		LEFT JOIN users u ON u.id = j.user_id
@@ -424,7 +458,7 @@ func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error)
 	}
 	for rows.Next() {
 		var it models.AIStatsRecentItem
-		if err := rows.Scan(&it.JobID, &it.UserEmail, &it.Provider, &it.Model, &it.Status,
+		if err := rows.Scan(&it.JobID, &it.UserEmail, &it.Kind, &it.Provider, &it.Model, &it.Status,
 			&it.InputTokens, &it.OutputTokens, &it.CostUSD, &it.CreatedAt); err != nil {
 			rows.Close()
 			return nil, fmt.Errorf("scan recent: %w", err)
