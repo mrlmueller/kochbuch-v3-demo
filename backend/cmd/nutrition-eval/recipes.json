@@ -1,0 +1,732 @@
+[
+  {
+    "id": "amerikaner",
+    "title": "Amerikaner",
+    "category_slug": "backen-und-suesses",
+    "servings": 20,
+    "ingredients": [
+      {
+        "amount": "100 g",
+        "name": "Butter"
+      },
+      {
+        "amount": "100 g",
+        "name": "Zucker"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Vanillezucker"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Salz"
+      },
+      {
+        "amount": "3 Stk.",
+        "name": "Eier"
+      },
+      {
+        "amount": "300 g",
+        "name": "Mehl"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Backpulver"
+      },
+      {
+        "amount": "4 EL",
+        "name": "Milch"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 123.0,
+        "protein_g": 2.6,
+        "fat_g": 5.1,
+        "carbs_g": 16.4,
+        "sugar_g": 5.7,
+        "fibre_g": 0.5
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 10,
+      "notes": "Plain baked dough, no glaze in the data. ~20 small cakes."
+    }
+  },
+  {
+    "id": "apfelkuchen",
+    "title": "Apfelkuchen",
+    "category_slug": "backen-und-suesses",
+    "servings": 12,
+    "ingredients": [
+      {
+        "amount": "125 g",
+        "name": "Butter oder Margarine"
+      },
+      {
+        "amount": "125 g",
+        "name": "Zucker"
+      },
+      {
+        "amount": "3 Stk.",
+        "name": "Eier"
+      },
+      {
+        "amount": "Prise",
+        "name": "Salz"
+      },
+      {
+        "amount": "4 Tropfen",
+        "name": "Zitronen-Backöl"
+      },
+      {
+        "amount": "200 g",
+        "name": "Weizenmehl"
+      },
+      {
+        "amount": "6 g",
+        "name": "Backpulver"
+      },
+      {
+        "amount": "1–4 EL",
+        "name": "Milch"
+      },
+      {
+        "amount": "750 g",
+        "name": "Äpfel"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Aprikosenmarmelade"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 237.5,
+        "protein_g": 3.7,
+        "fat_g": 10.1,
+        "carbs_g": 32.2,
+        "sugar_g": 19.0,
+        "fibre_g": 1.8
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "DB servings=2 is WRONG for a 28cm Springform cake -> used 12. Apricot glaze counted."
+    }
+  },
+  {
+    "id": "apfelkuechle",
+    "title": "Apfelküchle",
+    "category_slug": "backen-und-suesses",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "1 Stk",
+        "name": "Ei"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Zucker"
+      },
+      {
+        "amount": "125 ml",
+        "name": "Milch"
+      },
+      {
+        "amount": "3 EL",
+        "name": "Rum"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Öl"
+      },
+      {
+        "amount": "250 g",
+        "name": "Mehl"
+      },
+      {
+        "amount": "1 gestr. TL",
+        "name": "Backpulver"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 375.8,
+        "protein_g": 9.0,
+        "fat_g": 14.0,
+        "carbs_g": 48.6,
+        "sugar_g": 4.0,
+        "fibre_g": 2.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 25,
+      "notes": "DATA GAP: apples are NOT in the ingredient list (it's only the batter). Computed batter + deep-fry oil uptake (+7 g/100 g batter). Real dish would add apples."
+    }
+  },
+  {
+    "id": "honig-senf-dressing",
+    "title": "Honig-Senf-Dressing",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "3 EL",
+        "name": "Olivenöl"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Balsamico, mild"
+      },
+      {
+        "amount": "2 TL",
+        "name": "Honig"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Senf"
+      },
+      {
+        "amount": "1 Msp",
+        "name": "Schwarzer Pfeffer"
+      },
+      {
+        "amount": "1 Msp",
+        "name": "Salz"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 107.0,
+        "protein_g": 0.1,
+        "fat_g": 10.1,
+        "carbs_g": 4.2,
+        "sugar_g": 4.0,
+        "fibre_g": 0.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 12,
+      "notes": "Raw emulsion, no transform. Per-serving = dressing portion."
+    }
+  },
+  {
+    "id": "kartoffelpueree",
+    "title": "Kartoffelpüree",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "1 kg",
+        "name": "Kartoffeln, mehlig kochend"
+      },
+      {
+        "amount": "400 ml",
+        "name": "Milch"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Salz"
+      },
+      {
+        "amount": "80 g",
+        "name": "Butter"
+      },
+      {
+        "amount": "1 Msp",
+        "name": "Muskatnuss"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 401.9,
+        "protein_g": 8.8,
+        "fat_g": 20.1,
+        "carbs_g": 48.6,
+        "sugar_g": 6.8,
+        "fibre_g": 5.2
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 10,
+      "notes": "Boiled peeled potato (yield ~1.0; macros unchanged) + milk + butter."
+    }
+  },
+  {
+    "id": "sauce-hollandaise",
+    "title": "Sauce Hollandaise",
+    "category_slug": "grundrezepte-und-saucen",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "200 g",
+        "name": "Butter"
+      },
+      {
+        "amount": "3 Stk.",
+        "name": "Eigelb"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Limettensaft"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Dijonsenf"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Crème fraîche"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Zucker"
+      },
+      {
+        "amount": "0,5 TL",
+        "name": "Weißweinessig"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Salz"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Pfeffer"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 411.1,
+        "protein_g": 2.7,
+        "fat_g": 44.6,
+        "carbs_g": 1.6,
+        "sugar_g": 1.2,
+        "fibre_g": 0.0
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Butter + egg yolk emulsion. Per-serving = ~66 g sauce."
+    }
+  },
+  {
+    "id": "asiatische-spareribs",
+    "title": "Asiatische Spareribs aus dem Ofen",
+    "category_slug": "hauptgerichte",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "1,5 kg",
+        "name": "Spareribs"
+      },
+      {
+        "amount": "3 EL",
+        "name": "Salz (Kochwasser)"
+      },
+      {
+        "amount": "1 Knolle",
+        "name": "Knoblauch (Kochwasser)"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "Zwiebel (Kochwasser)"
+      },
+      {
+        "amount": "4 EL",
+        "name": "dunkle Sojasoße (Kochwasser)"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Mirin"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Reisessig"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Austernsoße"
+      },
+      {
+        "amount": "1 EL",
+        "name": "dunkle Sojasoße"
+      },
+      {
+        "amount": "1,5 EL",
+        "name": "süße Sojasoße"
+      },
+      {
+        "amount": "5 EL",
+        "name": "Hoisin-Soße"
+      },
+      {
+        "amount": "1 TL",
+        "name": "brauner Zucker"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Sriracha"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Sesam"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Frühlingslauch"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 546.4,
+        "protein_g": 33.7,
+        "fat_g": 35.9,
+        "carbs_g": 18.3,
+        "sugar_g": 12.5,
+        "fibre_g": 0.8
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 30,
+      "notes": "HARDEST: 1.5 kg bone-in -> ~60% edible meat (900 g). Boiled 75 min (renders fat into discarded sud: fat ret 0.65, protein 0.92, kcal 0.72), then glazed+baked. Boil aromatics (salt/soy/garlic/onion) discarded. Glaze ~80% adheres."
+    }
+  },
+  {
+    "id": "auberginen-hackfleisch-pfanne",
+    "title": "Auberginen Hackfleisch Pfanne",
+    "category_slug": "hauptgerichte",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "2",
+        "name": "Auberginen, gewürfelt"
+      },
+      {
+        "amount": "2",
+        "name": "Zwiebeln, gewürfelt"
+      },
+      {
+        "amount": "2",
+        "name": "Knoblauchzehen"
+      },
+      {
+        "amount": "5",
+        "name": "Tomaten, gewürfelt"
+      },
+      {
+        "amount": "3 EL",
+        "name": "Olivenöl"
+      },
+      {
+        "amount": "500 g",
+        "name": "Hackfleisch"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Oregano"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Paprikapulver"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz und Pfeffer"
+      },
+      {
+        "amount": "500 ml",
+        "name": "Gemüsebrühe"
+      },
+      {
+        "amount": "nach Belieben",
+        "name": "Naturjoghurt"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 497.5,
+        "protein_g": 26.5,
+        "fat_g": 36.9,
+        "carbs_g": 19.4,
+        "sugar_g": 10.7,
+        "fibre_g": 6.8
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Pan-fried; added oil + rendered meat fat both stay in the Pfanne (dish basis). Broth (~0 kcal) and serving yogurt dropped."
+    }
+  },
+  {
+    "id": "kaesespaetzle",
+    "title": "Käsespätzle",
+    "category_slug": "hauptgerichte",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "1000 g",
+        "name": "fertige Spätzle"
+      },
+      {
+        "amount": "Salz",
+        "name": "für das Kochwasser"
+      },
+      {
+        "amount": "250 g",
+        "name": "würziger Hartkäse"
+      },
+      {
+        "amount": "75 g",
+        "name": "Sahne"
+      },
+      {
+        "amount": "Prise",
+        "name": "Muskat"
+      },
+      {
+        "amount": "½ Bund",
+        "name": "Schnittlauch"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Röstzwiebeln"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 765.6,
+        "protein_g": 34.3,
+        "fat_g": 37.5,
+        "carbs_g": 71.8,
+        "sugar_g": 7.0,
+        "fibre_g": 4.1
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Ready Spätzle (no transform) + cheese + cream. Röstzwiebeln topping estimated 30 g."
+    }
+  },
+  {
+    "id": "schnitzel",
+    "title": "Schnitzel",
+    "category_slug": "hauptgerichte",
+    "servings": 2,
+    "ingredients": [
+      {
+        "amount": "600-800 g",
+        "name": "Schweinelende"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Mehl"
+      },
+      {
+        "amount": "3–4 Stk.",
+        "name": "Eier"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz/Pfeffer"
+      },
+      {
+        "amount": "Prise",
+        "name": "Muskat"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Paniermehl"
+      },
+      {
+        "amount": "zum Frittieren",
+        "name": "Pflanzenöl"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 844.2,
+        "protein_g": 80.1,
+        "fat_g": 43.7,
+        "carbs_g": 27.1,
+        "sugar_g": 1.0,
+        "fibre_g": 1.4
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 20,
+      "notes": "Breaded pork loin (700 g, midpoint of 600-800), deep-fried. Breading adhering estimated (flour 15, egg 40, breadcrumbs 60 g); oil uptake +6 g/100 g breaded."
+    }
+  },
+  {
+    "id": "spaghetti-bolognese",
+    "title": "Spaghetti Bolognese (einfach)",
+    "category_slug": "hauptgerichte",
+    "servings": 2,
+    "ingredients": [
+      {
+        "amount": "Eine Packung",
+        "name": "Nudeln"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Bratöl"
+      },
+      {
+        "amount": "400 g",
+        "name": "Hackfleisch, gemischt"
+      },
+      {
+        "amount": "400 g",
+        "name": "Tomatensoße mit Basilikum"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Italienische Kräuter"
+      },
+      {
+        "amount": "1 Prise",
+        "name": "Zucker"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz/Pfeffer"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 1145.6,
+        "protein_g": 56.2,
+        "fat_g": 54.9,
+        "carbs_g": 107.8,
+        "sugar_g": 15.8,
+        "fibre_g": 6.6
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 18,
+      "notes": "'Eine Packung' Nudeln unquantified -> estimated 250 g for 2 servings. Meat fat + 1 EL oil stay in sauce."
+    }
+  },
+  {
+    "id": "tortilla-omelett",
+    "title": "Tortilla-Omelett mit Tomate und Käse",
+    "category_slug": "snacks",
+    "servings": 1,
+    "ingredients": [
+      {
+        "amount": "1 Stk.",
+        "name": "große Tortilla"
+      },
+      {
+        "amount": "1 TL",
+        "name": "Butter"
+      },
+      {
+        "amount": "1 Stk.",
+        "name": "kleine Tomate"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Petersilie"
+      },
+      {
+        "amount": "2 Stk.",
+        "name": "Eier"
+      },
+      {
+        "amount": "2 EL",
+        "name": "Milch (optional)"
+      },
+      {
+        "amount": "50 g",
+        "name": "geriebener Käse"
+      },
+      {
+        "amount": "nach Bedarf",
+        "name": "Salz/Pfeffer"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 597.2,
+        "protein_g": 32.4,
+        "fat_g": 33.9,
+        "carbs_g": 37.9,
+        "sugar_g": 6.3,
+        "fibre_g": 3.1
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Single serving. Pan-fried in 1 TL butter (counted)."
+    }
+  },
+  {
+    "id": "mais-airfryer",
+    "title": "Mais (Airfryer)",
+    "category_slug": "snacks",
+    "servings": 2,
+    "ingredients": [
+      {
+        "amount": "2 Stk.",
+        "name": "Maiskolben"
+      },
+      {
+        "amount": "1 EL",
+        "name": "Öl"
+      },
+      {
+        "amount": "0,5 TL",
+        "name": "Salz"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 147.9,
+        "protein_g": 3.2,
+        "fat_g": 8.4,
+        "carbs_g": 19.0,
+        "sugar_g": 6.3,
+        "fibre_g": 2.7
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "2 cobs ~ 200 g kernels; 1 EL oil brushed on (stays)."
+    }
+  },
+  {
+    "id": "lachscreme",
+    "title": "Lachscreme",
+    "category_slug": "snacks",
+    "servings": 4,
+    "ingredients": [
+      {
+        "amount": "150–200 g",
+        "name": "Räucher/Stremellachs"
+      },
+      {
+        "amount": "200 g",
+        "name": "Frischkäse"
+      },
+      {
+        "amount": "½–1 Stk.",
+        "name": "Zwiebel"
+      },
+      {
+        "amount": "1–2 TL",
+        "name": "Zitronenschale"
+      },
+      {
+        "amount": "25–50 g",
+        "name": "Crème fraîche oder Schmand"
+      },
+      {
+        "amount": "nach Geschmack",
+        "name": "Salz/Pfeffer"
+      }
+    ],
+    "reference": {
+      "per_serving": {
+        "kcal": 286.5,
+        "protein_g": 12.8,
+        "fat_g": 24.2,
+        "carbs_g": 3.2,
+        "sugar_g": 2.4,
+        "fibre_g": 0.2
+      },
+      "source": "computed:USDA+DE(BLS-aligned)",
+      "uncertainty_pct": 15,
+      "notes": "Raw spread. Salmon 175 g (midpoint 150-200), crème fraîche 38 g (midpoint 25-50)."
+    }
+  }
+]
