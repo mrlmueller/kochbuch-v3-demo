@@ -345,7 +345,15 @@ func (s *PostgresStore) SetTodayAILimitOverride(ctx context.Context, userID stri
 // round-trip per bucket but each is cheap (count + sum over a single
 // indexed table).
 func (s *PostgresStore) GetAIStats(ctx context.Context) (*models.AIStats, error) {
-	out := &models.AIStats{GeneratedAt: time.Now().UTC()}
+	// Initialise the breakdown slices so they marshal as [] (not null) when a
+	// bucket is empty — the admin Kosten page indexes .length / .map on them.
+	out := &models.AIStats{
+		GeneratedAt: time.Now().UTC(),
+		ByKind:      []models.AIStatsByKind{},
+		ByModel:     []models.AIStatsByModel{},
+		ByUser:      []models.AIStatsByUser{},
+		Recent:      []models.AIStatsRecentItem{},
+	}
 
 	now := time.Now().UTC()
 	cut7 := now.AddDate(0, 0, -7)
