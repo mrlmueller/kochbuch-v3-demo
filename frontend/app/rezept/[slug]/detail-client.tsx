@@ -12,7 +12,7 @@ import { IngredientList } from '@/components/ingredient-list'
 import { StepList } from '@/components/step-list'
 import { formatIngredientAmount, parseServings, isIngredientDivider, ingredientDividerTitle } from '@/lib/utils'
 import { PersistLastRecipe } from '@/components/persist-last-recipe'
-import { NutritionCard } from '@/components/nutrition-card'
+import { NutritionCard, NutritionCardDesktop } from '@/components/nutrition-card'
 
 // Renders the Bearbeiten/Löschen buttons when the current user created
 // this recipe. Looks up the user via the cached useMe() hook so the
@@ -479,12 +479,10 @@ function DesktopDetail({ recipe, categoryName }: Props) {
         </div>
       </section>
 
-      {/* Nutrition — full-width section below the body (donut design) */}
+      {/* Nutrition — full-width section below the body (rich desktop donut) */}
       {recipe.nutrition && (
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '0 40px 96px' }}>
-          <div style={{ maxWidth: 400, margin: '0 auto' }}>
-            <NutritionCard perServing={recipe.nutrition.per_serving} />
-          </div>
+          <NutritionCardDesktop perServing={recipe.nutrition.per_serving} />
         </section>
       )}
     </div>
