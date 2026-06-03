@@ -430,11 +430,6 @@ function DesktopDetail({ recipe, categoryName }: Props) {
                 )
               })}
             </div>
-            {recipe.nutrition && (
-              <div style={{ marginTop: 24 }}>
-                <NutritionCard perServing={recipe.nutrition.per_serving} />
-              </div>
-            )}
           </aside>
 
           {/* Steps */}
@@ -483,6 +478,15 @@ function DesktopDetail({ recipe, categoryName }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Nutrition — full-width section below the body (donut design) */}
+      {recipe.nutrition && (
+        <section style={{ maxWidth: 1320, margin: '0 auto', padding: '0 40px 96px' }}>
+          <div style={{ maxWidth: 860, margin: '0 auto' }}>
+            <NutritionCard perServing={recipe.nutrition.per_serving} />
+          </div>
+        </section>
+      )}
     </div>
   )
 }
@@ -578,12 +582,6 @@ export function DetailClient({ recipe, categoryName }: Props) {
           <IngredientList ingredients={recipe.ingredients} servingsRaw={recipe.servings} />
         </div>
 
-        {recipe.nutrition && (
-          <div className="px-6 pb-4">
-            <NutritionCard perServing={recipe.nutrition.per_serving} />
-          </div>
-        )}
-
         <div className="px-6 py-2">
           <div className="flex items-center gap-4 mb-5">
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
@@ -592,6 +590,12 @@ export function DetailClient({ recipe, categoryName }: Props) {
           </div>
           <StepList steps={recipe.steps} />
         </div>
+
+        {recipe.nutrition && (
+          <div className="px-6 pt-4">
+            <NutritionCard perServing={recipe.nutrition.per_serving} />
+          </div>
+        )}
 
         {recipe.notes && (
           <div className="mx-6 mt-6 p-4 rounded-2xl flex gap-3"
