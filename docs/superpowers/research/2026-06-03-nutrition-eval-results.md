@@ -119,6 +119,45 @@ Both estimators were run against it (same `claude-sonnet-4-6`):
   The eval gate to beat is now **exp3's 7.1 % kcal** on the external set and **~15 %**
   on the vague-amount set.
 
+## Full estimator × dataset matrix + final architecture (exp6, exp7)
+
+Two more estimators isolated *where* determinism helps vs hurts. kcal MAPE / Acc@±20:
+
+| estimator | our set (vague amts, 29) | external (grams given, 15) |
+|---|--:|--:|
+| exp3 pure-LLM (CoT+steps, totals)                 | 13.2 / 72 | 7.1 / 93 |
+| exp6 LLM per-100g + determ **amount-table** + transforms | 39.5 / 59 | 6.7 / 93 |
+| exp7 LLM **grams** + per-100g + determ transforms only   | 14.1 / 76 | **5.6 / 93** |
+
+Findings:
+- **Deterministic piece/pack amount tables are brittle** (exp6, our set 39.5 %): "40
+  Stück" wrappers × 100 g default = 4 kg → +310 %. The same recipes are fine under
+  exp3/exp7 because the LLM knows realistic piece weights + usage. → the LLM should own
+  amount→grams. The **expanded eval set is what exposed this** (the original 14 only had
+  table-covered pieces) — and it **supersedes exp5's "deterministic amount→grams is the
+  lever,"** which was an artifact of the narrow 14-set.
+- **Deterministic cooking transforms are a wash** (exp7 vs exp3, our set 14.1 vs 13.2):
+  they fix the LLM's over-counts on rendered/fried/bone dishes (Spareribs +49→+5,
+  Schnitzel +24→+12) but double-count when the LLM's per-100g already reflects cooking
+  (Fried Chicken +20→+51, Mais +46→+104). Net-neutral on kcal — keep only the
+  unambiguous ones (exclude frying-bath oil; bone fraction for whole birds/ribs).
+- **Auditable line items cost nothing**: exp7 (the LLM emits per-ingredient grams +
+  per-100g; code sums) matches/beats pure-LLM while making every ingredient's
+  contribution inspectable and freezable — best external kcal of all runs (5.6 / 93).
+
+**Final architecture (evidence-locked):**
+```
+LLM resolves each ingredient -> { grams (realistic, incl. bone/peel),
+    per_100g (qualifier-aware, raw), food_class, cooking method }
+deterministic code -> sum; NARROW transforms only (exclude frying-bath oil,
+    bone fraction for whole birds/ribs); ÷ servings for display
+```
+No USDA matching (hurts on qualifiers). No piece/pack gram tables (brittle). No heavy
+transform stack (washes out). The LLM + CoT + recipe **steps** is the robust core;
+deterministic code is the auditable scaffolding around it. Gate to hold in production:
+kcal ≤ ~14 % MAPE / ~80 % within ±20 % on vague-amount recipes, ≤ ~7 % when grams are
+given. Sugar/fibre stay weakest (secondary display, show uncertainty). Eval spend ≈ $7.
+
 ## Seeds for the production build
 - The prototype's `UNIT_ML / PIECE_G / PACK_G / EDIBLE / FAT_UPTAKE / fat-rendering`
   tables (`_experiments/exp5_deterministic.py`) → seed for **M3** `cooking_factors` +
