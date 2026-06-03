@@ -358,3 +358,10 @@ export async function clientGetNutritionDetail(slug: string): Promise<NutritionD
   if (!res.ok) throw new Error('Fehler')
   return res.json()
 }
+
+export async function clientGetNutritionStatuses(): Promise<Record<string, 'current' | 'outdated'>> {
+  const res = await fetch('/api/proxy/admin/recipes/status', { cache: 'no-store' })
+  if (!res.ok) return {}
+  const data = await res.json()
+  return data.nutrition ?? {}
+}
