@@ -6,6 +6,16 @@ import type { Recipe, Category } from '@/lib/api'
 import { clientSaveRecipe } from '@/lib/api'
 import { prepareImageForUpload } from '@/lib/image-prep'
 import { ImageSearchPicker } from '@/components/image-search-picker'
+import { IngredientEditor } from '@/components/ingredient-editor'
+import { StepEditor } from '@/components/step-editor'
+import {
+  toIngredientRows,
+  toStepRows,
+  ingredientRowsToPayload,
+  stepRowsToPayload,
+  type IngredientRow,
+  type StepRow,
+} from '@/lib/recipe-rows'
 
 export type RecipeFormMode = 'create' | 'edit' | 'review-ai'
 
@@ -41,12 +51,11 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
   const [servings, setServings] = useState(initial?.servings ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? '')
-  const [steps, setSteps] = useState<string[]>(initial?.steps?.length ? initial.steps : [''])
-  const [ingredients, setIngredients] = useState(
-    initial?.ingredients?.length
-      ? initial.ingredients.map(i => ({ display: i.display || `${i.amount} ${i.unit}`.trim(), name: i.name }))
-      : [{ display: '', name: '' }]
-  )
+  const [ingredientRows, setIngredientRows] = useState<IngredientRow[]>(() => toIngredientRows(initial?.ingredients))
+  const [stepRows, setStepRows] = useState<StepRow[]>(() => toStepRows(initial?.steps))
+  // Bumped only on JSON import to remount the editors with fresh seed data;
+  // ordinary edits flow up via onChange and must NOT remount (focus loss).
+  const [editorResetKey, setEditorResetKey] = useState(0)
 
   const handleImageFile = async (raw: File | null) => {
     if (!raw || !raw.type.startsWith('image/')) return
@@ -91,10 +100,11 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
       if (obj.servings) setServings(String(obj.servings))
       if (obj.notes) setNotes(obj.notes)
       if (obj.image_url) setImageUrl(obj.image_url)
-      if (Array.isArray(obj.steps) && obj.steps.length) setSteps(obj.steps)
+      if (Array.isArray(obj.steps) && obj.steps.length) setStepRows(toStepRows(obj.steps))
       if (Array.isArray(obj.ingredients) && obj.ingredients.length) {
-        setIngredients(obj.ingredients.map((i: { display?: string; amount?: number; unit?: string; name?: string }) => ({ display: i.display || `${i.amount ?? ''} ${i.unit ?? ''}`.trim(), name: i.name ?? '' })))
+        setIngredientRows(toIngredientRows(obj.ingredients.map((i: { display?: string; amount?: number; unit?: string; name?: string }) => ({ display: i.display ?? '', name: i.name ?? '', amount: i.amount ?? 0, unit: i.unit ?? '' }))))
       }
+      setEditorResetKey(k => k + 1)
       setShowJson(false); setJsonText('')
     } catch (err: unknown) {
       setJsonError('JSON ungültig: ' + (err instanceof Error ? err.message : String(err)))
@@ -108,8 +118,8 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
         slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
         title, category_slug: categorySlug, time_minutes: parseInt(time) || 0,
         servings, notes, image_url: imageUrl,
-        steps: steps.filter(Boolean),
-        ingredients: ingredients.filter(i => i.name).map(i => ({ display: i.display, name: i.name, amount: 0, unit: '' })),
+        steps: stepRowsToPayload(stepRows),
+        ingredients: ingredientRowsToPayload(ingredientRows),
       }
       const { slug: finalSlug } = await clientSaveRecipe(recipe, mode !== 'edit')
       if (onAfterSave) {
@@ -258,39 +268,11 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
           </div>
         </section>
 
-        {/* Ingredients */}
-        <section style={cardStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <p style={sectionLabel}>Zutaten</p>
-            <button type="button" onClick={() => setIngredients(p => [...p, { display: '', name: '' }])} style={addBtnStyle}>+ Zutat</button>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {ingredients.map((ing, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 32px', gap: 8 }}>
-                <input value={ing.display} onChange={e => setIngredients(p => p.map((x, j) => j === i ? { ...x, display: e.target.value } : x))} placeholder="500 g" style={inputStyle} />
-                <input value={ing.name} onChange={e => setIngredients(p => p.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Mehl" style={inputStyle} />
-                {ingredients.length > 1 && <button type="button" onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} style={{ ...iconBtn, color: T.danger }}>✕</button>}
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Ingredients — drag-reorder, inline undo, section headings */}
+        <IngredientEditor key={`ing-${editorResetKey}`} initial={ingredientRows} onChange={setIngredientRows} />
 
-        {/* Steps */}
-        <section style={cardStyle}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <p style={sectionLabel}>Zubereitung</p>
-            <button type="button" onClick={() => setSteps(p => [...p, ''])} style={addBtnStyle}>+ Schritt</button>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {steps.map((s, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 32px', gap: 8, alignItems: 'flex-start' }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${T.accent}20`, color: T.accent, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>{i + 1}</div>
-                <textarea value={s} onChange={e => setSteps(p => p.map((x, j) => j === i ? e.target.value : x))} rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
-                {steps.length > 1 && <button type="button" onClick={() => setSteps(p => p.filter((_, j) => j !== i))} style={{ ...iconBtn, color: T.danger, marginTop: 4 }}>✕</button>}
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Steps — drag-reorder, inline undo */}
+        <StepEditor key={`step-${editorResetKey}`} initial={stepRows} onChange={setStepRows} />
 
         {/* Notes */}
         <section style={cardStyle}>
@@ -315,4 +297,3 @@ const labelStyle: React.CSSProperties = { fontSize: 11, fontWeight: 600, color: 
 const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(120,90,60,0.16)', background: '#FAF6EF', fontSize: 14, color: '#2A1F14', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }
 const outlineBtn: React.CSSProperties = { padding: '10px 16px', borderRadius: 10, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', color: '#2A1F14' }
 const iconBtn: React.CSSProperties = { width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#2A1F14', fontFamily: 'inherit' }
-const addBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: '1px solid rgba(120,90,60,0.16)', background: '#fff', color: '#C2410C', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }
