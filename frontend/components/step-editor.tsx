@@ -67,14 +67,16 @@ export function StepEditor({ initial, onChange }: Props) {
   )
 }
 
-// Continuous 1-based numbering that skips pending-delete rows. Kept out of the
-// component body so the running counter isn't a reassigned render variable.
+// Continuous 1-based numbering. Pending-delete rows don't advance the counter
+// but report the slot number they occupied (n + 1), so the undo bar can show
+// "Schritt X gelöscht". Kept out of the component body so the running counter
+// isn't a reassigned render variable.
 function withStepNumbers(rows: StepRow[], pending: Set<string>): Array<{ row: StepRow; no: number }> {
   let n = 0
   return rows.map((row) => {
-    const isPending = pending.has(row.id)
-    if (!isPending) n += 1
-    return { row, no: isPending ? 0 : n }
+    if (pending.has(row.id)) return { row, no: n + 1 }
+    n += 1
+    return { row, no: n }
   })
 }
 
@@ -106,7 +108,7 @@ function SortableStepRow({ row, no, pending, onUpdate, onRemove, onUndo }: RowPr
   if (pending) {
     return (
       <div ref={setNodeRef} style={style}>
-        <UndoBar label="Schritt gelöscht" onUndo={() => onUndo(row.id)} />
+        <UndoBar label={`Schritt ${no} gelöscht`} onUndo={() => onUndo(row.id)} />
       </div>
     )
   }
