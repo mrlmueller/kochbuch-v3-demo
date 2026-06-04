@@ -6,6 +6,7 @@ import type { Recipe, Category } from '@/lib/api'
 import { clientSaveRecipe } from '@/lib/api'
 import { prepareImageForUpload } from '@/lib/image-prep'
 import { ImageSearchPicker } from '@/components/image-search-picker'
+import { ImageLightbox } from '@/components/image-lightbox'
 import { IngredientEditor } from '@/components/ingredient-editor'
 import { StepEditor } from '@/components/step-editor'
 import {
@@ -39,6 +40,7 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [showJson, setShowJson] = useState(false)
   const [jsonText, setJsonText] = useState('')
   const [jsonError, setJsonError] = useState('')
@@ -194,18 +196,35 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
           {mode === 'review-ai' && imageOptions && imageOptions.length > 1 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
               {imageOptions.map(url => (
-                <button
+                <div
                   key={url}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setImageUrl(url)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setImageUrl(url) } }}
                   style={{
                     position: 'relative', aspectRatio: '1', borderRadius: 10, overflow: 'hidden',
                     border: `2px solid ${imageUrl === url ? T.accent : T.border}`,
-                    padding: 0, cursor: 'pointer', background: T.bg,
+                    cursor: 'pointer', background: T.bg,
                   }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </button>
+                  <button
+                    type="button"
+                    aria-label="Bild vergrößern"
+                    onClick={e => { e.stopPropagation(); setLightboxSrc(url) }}
+                    style={{
+                      position: 'absolute', top: 5, right: 5, width: 26, height: 26, borderRadius: '50%',
+                      border: 'none', background: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'zoom-in',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
+                    }}>
+                    <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <circle cx={11} cy={11} r={7} />
+                      <path d="m21 21-4.3-4.3" />
+                      <path d="M11 8.5v5M8.5 11h5" />
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           )}
@@ -281,6 +300,8 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
         onClose={() => setSearchOpen(false)}
         onPick={url => setImageUrl(url)}
       />
+
+      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
     </form>
   )
 }

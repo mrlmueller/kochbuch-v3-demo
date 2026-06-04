@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { clientCreateAIJob } from '@/lib/api'
 import { prepareImageForUpload } from '@/lib/image-prep'
+import { ImageLightbox } from '@/components/image-lightbox'
 
 let _slotSeq = 0
 const uid = () => `img-${Date.now().toString(36)}-${(_slotSeq += 1)}`
@@ -35,6 +36,7 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
   const [slots, setSlots] = useState<ImageSlot[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [lightbox, setLightbox] = useState<string | null>(null)
   const [modelKey, setModelKey] = useState(isAdmin ? ADMIN_DEFAULT_MODEL : USER_DEFAULT_MODEL)
 
   // Mirror slots into a ref so event handlers read fresh state without re-binding.
@@ -142,11 +144,12 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
           animation: ab-spin 0.7s linear infinite; flex-shrink: 0;
         }
         .ab-slot { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--card-bg); }
-        .ab-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ab-slot img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
         .ab-overlay {
           position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-          flex-direction: column; gap: 8px;
+          flex-direction: column; gap: 8px; pointer-events: none;
         }
+        .ab-retry { pointer-events: auto; }
         .ab-overlay-up { background: rgba(20,12,4,0.34); backdrop-filter: blur(1px); }
         .ab-overlay-err { background: rgba(120,12,4,0.5); }
         .ab-spinner-lg {
@@ -184,7 +187,7 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
         {slots.map((slot) => (
           <div key={slot.id} className="ab-slot">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slot.previewUrl} alt="" />
+            <img src={slot.previewUrl} alt="" onClick={() => setLightbox(slot.previewUrl)} />
 
             {slot.status === 'uploading' && (
               <div className="ab-overlay ab-overlay-up">
@@ -259,6 +262,8 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
         {submitting && <span className="ab-spinner-lg" style={{ width: 18, height: 18, borderWidth: 2.5 }} />}
         {submitting ? 'Sende…' : anyUploading ? 'Bilder laden…' : 'Rezept erzeugen'}
       </button>
+
+      <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
     </main>
   )
 }
