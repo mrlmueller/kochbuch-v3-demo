@@ -50,7 +50,7 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
   const [title, setTitle] = useState(initial?.title ?? '')
   const [categorySlug, setCategorySlug] = useState(initial?.category_slug ?? categories[0]?.slug ?? '')
   const [time, setTime] = useState(String(initial?.time_minutes ?? 30))
-  const [servings, setServings] = useState(initial?.servings ?? '')
+  const [servings, setServings] = useState(String(initial?.servings ?? '').replace(/[^0-9]/g, ''))
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? '')
   const [ingredientRows, setIngredientRows] = useState<IngredientRow[]>(() => toIngredientRows(initial?.ingredients))
@@ -266,7 +266,14 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
             </div>
             <div>
               <p style={labelStyle}>Portionen</p>
-              <input value={servings} onChange={e => setServings(e.target.value)} placeholder="4 Personen" style={inputStyle} />
+              <input
+                value={servings}
+                onChange={e => setServings(e.target.value.replace(/[^0-9]/g, ''))}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder="4"
+                style={inputStyle}
+              />
             </div>
           </div>
         </section>
