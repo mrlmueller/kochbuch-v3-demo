@@ -84,9 +84,7 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault(); setDragOver(false)
-    if (e.dataTransfer.files?.[0]) { handleImageFile(e.dataTransfer.files[0]); return }
-    const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain')
-    if (url && /^https?:\/\//.test(url)) setImageUrl(url)
+    if (e.dataTransfer.files?.[0]) handleImageFile(e.dataTransfer.files[0])
   }
 
   const importJson = () => {
@@ -225,15 +223,11 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
                 : <div style={{ textAlign: 'center', color: T.muted, padding: 24 }}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>↑</div>
                     <p style={{ fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Bild hierher ziehen oder klicken</p>
-                    <p style={{ fontSize: 12, margin: 0 }}>Datei oder Bild-URL</p>
+                    <p style={{ fontSize: 12, margin: 0 }}>JPG, PNG oder HEIC</p>
                   </div>
             }
             {imageUrl && <button type="button" onClick={e => { e.stopPropagation(); setImageUrl('') }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.9)', cursor: 'pointer', color: T.danger }}>✕</button>}
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => handleImageFile(e.target.files?.[0] ?? null)} />
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <p style={labelStyle}>Oder Bild-URL</p>
-            <input type="text" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://…" style={inputStyle} />
           </div>
         </section>
 
