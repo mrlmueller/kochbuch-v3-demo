@@ -53,8 +53,8 @@ func CreateAIJob(store db.Store, lim AIJobLimits) http.HandlerFunc {
 			jsonError(w, "Ungültige Anfrage", http.StatusBadRequest)
 			return
 		}
-		if len(body.ImageURLs) < 1 || len(body.ImageURLs) > 3 {
-			jsonError(w, "1 bis 3 Bilder erforderlich.", http.StatusBadRequest)
+		if len(body.ImageURLs) < 1 || len(body.ImageURLs) > 6 {
+			jsonError(w, "1 bis 6 Bilder erforderlich.", http.StatusBadRequest)
 			return
 		}
 		for _, u := range body.ImageURLs {
