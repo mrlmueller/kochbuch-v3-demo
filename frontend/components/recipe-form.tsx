@@ -192,41 +192,31 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
             </button>
           </div>
 
-          {/* AI-review mode: pick from uploaded options */}
+          {/* AI-review mode: tap a source photo to view it large and pick it as cover */}
           {mode === 'review-ai' && imageOptions && imageOptions.length > 1 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
-              {imageOptions.map(url => (
-                <div
-                  key={url}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setImageUrl(url)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setImageUrl(url) } }}
-                  style={{
-                    position: 'relative', aspectRatio: '1', borderRadius: 10, overflow: 'hidden',
-                    border: `2px solid ${imageUrl === url ? T.accent : T.border}`,
-                    cursor: 'pointer', background: T.bg,
-                  }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button
-                    type="button"
-                    aria-label="Bild vergrößern"
-                    onClick={e => { e.stopPropagation(); setLightboxSrc(url) }}
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 6 }}>
+                {imageOptions.map(url => (
+                  <div
+                    key={url}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setLightboxSrc(url)}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLightboxSrc(url) } }}
                     style={{
-                      position: 'absolute', top: 5, right: 5, width: 26, height: 26, borderRadius: '50%',
-                      border: 'none', background: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'zoom-in',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
+                      position: 'relative', aspectRatio: '1', borderRadius: 10, overflow: 'hidden',
+                      border: `2px solid ${imageUrl === url ? T.accent : T.border}`,
+                      cursor: 'pointer', background: T.bg,
                     }}>
-                    <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx={11} cy={11} r={7} />
-                      <path d="m21 21-4.3-4.3" />
-                      <path d="M11 8.5v5M8.5 11h5" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontSize: 12, color: T.muted, margin: '0 0 12px' }}>
+                Tippe ein Foto an, um es größer anzusehen und als Titelbild zu wählen.
+              </p>
+            </>
           )}
 
           <div onDragOver={e => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={handleDrop}
@@ -301,7 +291,18 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
         onPick={url => setImageUrl(url)}
       />
 
-      <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      <ImageLightbox
+        src={lightboxSrc}
+        onClose={() => setLightboxSrc(null)}
+        action={
+          lightboxSrc && mode === 'review-ai' && imageOptions?.includes(lightboxSrc)
+            ? {
+                label: imageUrl === lightboxSrc ? '✓ Als Titelbild gewählt' : 'Als Titelbild verwenden',
+                onClick: () => { setImageUrl(lightboxSrc); setLightboxSrc(null) },
+              }
+            : undefined
+        }
+      />
     </form>
   )
 }

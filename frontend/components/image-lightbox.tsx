@@ -5,10 +5,19 @@ import { useEffect } from 'react'
 /**
  * Full-screen image viewer. Render it once per screen and drive it with a
  * `src` state: a non-null src opens it, clicking the backdrop / ✕ / Escape
- * closes it. The image itself is contained (never cropped) so text photos
- * stay readable.
+ * closes it. The image is contained (never cropped) so text photos stay
+ * readable. An optional `action` renders a button under the image — used by
+ * the review screen to pick the enlarged source photo as the cover.
  */
-export function ImageLightbox({ src, onClose }: { src: string | null; onClose: () => void }) {
+export function ImageLightbox({
+  src,
+  onClose,
+  action,
+}: {
+  src: string | null
+  onClose: () => void
+  action?: { label: string; onClick: () => void }
+}) {
   useEffect(() => {
     if (!src) return
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -48,13 +57,31 @@ export function ImageLightbox({ src, onClose }: { src: string | null; onClose: (
       >
         ✕
       </button>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt=""
+
+      <div
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 8, boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
-      />
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, maxWidth: '100%', maxHeight: '100%' }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt=""
+          style={{ maxWidth: '100%', maxHeight: action ? 'calc(100% - 64px)' : '100%', objectFit: 'contain', borderRadius: 8, boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
+        />
+        {action && (
+          <button
+            type="button"
+            onClick={action.onClick}
+            style={{
+              padding: '11px 20px', borderRadius: 999, border: 'none',
+              background: '#C2410C', color: '#fff', fontSize: 14, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            {action.label}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
