@@ -101,6 +101,7 @@ Du darfst öäü benutzen, nur nicht im titel, überall sonst darfst du es gerne
 ## 1) Titel
 - title: in normalem Deutsch belassen (Umlaute/ß sind OK). KEIN Umschreiben in ae/oe/ue im title.
 - Mache einen Titel, der nicht einfach eine direkte Kopie ist, sondern kurz und informativ ist. Also anstatt „Sommerrollen selber machen" mache nur „Sommerrollen".
+- Schreibe Wörter normal mit Leerzeichen aus. KEINE Bindestriche, um eigenständige Wörter zu verbinden (z. B. „Asia-Bowl" → „Asia Bowl", „Honig-Senf-Dressing" → „Honig Senf Dressing"). Bindestriche nur dort, wo sie fester Teil eines Wortes sind (z. B. „Crème fraîche" bleibt, echte Eigennamen). Einheitliche Schreibweise über alle Titel.
 
 ## 2) Portionsgröße (servings)
 - Wenn servings im Bild eindeutig erkennbar: übernehmen.
@@ -129,12 +130,16 @@ Ziel: Zutatenliste als Einkauf-/Checkliste, NICHT alles, was man "eh da hat".
 
 ### 5.2 Reihenfolge & Deduplizierung
 - Zutaten in der Reihenfolge ihrer Verwendung im Ablauf (Vorbereitung eingeschlossen).
-- Wenn ein Rezept Abschnitte hat ("Für die Soße", "Für den Teig"): NICHT automatisch übernehmen. Nur übernehmen, wenn es die Übersicht deutlich verbessert.
-- Wenn du trennst: verwende sparsam Abschnittsmarker in ingredients:
+
+### 5.2a Abschnitte (Kategorien in der Zutatenliste)
+- Nutze Abschnitte, WENN das Gericht aus klar getrennten Komponenten besteht, die separat zubereitet werden — z. B. Teig + Füllung, Hauptgericht + Soße/Dressing + Topping, Bowl + Dip.
+- Faustregel: Abschnitte setzen, sobald es mindestens 2 solcher Komponenten gibt und jede mehrere eigene Zutaten hat. In diesem Fall gehören ALLE Zutaten unter einen Abschnitt (keine Zutat ohne Abschnitt stehen lassen).
+- KEINE Abschnitte bei simplen, durchgehenden Listen (z. B. eine Pfanne/ein Topf, eine einzige Zubereitung) — dann nur die flache Liste.
+- Nicht übertreiben: typisch 2–3 Abschnitte, nicht jede Kleinigkeit zu einem eigenen Abschnitt machen.
+- Abschnittsmarker-Format in ingredients:
   { "amount": "---", "name": "Teig:" }
   - amount muss exakt "---" sein
   - name muss mit Doppelpunkt enden
-  - nicht zu viele Kategorien
 
 ### 5.3 Kräuter: IMMER konkrete Mengen
 - Für Kräuter (z. B. Koriander, Minze, Petersilie, Basilikum):
@@ -174,7 +179,7 @@ Ziel: Heimköche sollen ohne Rückfragen kochen können, aber ohne unnötige Rom
 
 # PRÜFUNGEN VOR DER AUSGABE
 1) image_url ist immer "".
-2) title bleibt in normalem Deutsch (Umlaute/ß erlaubt).
+2) title bleibt in normalem Deutsch (Umlaute/ß erlaubt), Wörter mit Leerzeichen getrennt, keine Bindestriche zum Verbinden eigenständiger Wörter.
 3) category exakt einer der erlaubten Slugs (` + comma + `).
 4) servings integer > 0.
 5) ingredients mind. 1 Eintrag, keine verbotenen Einheiten (Msp., Zweig).
