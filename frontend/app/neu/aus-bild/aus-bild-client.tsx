@@ -150,10 +150,11 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
           flex-direction: column; gap: 8px; pointer-events: none;
         }
         .ab-retry { pointer-events: auto; }
-        .ab-zoom {
-          position: absolute; bottom: 5px; left: 5px; width: 22px; height: 22px;
-          border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff;
-          display: flex; align-items: center; justify-content: center; pointer-events: none;
+        .ab-zoom-btn {
+          position: absolute; top: 5px; left: 5px; width: 26px; height: 26px;
+          display: flex; align-items: center; justify-content: center;
+          background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%;
+          cursor: zoom-in; padding: 0; z-index: 2;
         }
         .ab-overlay-up { background: rgba(20,12,4,0.34); backdrop-filter: blur(1px); }
         .ab-overlay-err { background: rgba(120,12,4,0.5); }
@@ -194,14 +195,13 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={slot.previewUrl} alt="" onClick={() => setLightbox(slot.previewUrl)} />
 
-            {/* Decorative hint that the preview can be tapped to enlarge. */}
-            <span className="ab-zoom" aria-hidden="true">
-              <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+            <button type="button" className="ab-zoom-btn" onClick={() => setLightbox(slot.previewUrl)} aria-label="Bild vergrößern">
+              <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx={11} cy={11} r={7} />
                 <path d="m21 21-4.3-4.3" />
                 <path d="M11 8.5v5M8.5 11h5" />
               </svg>
-            </span>
+            </button>
 
             {slot.status === 'uploading' && (
               <div className="ab-overlay ab-overlay-up">
