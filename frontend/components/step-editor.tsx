@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useEditableList, uid } from '@/lib/use-editable-list'
 import type { StepRow } from '@/lib/recipe-rows'
-import { C, addBtnStyle, gripBtn, inputStyle, rowDeleteBtn, sectionLabel, UndoBar, GripIcon } from './editor-bits'
+import { C, addBtnStyle, gripBtn, rowDeleteBtn, sectionLabel, UndoBar, GripIcon, AutoTextarea } from './editor-bits'
 
 interface Props {
   initial: StepRow[]
@@ -119,7 +119,7 @@ function SortableStepRow({ row, no, pending, onUpdate, onRemove, onUndo }: RowPr
       <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${C.accent}20`, color: C.accent, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>
         {no}
       </div>
-      <textarea value={row.text} onChange={(e) => onUpdate(row.id, { text: e.target.value })} rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
+      <AutoTextarea value={row.text} onChange={(e) => onUpdate(row.id, { text: e.target.value })} />
       <button type="button" onClick={() => onRemove(row.id)} style={{ ...rowDeleteBtn, marginTop: 4 }} aria-label="Schritt löschen">✕</button>
     </div>
   )

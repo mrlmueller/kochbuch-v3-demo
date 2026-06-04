@@ -1,5 +1,7 @@
 'use client'
 
+import { useLayoutEffect, useRef } from 'react'
+
 // Shared visual building blocks for the ingredient/step editors. Palette mirrors
 // the recipe-form constants so the editors blend into the surrounding form.
 export const C = {
@@ -80,6 +82,38 @@ export const rowDeleteBtn: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+}
+
+/**
+ * Textarea that grows with its content instead of scrolling internally — better
+ * on mobile where the user can't drag-resize. Height is recomputed on every
+ * value change (CSS `field-sizing: content` isn't reliable in Safari/Firefox yet).
+ */
+export function AutoTextarea({
+  value,
+  onChange,
+  style,
+}: {
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  style?: React.CSSProperties
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }, [value])
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={onChange}
+      rows={2}
+      style={{ ...inputStyle, resize: 'none', overflow: 'hidden', minHeight: 62, ...style }}
+    />
+  )
 }
 
 export function GripIcon() {
