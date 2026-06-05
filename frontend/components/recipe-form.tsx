@@ -130,6 +130,10 @@ export function RecipeForm({ categories, initial, mode, isAdmin, imageOptions, o
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      // Always clear the saving flag — leaving it true on the success path left
+      // the button stuck "disabled/saving" whenever this form instance was shown
+      // again (e.g. browser back / router cache after the post-save navigation).
       setSaving(false)
     }
   }
