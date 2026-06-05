@@ -6,7 +6,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!slug || typeof slug !== 'string') {
     return NextResponse.json({ error: 'slug required' }, { status: 400 })
   }
-  revalidateTag(`recipe-${slug}`, 'max')
-  revalidateTag('recipes', 'max')
+  // `{ expire: 0 }` expires immediately so the next request renders fresh.
+  // 'max' would be stale-while-revalidate (the next visitor still sees old data).
+  revalidateTag(`recipe-${slug}`, { expire: 0 })
+  revalidateTag('recipes', { expire: 0 })
   return NextResponse.json({ revalidated: true })
 }

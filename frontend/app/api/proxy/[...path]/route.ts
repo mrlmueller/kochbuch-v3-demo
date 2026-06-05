@@ -64,14 +64,16 @@ async function handle(req: NextRequest, ctx: Context): Promise<NextResponse> {
   const resBody = isNullBody ? null : await res.text()
 
   // Invalidate caches after successful recipe mutations so every user sees
-  // fresh data immediately without waiting for a TTL to expire.
+  // fresh data immediately. `{ expire: 0 }` expires the tag right away, so the
+  // next request is a blocking cache miss that renders fresh — unlike 'max',
+  // which is stale-while-revalidate and serves the old data to the next visitor.
   if (res.ok && backendPath.startsWith('/api/recipes')) {
     if (req.method === 'POST') {
-      revalidateTag('recipes', 'max')
+      revalidateTag('recipes', { expire: 0 })
     } else if (req.method === 'PUT' || req.method === 'DELETE') {
       const slug = path[1]
-      if (slug) revalidateTag(`recipe-${slug}`, 'max')
-      revalidateTag('recipes', 'max')
+      if (slug) revalidateTag(`recipe-${slug}`, { expire: 0 })
+      revalidateTag('recipes', { expire: 0 })
     }
   }
 

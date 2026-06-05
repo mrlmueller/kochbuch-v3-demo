@@ -15,7 +15,7 @@ export function EditClient({ categories, recipe }: { categories: Category[]; rec
         initial={recipe}
         mode="edit"
         isAdmin={me?.role === 'admin'}
-        onAfterSave={(slug) => router.push(`/rezept/${slug}`)}
+        onAfterSave={(slug) => { router.push(`/rezept/${slug}`); router.refresh() }}
       />
     </main>
   )
