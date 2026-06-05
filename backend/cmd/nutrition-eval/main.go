@@ -53,7 +53,7 @@ func main() {
 		panic(err)
 	}
 
-	est, err := ai.GetNutrition("claude:claude-sonnet-4-6")
+	est, err := ai.GetNutrition("claude:claude-opus-4-8") // production nutrition model
 	if err != nil {
 		panic(err)
 	}

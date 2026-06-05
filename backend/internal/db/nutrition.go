@@ -22,7 +22,7 @@ func (s *PostgresStore) CreateNutritionJob(ctx context.Context, userID, recipeSl
 	var id string
 	err := s.pool.QueryRow(ctx, `
 		INSERT INTO ai_jobs (user_id, status, provider, model, image_urls, kind, recipe_slug)
-		VALUES ($1, 'queued', 'claude', 'claude-sonnet-4-6', '[]', 'nutrition', $2)
+		VALUES ($1, 'queued', 'claude', 'claude-opus-4-8', '[]', 'nutrition', $2)
 		RETURNING id`, userID, recipeSlug).Scan(&id)
 	return id, err
 }

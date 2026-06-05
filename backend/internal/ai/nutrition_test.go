@@ -43,3 +43,19 @@ func TestPerServing(t *testing.T) {
 		t.Fatalf("divide by 0 should be identity: %+v", got)
 	}
 }
+
+// Guards the production model choice: the nutrition job (db.CreateNutritionJob)
+// enqueues claude-opus-4-8, so that key must resolve to opus at high effort.
+func TestProductionModelIsOpusHigh(t *testing.T) {
+	est, err := GetNutrition("claude:claude-opus-4-8")
+	if err != nil {
+		t.Fatalf("opus-4-8 not registered: %v", err)
+	}
+	cn, ok := est.(*claudeNutrition)
+	if !ok {
+		t.Fatalf("unexpected estimator type %T", est)
+	}
+	if cn.model != "claude-opus-4-8" || cn.effort != "high" {
+		t.Fatalf("got model=%q effort=%q, want claude-opus-4-8/high", cn.model, cn.effort)
+	}
+}

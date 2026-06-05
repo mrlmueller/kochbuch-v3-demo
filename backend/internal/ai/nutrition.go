@@ -51,6 +51,12 @@ func init() {
 	RegisterNutrition("claude:claude-sonnet-4-6", func() (NutritionEstimator, error) {
 		return newClaudeNutrition("claude-sonnet-4-6"), nil
 	})
+	// Production nutrition model: opus-4-8 at high effort measured best on the
+	// 29-recipe eval (9.0% vs sonnet's 12.0% kcal MAPE; 24/29 vs 22/29 within
+	// ±20%) and is ~1.8x faster. See cmd/nutrition-modeleval.
+	RegisterNutrition("claude:claude-opus-4-8", func() (NutritionEstimator, error) {
+		return newClaudeNutritionCfg("claude-opus-4-8", "high"), nil
+	})
 }
 
 // ── deterministic helpers (unit-tested) ───────────────────────────────
@@ -103,16 +109,28 @@ func parseServings(s string) float64 {
 
 type claudeNutrition struct {
 	model  string
+	effort string // "" → omit output_config.effort (provider default); else low|medium|high|xhigh|max
 	client *anthropic.Client
 }
 
 func newClaudeNutrition(model string) NutritionEstimator {
+	return newClaudeNutritionCfg(model, "")
+}
+
+// NewClaudeNutrition builds a nutrition estimator with an explicit model and
+// effort level. Production registers concrete configs in init(); the
+// model-comparison CLI (cmd/nutrition-modeleval) uses this to try combos.
+func NewClaudeNutrition(model, effort string) NutritionEstimator {
+	return newClaudeNutritionCfg(model, effort)
+}
+
+func newClaudeNutritionCfg(model, effort string) NutritionEstimator {
 	key := os.Getenv("ANTHROPIC_API_KEY")
 	if key == "" {
-		return &claudeNutrition{model: model}
+		return &claudeNutrition{model: model, effort: effort}
 	}
 	c := anthropic.NewClient(option.WithAPIKey(key))
-	return &claudeNutrition{model: model, client: &c}
+	return &claudeNutrition{model: model, effort: effort, client: &c}
 }
 
 func (e *claudeNutrition) Provider() string { return "claude" }
@@ -199,9 +217,15 @@ func (e *claudeNutrition) Estimate(ctx context.Context, r models.Recipe) (Nutrit
 		},
 	}
 
-	msg, err := e.client.Messages.New(ctx, anthropic.MessageNewParams{
+	// Higher effort can spend more reasoning tokens; give those runs headroom so
+	// the finalize call isn't truncated (effort "" keeps the proven 4096).
+	maxTok := int64(4096)
+	if e.effort != "" {
+		maxTok = 16384
+	}
+	params := anthropic.MessageNewParams{
 		Model:     anthropic.Model(e.model),
-		MaxTokens: 4096,
+		MaxTokens: maxTok,
 		System:    []anthropic.TextBlockParam{{Text: nutritionSystem}},
 		Messages: []anthropic.MessageParam{{
 			Role:    anthropic.MessageParamRoleUser,
@@ -209,7 +233,11 @@ func (e *claudeNutrition) Estimate(ctx context.Context, r models.Recipe) (Nutrit
 		}},
 		Tools: []anthropic.ToolUnionParam{{OfTool: &tool}},
 		// tool_choice auto: lets the model reason (CoT) before finalize.
-	})
+	}
+	if e.effort != "" {
+		params.OutputConfig = anthropic.OutputConfigParam{Effort: anthropic.OutputConfigEffort(e.effort)}
+	}
+	msg, err := e.client.Messages.New(ctx, params)
 	if err != nil {
 		return NutritionResult{}, err
 	}
