@@ -15,6 +15,18 @@ type MockStore struct {
 	Users         []models.User
 	UserByID      *models.User
 	UserRecipeN   int
+
+	// Users (auth)
+	CreatedUser       *models.User
+	CreateUserErr     error
+	LastCreatedEmail  string
+	LastCreatedMethod models.AuthMethod
+	GotUserByEmail    *models.User
+	GetByEmailErr     error
+	LastSetAuthID     string
+	LastSetAuthMethod models.AuthMethod
+	SetAuthErr        error
+
 	AIJobs        []models.AIJob
 	NextAIJob     *models.AIJob
 	AIActiveCount   int
@@ -81,13 +93,20 @@ func (m *MockStore) SetRecipeConfirmed(_ context.Context, slug string, confirmed
 
 func (m *MockStore) GetUsers(_ context.Context) ([]models.User, error) { return m.Users, m.Err }
 func (m *MockStore) GetUserByEmail(_ context.Context, _ string) (*models.User, error) {
-	return nil, nil
+	return m.GotUserByEmail, m.GetByEmailErr
 }
 func (m *MockStore) GetUserByID(_ context.Context, _ string) (*models.User, error) {
 	return m.UserByID, m.Err
 }
-func (m *MockStore) CreateUser(_ context.Context, _ string, _ models.Role) (*models.User, error) {
-	return nil, nil
+func (m *MockStore) CreateUser(_ context.Context, email string, _ models.Role, method models.AuthMethod) (*models.User, error) {
+	m.LastCreatedEmail = email
+	m.LastCreatedMethod = method
+	return m.CreatedUser, m.CreateUserErr
+}
+func (m *MockStore) SetUserAuthMethod(_ context.Context, id string, method models.AuthMethod) error {
+	m.LastSetAuthID = id
+	m.LastSetAuthMethod = method
+	return m.SetAuthErr
 }
 func (m *MockStore) UpdateUser(_ context.Context, _ string, _ models.Role, _ models.Status) (*models.User, error) {
 	return nil, nil

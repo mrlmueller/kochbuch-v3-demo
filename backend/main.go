@@ -15,7 +15,9 @@ import (
 	"backend/internal/db"
 	"backend/internal/handlers"
 	mw "backend/internal/middleware"
+	"backend/internal/models"
 
+	"firebase.google.com/go/v4/auth"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -79,6 +81,10 @@ func main() {
 		log.Fatalf("firebase init: %v", err)
 	}
 
+	// Pre-lock existing users to their real Firebase provider so the per-email
+	// method enforcement in Login cannot be raced. Idempotent and non-fatal.
+	go backfillAuthMethods(ctx, store, firebaseAuth)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -135,7 +141,7 @@ func main() {
 			r.Get("/api/admin/ai-stats", handlers.GetAIStats(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
 			r.Get("/api/admin/users/{id}", handlers.GetUserDetail(store, aiLimits))
-			r.Post("/api/admin/users", handlers.CreateUser(store))
+			r.Post("/api/admin/users", handlers.CreateUser(store, handlers.NewFirebaseProvisioner(firebaseAuth)))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
 			r.Patch("/api/admin/users/{id}/ai-limit", handlers.SetUserAILimit(store))
 			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(store))
@@ -151,6 +157,48 @@ func main() {
 	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
+}
+
+// backfillAuthMethods locks each user with a NULL auth_method to its real
+// Firebase provider. Idempotent (only touches NULL rows) and non-fatal: it logs
+// and continues on per-user errors. This pre-locks existing users so the method
+// enforcement in Login cannot be raced by a password pre-claim.
+func backfillAuthMethods(ctx context.Context, store db.Store, fb *auth.Client) {
+	users, err := store.GetUsers(ctx)
+	if err != nil {
+		log.Printf("backfill auth_method: list users: %v", err)
+		return
+	}
+	for _, u := range users {
+		if u.AuthMethod != nil {
+			continue
+		}
+		rec, err := fb.GetUserByEmail(ctx, u.Email)
+		if err != nil {
+			continue // no Firebase account yet, or transient — leave NULL
+		}
+		method := models.AuthGoogle
+		found := false
+		hasPassword := false
+		for _, p := range rec.ProviderUserInfo {
+			switch p.ProviderID {
+			case "google.com":
+				method, found = models.AuthGoogle, true
+			case "password":
+				hasPassword = true
+			}
+		}
+		if !found && hasPassword {
+			method, found = models.AuthPassword, true
+		}
+		if !found {
+			continue
+		}
+		if err := store.SetUserAuthMethod(ctx, u.ID, method); err != nil {
+			log.Printf("backfill auth_method: set %s: %v", u.Email, err)
+		}
+	}
+	log.Printf("backfill auth_method: done")
 }
 
 func runMigrations() error {

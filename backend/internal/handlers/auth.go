@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -18,6 +19,50 @@ func generateToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+// normalizeProvider maps a Firebase sign_in_provider claim to our auth_method enum.
+func normalizeProvider(p string) (models.AuthMethod, bool) {
+	switch p {
+	case "google.com":
+		return models.AuthGoogle, true
+	case "password":
+		return models.AuthPassword, true
+	default:
+		return "", false
+	}
+}
+
+// resolveUser applies the allowlist, status, and per-email method lock for an
+// authenticated identity. Returns (user, 0, "") on success, or (nil, status, code)
+// on failure, where code is a machine-readable hint the UI can map to a message
+// ("use_google"/"use_password"/"not authorized"/...).
+//
+// The method lock is the security core: an email is google XOR password forever.
+// A NULL auth_method (un-backfilled legacy row) is locked to the provider used
+// on this first login.
+func resolveUser(ctx context.Context, store db.Store, email, provider string) (*models.User, int, string) {
+	method, ok := normalizeProvider(provider)
+	if !ok {
+		return nil, http.StatusUnauthorized, "invalid token"
+	}
+	user, err := store.GetUserByEmail(ctx, email)
+	if err != nil || user == nil {
+		return nil, http.StatusForbidden, "not authorized"
+	}
+	if user.Status == models.StatusDeactivated {
+		return nil, http.StatusForbidden, "account deactivated"
+	}
+	if user.AuthMethod == nil {
+		if err := store.SetUserAuthMethod(ctx, user.ID, method); err != nil {
+			return nil, http.StatusInternalServerError, "server error"
+		}
+		m := method
+		user.AuthMethod = &m
+	} else if *user.AuthMethod != method {
+		return nil, http.StatusForbidden, "use_" + string(*user.AuthMethod)
+	}
+	return user, 0, ""
 }
 
 // POST /api/auth/login
@@ -39,13 +84,9 @@ func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 		}
 		email, _ := token.Claims["email"].(string)
 
-		user, err := store.GetUserByEmail(r.Context(), email)
-		if err != nil || user == nil {
-			http.Error(w, `{"error":"not authorized"}`, http.StatusForbidden)
-			return
-		}
-		if user.Status == models.StatusDeactivated {
-			http.Error(w, `{"error":"account deactivated"}`, http.StatusForbidden)
+		user, status, code := resolveUser(r.Context(), store, email, token.Firebase.SignInProvider)
+		if user == nil {
+			http.Error(w, `{"error":"`+code+`"}`, status)
 			return
 		}
 

@@ -48,7 +48,8 @@ type Store interface {
 	GetUsers(ctx context.Context) ([]models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	GetUserByID(ctx context.Context, id string) (*models.User, error)
-	CreateUser(ctx context.Context, email string, role models.Role) (*models.User, error)
+	CreateUser(ctx context.Context, email string, role models.Role, authMethod models.AuthMethod) (*models.User, error)
+	SetUserAuthMethod(ctx context.Context, id string, method models.AuthMethod) error
 	UpdateUser(ctx context.Context, id string, role models.Role, status models.Status) (*models.User, error)
 	DeleteUser(ctx context.Context, id string) error
 	UpdateLastLogin(ctx context.Context, id string) error

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"backend/internal/db"
@@ -95,17 +96,50 @@ func SetUserAILimit(store db.Store) http.HandlerFunc {
 	}
 }
 
-// POST /api/admin/users  body: {"email":"..."}
-func CreateUser(store db.Store) http.HandlerFunc {
+// POST /api/admin/users  body: {"email":"...","method":"google"|"password"}
+//
+// method defaults to "google" (allowlist row only; the user signs in with
+// Google). "password" additionally provisions a Firebase password account so
+// the user can set a password via the reset email; the email is then locked to
+// the password method by the login enforcement.
+func CreateUser(store db.Store, fb FirebaseProvisioner) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
-			Email string `json:"email"`
+			Email  string `json:"email"`
+			Method string `json:"method"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Email == "" {
 			http.Error(w, `{"error":"email required"}`, http.StatusBadRequest)
 			return
 		}
-		user, err := store.CreateUser(r.Context(), body.Email, models.RoleUser)
+		var method models.AuthMethod
+		switch body.Method {
+		case "", "google":
+			method = models.AuthGoogle
+		case "password":
+			method = models.AuthPassword
+		default:
+			http.Error(w, `{"error":"invalid method"}`, http.StatusBadRequest)
+			return
+		}
+
+		if existing, _ := store.GetUserByEmail(r.Context(), body.Email); existing != nil {
+			http.Error(w, `{"error":"Diese E-Mail ist bereits vergeben."}`, http.StatusConflict)
+			return
+		}
+
+		if method == models.AuthPassword {
+			if err := fb.CreatePasswordUser(r.Context(), body.Email); err != nil {
+				if errors.Is(err, ErrFirebaseEmailExists) {
+					http.Error(w, `{"error":"Diese E-Mail ist bereits vergeben."}`, http.StatusConflict)
+					return
+				}
+				http.Error(w, `{"error":"firebase error"}`, http.StatusInternalServerError)
+				return
+			}
+		}
+
+		user, err := store.CreateUser(r.Context(), body.Email, models.RoleUser, method)
 		if err != nil {
 			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
 			return

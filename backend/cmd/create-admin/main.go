@@ -37,7 +37,7 @@ func main() {
 		return
 	}
 
-	user, err := store.CreateUser(ctx, email, models.RoleAdmin)
+	user, err := store.CreateUser(ctx, email, models.RoleAdmin, models.AuthGoogle)
 	if err != nil {
 		log.Fatalf("create user: %v", err)
 	}
