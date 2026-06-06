@@ -1,3 +1,6 @@
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 // ─── Types ────────────────────────────────────────────
@@ -38,6 +41,7 @@ export interface User {
   id: string; email: string; role: 'admin' | 'user'
   status: 'active' | 'deactivated'
   created_at: string; last_login?: string; last_active_at?: string
+  auth_method?: 'google' | 'password'
 }
 
 // ─── AI jobs ─────────────────────────────────────────────
@@ -107,14 +111,24 @@ export async function clientLogout(): Promise<void> {
   await throwIfError(sessionRes)
 }
 
-export async function clientCreateUser(email: string): Promise<User> {
+export async function clientCreateUser(email: string, method: 'google' | 'password' = 'google'): Promise<User> {
   const res = await fetch('/api/proxy/admin/users', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, method }),
   })
   await throwIfError(res)
-  return res.json()
+  const user = (await res.json()) as User
+  if (method === 'password') {
+    // Fire Firebase's built-in "set your password" email (best-effort).
+    try { await sendPasswordResetEmail(auth, email) } catch {}
+  }
+  return user
+}
+
+// Re-send the Firebase "set/reset your password" email for a password user.
+export async function clientSendPasswordSetup(email: string): Promise<void> {
+  await sendPasswordResetEmail(auth, email)
 }
 
 export async function clientUpdateUser(id: string, patch: { role?: string; status?: string }): Promise<User> {

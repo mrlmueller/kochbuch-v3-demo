@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import type { User, UserDetail } from '@/lib/api'
-import { clientCreateUser, clientUpdateUser, clientDeleteUser, clientGetUserDetail, clientSetUserAILimit } from '@/lib/api'
+import { clientCreateUser, clientUpdateUser, clientDeleteUser, clientGetUserDetail, clientSetUserAILimit, clientSendPasswordSetup } from '@/lib/api'
 
 export function AdminUserList({ users: initial }: { users: User[] }) {
   const [users, setUsers] = useState(initial)
@@ -11,7 +11,9 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
   const [filter, setFilter] = useState<'all' | 'active' | 'deactivated'>('all')
   const [showAdd, setShowAdd] = useState(false)
   const [newEmail, setNewEmail] = useState('')
+  const [newMethod, setNewMethod] = useState<'google' | 'password'>('google')
   const [addError, setAddError] = useState('')
+  const [resendMsg, setResendMsg] = useState('')
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -38,9 +40,9 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
       setAddError('Ungültige E-Mail'); return
     }
     try {
-      const user = await clientCreateUser(newEmail.trim())
+      const user = await clientCreateUser(newEmail.trim(), newMethod)
       setUsers(p => [user, ...p])
-      setShowAdd(false); setNewEmail(''); setAddError('')
+      setShowAdd(false); setNewEmail(''); setNewMethod('google'); setAddError('')
     } catch (e: unknown) { setAddError(e instanceof Error ? e.message : String(e)) }
   }
 
@@ -77,6 +79,7 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
     setDetail(null)
     setDetailError('')
     setLimitSaved(false)
+    setResendMsg('')
     setDetailLoading(true)
     try {
       const d = await clientGetUserDetail(id)
@@ -232,6 +235,18 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
             <p style={{ fontSize: 13, color: T.muted, marginBottom: 14 }}>Trage die E-Mail ein. Der Benutzer kann sich danach mit dieser Adresse anmelden.</p>
             <input type="email" value={newEmail} onChange={e => { setNewEmail(e.target.value); setAddError('') }} onKeyDown={e => e.key === 'Enter' && handleAdd()} autoFocus placeholder="benutzer@example.com" style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: `1px solid ${T.border}`, background: '#FAF6EF', fontSize: 15, fontFamily: 'inherit', color: T.text, boxSizing: 'border-box', marginBottom: addError ? 6 : 0 }} />
             {addError && <p style={{ color: T.danger, fontSize: 12, margin: '0 0 10px' }}>{addError}</p>}
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              {(['google', 'password'] as const).map(m => (
+                <button key={m} type="button" onClick={() => setNewMethod(m)} style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: `1px solid ${newMethod === m ? T.accent : T.border}`, background: newMethod === m ? T.accent : T.surface, color: newMethod === m ? '#fff' : T.text, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  {m === 'google' ? 'Google-Login' : 'E-Mail + Passwort'}
+                </button>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: T.muted, margin: '8px 0 0' }}>
+              {newMethod === 'google'
+                ? 'Der Benutzer meldet sich mit Google an.'
+                : 'Der Benutzer erhält eine E-Mail, um ein Passwort zu setzen.'}
+            </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
               <button onClick={() => setShowAdd(false)} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, cursor: 'pointer', fontFamily: 'inherit' }}>Abbrechen</button>
               <button onClick={handleAdd} style={{ padding: '10px 18px', borderRadius: 10, border: 'none', background: T.accent, color: '#fff', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Hinzufügen</button>
@@ -274,6 +289,16 @@ export function AdminUserList({ users: initial }: { users: User[] }) {
                     ? new Date(detail.user.last_active_at).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })
                     : '—'}
                 </p>
+
+                {detail.user.auth_method === 'password' && (
+                  <div style={{ marginBottom: 18 }}>
+                    <button onClick={async () => { setResendMsg(''); try { await clientSendPasswordSetup(detail.user.email); setResendMsg('Einladung gesendet.') } catch { setResendMsg('Einladung gesendet.') } }}
+                      style={{ padding: '8px 14px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.surface, color: T.text, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      Passwort-Einladung erneut senden
+                    </button>
+                    {resendMsg && <span style={{ fontSize: 12, color: T.success, marginLeft: 10 }}>{resendMsg}</span>}
+                  </div>
+                )}
 
                 <div style={{ padding: 14, borderRadius: 12, background: '#FBF7F1', border: `1px solid ${T.border}`, marginBottom: 18 }}>
                   <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: T.muted, margin: '0 0 6px' }}>KI-Rezepte heute</p>

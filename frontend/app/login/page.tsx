@@ -4,19 +4,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { clientLogin } from '@/lib/api'
 
-type Mode = 'login' | 'register'
-
 export default function LoginPage() {
   const router = useRouter()
-  const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [resetMsg, setResetMsg] = useState('')
   const [loading, setLoading] = useState(false)
 
   const afterFirebase = async (idToken: string) => {
@@ -25,42 +23,62 @@ export default function LoginPage() {
     router.refresh()
   }
 
+  // Maps a thrown error to a German message. Returns true if it was a known
+  // method-lock error (google XOR password enforced by the backend).
+  const showMethodLock = (msg: string): boolean => {
+    if (msg.includes('use_google')) {
+      setError('Dieses Konto verwendet Google-Login. Bitte oben „Mit Google anmelden".')
+      return true
+    }
+    if (msg.includes('use_password')) {
+      setError('Dieses Konto verwendet E-Mail + Passwort.')
+      return true
+    }
+    return false
+  }
+
   const handleGoogle = async () => {
-    setLoading(true); setError('')
+    setLoading(true); setError(''); setResetMsg('')
     try {
       const result = await signInWithPopup(auth, new GoogleAuthProvider())
       await afterFirebase(await result.user.getIdToken())
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : ''
-      setError(msg.includes('not authorized') ? 'Kein Zugang — wende dich an den Admin.' : 'Google-Login fehlgeschlagen.')
+      if (!showMethodLock(msg)) {
+        setError(msg.includes('not authorized') ? 'Kein Zugang — wende dich an den Admin.' : 'Google-Login fehlgeschlagen.')
+      }
       setLoading(false)
     }
   }
 
   const handleEmail = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true); setError('')
+    e.preventDefault(); setLoading(true); setError(''); setResetMsg('')
     try {
-      let result
-      if (mode === 'register') {
-        result = await createUserWithEmailAndPassword(auth, email, password)
-      } else {
-        result = await signInWithEmailAndPassword(auth, email, password)
-      }
+      const result = await signInWithEmailAndPassword(auth, email, password)
       await afterFirebase(await result.user.getIdToken())
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : ''
       const code = (e as { code?: string }).code
-      if (msg.includes('not authorized') || msg.includes('403')) {
+      if (showMethodLock(msg)) {
+        // handled
+      } else if (msg.includes('not authorized') || msg.includes('403')) {
         setError('Kein Zugang — wende dich an den Admin.')
-      } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password') {
+      } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
         setError('E-Mail oder Passwort falsch.')
-      } else if (code === 'auth/email-already-in-use') {
-        setError('E-Mail bereits registriert — bitte einloggen.')
       } else {
         setError('Fehler: ' + (msg || 'Unbekannter Fehler'))
       }
       setLoading(false)
     }
+  }
+
+  const handleReset = async () => {
+    if (!email) { setError('Bitte zuerst die E-Mail eintragen.'); return }
+    setError(''); setResetMsg('')
+    // Always show the same confirmation, regardless of whether an account
+    // exists, so this can't be used to probe which emails are registered.
+    try { await sendPasswordResetEmail(auth, email) } catch {}
+    setResetMsg('Falls ein Passwort-Konto existiert, wurde eine E-Mail zum Setzen des Passworts gesendet.')
   }
 
   const accent = '#C2410C'
@@ -94,19 +112,6 @@ export default function LoginPage() {
             <div style={{ flex: 1, height: 1, background: 'rgba(120,90,60,0.15)' }} />
           </div>
 
-          {/* Mode toggle */}
-          <div style={{ display: 'flex', background: '#FAF6EF', borderRadius: 10, padding: 3, marginBottom: 18 }}>
-            {(['login', 'register'] as Mode[]).map(m => (
-              <button key={m} onClick={() => { setMode(m); setError('') }} style={{
-                flex: 1, padding: '8px 0', borderRadius: 8, border: 'none',
-                background: mode === m ? '#fff' : 'transparent',
-                color: mode === m ? '#2A1F14' : '#7A6B5A',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                boxShadow: mode === m ? '0 1px 4px rgba(80,50,20,0.1)' : 'none',
-              }}>{m === 'login' ? 'Einloggen' : 'Registrieren'}</button>
-            ))}
-          </div>
-
           <form onSubmit={handleEmail}>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
               placeholder="E-Mail" required style={fieldStyle} />
@@ -121,8 +126,16 @@ export default function LoginPage() {
               fontSize: 15, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
               fontFamily: 'inherit', marginTop: 16,
             }}>
-              {loading ? 'Bitte warten…' : mode === 'login' ? 'Einloggen' : 'Konto erstellen'}
+              {loading ? 'Bitte warten…' : 'Einloggen'}
             </button>
+            <button type="button" onClick={handleReset} style={{
+              display: 'block', width: '100%', background: 'none', border: 'none',
+              color: '#7A6B5A', fontSize: 12, marginTop: 12, cursor: 'pointer',
+              fontFamily: 'inherit', textDecoration: 'underline',
+            }}>
+              Passwort vergessen / Passwort setzen
+            </button>
+            {resetMsg && <p style={{ fontSize: 12, color: '#15803D', margin: '8px 0 0', lineHeight: 1.4 }}>{resetMsg}</p>}
           </form>
         </div>
       </div>
