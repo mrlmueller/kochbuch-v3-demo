@@ -12,7 +12,7 @@ func ptrMethod(m models.AuthMethod) *models.AuthMethod { return &m }
 
 func TestResolveUser_ProviderMismatchGoogleAccount(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Email: "a@b.c", Status: models.StatusActive, AuthMethod: ptrMethod(models.AuthGoogle)}}
-	_, status, code := resolveUser(context.Background(), store, "a@b.c", "password")
+	_, status, code := resolveUser(context.Background(), store, "a@b.c", "password", true)
 	if status != 403 || code != "use_google" {
 		t.Fatalf("got %d %q, want 403 use_google", status, code)
 	}
@@ -20,7 +20,7 @@ func TestResolveUser_ProviderMismatchGoogleAccount(t *testing.T) {
 
 func TestResolveUser_ProviderMismatchPasswordAccount(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Email: "a@b.c", Status: models.StatusActive, AuthMethod: ptrMethod(models.AuthPassword)}}
-	_, status, code := resolveUser(context.Background(), store, "a@b.c", "google.com")
+	_, status, code := resolveUser(context.Background(), store, "a@b.c", "google.com", true)
 	if status != 403 || code != "use_password" {
 		t.Fatalf("got %d %q, want 403 use_password", status, code)
 	}
@@ -28,15 +28,25 @@ func TestResolveUser_ProviderMismatchPasswordAccount(t *testing.T) {
 
 func TestResolveUser_MatchingProviderSucceeds(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Email: "a@b.c", Status: models.StatusActive, AuthMethod: ptrMethod(models.AuthGoogle)}}
-	u, status, code := resolveUser(context.Background(), store, "a@b.c", "google.com")
+	u, status, code := resolveUser(context.Background(), store, "a@b.c", "google.com", true)
 	if u == nil || status != 0 || code != "" {
 		t.Fatalf("got %v %d %q, want success", u, status, code)
 	}
 }
 
+// A locked account is not re-checked for email_verified, so legacy (possibly
+// unverified) password users keep their access.
+func TestResolveUser_LockedAccountSkipsEmailVerified(t *testing.T) {
+	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Email: "a@b.c", Status: models.StatusActive, AuthMethod: ptrMethod(models.AuthPassword)}}
+	u, status, _ := resolveUser(context.Background(), store, "a@b.c", "password", false)
+	if u == nil || status != 0 {
+		t.Fatalf("locked password user with unverified email should still log in, got status %d", status)
+	}
+}
+
 func TestResolveUser_NullMethodLocksOnFirstLogin(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "7", Email: "a@b.c", Status: models.StatusActive, AuthMethod: nil}}
-	u, status, _ := resolveUser(context.Background(), store, "a@b.c", "password")
+	u, status, _ := resolveUser(context.Background(), store, "a@b.c", "password", true)
 	if u == nil || status != 0 {
 		t.Fatalf("want success, got status %d", status)
 	}
@@ -45,9 +55,22 @@ func TestResolveUser_NullMethodLocksOnFirstLogin(t *testing.T) {
 	}
 }
 
+// The takeover path: a NULL (never-logged-in) allowlisted email must not be
+// claimable with an unverified token, and must not be locked as a side effect.
+func TestResolveUser_NullMethodRejectsUnverifiedEmail(t *testing.T) {
+	store := &db.MockStore{GotUserByEmail: &models.User{ID: "7", Email: "a@b.c", Status: models.StatusActive, AuthMethod: nil}}
+	u, status, _ := resolveUser(context.Background(), store, "a@b.c", "password", false)
+	if u != nil || status != 403 {
+		t.Fatalf("want 403 reject, got user=%v status=%d", u, status)
+	}
+	if store.LastSetAuthID != "" {
+		t.Fatalf("must NOT lock the account on a rejected unverified first login, locked id=%q", store.LastSetAuthID)
+	}
+}
+
 func TestResolveUser_NotAllowlisted(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: nil}
-	_, status, _ := resolveUser(context.Background(), store, "x@y.z", "google.com")
+	_, status, _ := resolveUser(context.Background(), store, "x@y.z", "google.com", true)
 	if status != 403 {
 		t.Fatalf("want 403, got %d", status)
 	}
@@ -55,7 +78,7 @@ func TestResolveUser_NotAllowlisted(t *testing.T) {
 
 func TestResolveUser_Deactivated(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Status: models.StatusDeactivated, AuthMethod: ptrMethod(models.AuthGoogle)}}
-	_, status, _ := resolveUser(context.Background(), store, "a@b.c", "google.com")
+	_, status, _ := resolveUser(context.Background(), store, "a@b.c", "google.com", true)
 	if status != 403 {
 		t.Fatalf("want 403, got %d", status)
 	}
@@ -63,7 +86,7 @@ func TestResolveUser_Deactivated(t *testing.T) {
 
 func TestResolveUser_UnknownProvider(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Status: models.StatusActive, AuthMethod: ptrMethod(models.AuthGoogle)}}
-	_, status, _ := resolveUser(context.Background(), store, "a@b.c", "phone")
+	_, status, _ := resolveUser(context.Background(), store, "a@b.c", "phone", true)
 	if status != 401 {
 		t.Fatalf("want 401, got %d", status)
 	}

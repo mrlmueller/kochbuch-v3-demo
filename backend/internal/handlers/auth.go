@@ -41,7 +41,7 @@ func normalizeProvider(p string) (models.AuthMethod, bool) {
 // The method lock is the security core: an email is google XOR password forever.
 // A NULL auth_method (un-backfilled legacy row) is locked to the provider used
 // on this first login.
-func resolveUser(ctx context.Context, store db.Store, email, provider string) (*models.User, int, string) {
+func resolveUser(ctx context.Context, store db.Store, email, provider string, emailVerified bool) (*models.User, int, string) {
 	method, ok := normalizeProvider(provider)
 	if !ok {
 		return nil, http.StatusUnauthorized, "invalid token"
@@ -54,6 +54,16 @@ func resolveUser(ctx context.Context, store db.Store, email, provider string) (*
 		return nil, http.StatusForbidden, "account deactivated"
 	}
 	if user.AuthMethod == nil {
+		// First login establishes the permanent method lock. Require proof of
+		// inbox ownership before locking, so a NULL (never-logged-in) allowlisted
+		// email cannot be claimed by anyone who creates a Firebase account for it
+		// (e.g. via the public accounts:signUp REST API). Google tokens are always
+		// verified; a password token is verified only after the user completes the
+		// emailed set-password link. Already-locked accounts are never re-checked,
+		// so legacy (possibly unverified) password users keep their access.
+		if !emailVerified {
+			return nil, http.StatusForbidden, "not authorized"
+		}
 		if err := store.SetUserAuthMethod(ctx, user.ID, method); err != nil {
 			return nil, http.StatusInternalServerError, "server error"
 		}
@@ -83,8 +93,9 @@ func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 			return
 		}
 		email, _ := token.Claims["email"].(string)
+		emailVerified, _ := token.Claims["email_verified"].(bool)
 
-		user, status, code := resolveUser(r.Context(), store, email, token.Firebase.SignInProvider)
+		user, status, code := resolveUser(r.Context(), store, email, token.Firebase.SignInProvider, emailVerified)
 		if user == nil {
 			http.Error(w, `{"error":"`+code+`"}`, status)
 			return
