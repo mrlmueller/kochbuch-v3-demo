@@ -150,7 +150,9 @@ func CreateUser(store db.Store, fb FirebaseProvisioner, mailer SetupMailer) http
 		// user is already created, and the admin can use "resend" if it fails).
 		if method == models.AuthPassword {
 			if err := mailer.SendSetupLink(r.Context(), body.Email); err != nil {
-				log.Printf("password-setup email for %s: %v", body.Email, err)
+				log.Printf("password-setup: send to %s FAILED on create: %v", body.Email, err)
+			} else {
+				log.Printf("password-setup: setup link sent to %s on create", body.Email)
 			}
 		}
 

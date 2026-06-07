@@ -83,11 +83,21 @@ func RequestPasswordSetup(store db.Store, mailer SetupMailer) http.HandlerFunc {
 		}
 
 		user, _ := store.GetUserByEmail(r.Context(), body.Email)
-		if user != nil && user.Status != models.StatusDeactivated &&
-			user.AuthMethod != nil && *user.AuthMethod == models.AuthPassword {
+		eligible := user != nil && user.Status != models.StatusDeactivated &&
+			user.AuthMethod != nil && *user.AuthMethod == models.AuthPassword
+		if eligible {
 			if err := mailer.SendSetupLink(r.Context(), body.Email); err != nil {
-				log.Printf("password-setup email for %s: %v", body.Email, err)
+				log.Printf("password-setup: send to %s FAILED: %v", body.Email, err)
+			} else {
+				log.Printf("password-setup: setup link sent to %s", body.Email)
 			}
+		} else {
+			method := "<nil>"
+			if user != nil && user.AuthMethod != nil {
+				method = string(*user.AuthMethod)
+			}
+			log.Printf("password-setup: skipped %s (found=%t method=%s) — needs an active password account",
+				body.Email, user != nil, method)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
