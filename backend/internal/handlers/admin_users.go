@@ -173,9 +173,27 @@ func UpdateUser(store db.Store) http.HandlerFunc {
 }
 
 // DELETE /api/admin/users/{id}
-func DeleteUser(store db.Store) http.HandlerFunc {
+//
+// Removes the allowlist row AND the user's Firebase account. The Firebase
+// account is deleted first: if that fails we abort before touching the DB, so a
+// removed user can never be left with a live Firebase account that would still
+// receive password emails or be able to authenticate.
+func DeleteUser(store db.Store, fb FirebaseProvisioner) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
+
+		user, err := store.GetUserByID(r.Context(), id)
+		if err != nil {
+			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
+			return
+		}
+		if user != nil {
+			if err := fb.DeleteUserByEmail(r.Context(), user.Email); err != nil {
+				http.Error(w, `{"error":"firebase error"}`, http.StatusInternalServerError)
+				return
+			}
+		}
+
 		if err := store.DeleteUser(r.Context(), id); err != nil {
 			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
 			return

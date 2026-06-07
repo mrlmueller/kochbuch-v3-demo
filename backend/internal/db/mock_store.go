@@ -26,6 +26,9 @@ type MockStore struct {
 	LastSetAuthID     string
 	LastSetAuthMethod models.AuthMethod
 	SetAuthErr        error
+	DeleteUserCalled  bool
+	LastDeletedUserID string
+	DeleteUserErr     error
 
 	AIJobs        []models.AIJob
 	NextAIJob     *models.AIJob
@@ -111,7 +114,11 @@ func (m *MockStore) SetUserAuthMethod(_ context.Context, id string, method model
 func (m *MockStore) UpdateUser(_ context.Context, _ string, _ models.Role, _ models.Status) (*models.User, error) {
 	return nil, nil
 }
-func (m *MockStore) DeleteUser(_ context.Context, _ string) error      { return nil }
+func (m *MockStore) DeleteUser(_ context.Context, id string) error {
+	m.DeleteUserCalled = true
+	m.LastDeletedUserID = id
+	return m.DeleteUserErr
+}
 func (m *MockStore) UpdateLastLogin(_ context.Context, _ string) error  { return nil }
 func (m *MockStore) UpdateLastActive(_ context.Context, _ string) error { return nil }
 func (m *MockStore) CreateSession(_ context.Context, _, _ string, _ time.Time, _, _ string) error {

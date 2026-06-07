@@ -10,10 +10,14 @@ import (
 // ErrFirebaseEmailExists means a Firebase account already uses this email.
 var ErrFirebaseEmailExists = errors.New("firebase: email already exists")
 
-// FirebaseProvisioner creates password-based Firebase accounts for admin invites.
-// Abstracted so the admin handler is testable without a live Firebase project.
+// FirebaseProvisioner manages the Firebase Auth accounts behind admin invites.
+// Abstracted so the admin handlers are testable without a live Firebase project.
 type FirebaseProvisioner interface {
 	CreatePasswordUser(ctx context.Context, email string) error
+	// DeleteUserByEmail removes the Firebase account for email. A missing
+	// account is treated as success (idempotent), so removing a user who never
+	// had a Firebase account is not an error.
+	DeleteUserByEmail(ctx context.Context, email string) error
 }
 
 type fbProvisioner struct{ c *auth.Client }
@@ -32,4 +36,15 @@ func (f *fbProvisioner) CreatePasswordUser(ctx context.Context, email string) er
 		return err
 	}
 	return nil
+}
+
+func (f *fbProvisioner) DeleteUserByEmail(ctx context.Context, email string) error {
+	u, err := f.c.GetUserByEmail(ctx, email)
+	if err != nil {
+		if auth.IsUserNotFound(err) {
+			return nil // nothing to delete
+		}
+		return err
+	}
+	return f.c.DeleteUser(ctx, u.UID)
 }

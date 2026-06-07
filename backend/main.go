@@ -144,7 +144,7 @@ func main() {
 			r.Post("/api/admin/users", handlers.CreateUser(store, handlers.NewFirebaseProvisioner(firebaseAuth)))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
 			r.Patch("/api/admin/users/{id}/ai-limit", handlers.SetUserAILimit(store))
-			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(store))
+			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(store, handlers.NewFirebaseProvisioner(firebaseAuth)))
 			r.Post("/api/admin/backup", handlers.TriggerBackup(store))
 		})
 	})
