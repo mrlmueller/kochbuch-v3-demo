@@ -115,9 +115,18 @@ export default function LoginPage() {
     setSetupLoading(true); setSetupError('')
     // Routed through our backend, which sends our own branded mail (from our
     // domain, linking to /auth/action) only for allowlisted password accounts.
-    // It always returns 200, so we never reveal whether an account exists.
-    try { await clientSendPasswordSetup(setupEmail.trim()) } catch { /* ignore */ }
+    // It reveals only the Google case so we can redirect; password-vs-unknown
+    // stay indistinguishable ('sent').
+    let status = 'sent'
+    try {
+      const r = await clientSendPasswordSetup(setupEmail.trim())
+      status = r.status
+    } catch { /* ignore — stay neutral */ }
     setSetupLoading(false)
+    if (status === 'use_google') {
+      setSetupError('Dieses Konto ist mit Google verknüpft. Wechsle oben zu "Einloggen" und tippe auf "Mit Google anmelden".')
+      return
+    }
     setSetupSent(true)
   }
 

@@ -83,25 +83,29 @@ func RequestPasswordSetup(store db.Store, mailer SetupMailer) http.HandlerFunc {
 		}
 
 		user, _ := store.GetUserByEmail(r.Context(), body.Email)
-		eligible := user != nil && user.Status != models.StatusDeactivated &&
-			user.AuthMethod != nil && *user.AuthMethod == models.AuthPassword
-		if eligible {
+		active := user != nil && user.Status != models.StatusDeactivated && user.AuthMethod != nil
+
+		// "sent" is the neutral response — returned for password accounts AND for
+		// unknown/deactivated emails, so it can't reveal whether an address is
+		// registered. We single out only Google accounts so the UI can point the
+		// user at the Google button (a deliberate, minimal disclosure).
+		status := "sent"
+		switch {
+		case active && *user.AuthMethod == models.AuthGoogle:
+			status = "use_google"
+			log.Printf("password-setup: %s uses google — advising google sign-in", body.Email)
+		case active && *user.AuthMethod == models.AuthPassword:
 			if err := mailer.SendSetupLink(r.Context(), body.Email); err != nil {
 				log.Printf("password-setup: send to %s FAILED: %v", body.Email, err)
 			} else {
 				log.Printf("password-setup: setup link sent to %s", body.Email)
 			}
-		} else {
-			method := "<nil>"
-			if user != nil && user.AuthMethod != nil {
-				method = string(*user.AuthMethod)
-			}
-			log.Printf("password-setup: skipped %s (found=%t method=%s) — needs an active password account",
-				body.Email, user != nil, method)
+		default:
+			log.Printf("password-setup: skipped %s (no active account)", body.Email)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"ok":true}`))
+		w.Write([]byte(`{"status":"` + status + `"}`))
 	}
 }

@@ -121,13 +121,16 @@ export async function clientCreateUser(email: string, method: 'google' | 'passwo
 
 // (Re)send the initial password-setup email. Routed through our backend, which
 // sends our own branded mail linking to /auth/action (not Firebase's email).
-export async function clientSendPasswordSetup(email: string): Promise<void> {
+// Returns { status: 'sent' } normally, or { status: 'use_google' } if the email
+// belongs to a Google account (so the UI can redirect to the Google button).
+export async function clientSendPasswordSetup(email: string): Promise<{ status: string }> {
   const res = await fetch(`${API}/api/auth/request-password-setup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   })
   await throwIfError(res)
+  return res.json()
 }
 
 export async function clientUpdateUser(id: string, patch: { role?: string; status?: string }): Promise<User> {

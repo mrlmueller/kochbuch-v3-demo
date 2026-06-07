@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"backend/internal/db"
@@ -62,11 +63,29 @@ func TestRequestPasswordSetup_PasswordUserSends(t *testing.T) {
 func TestRequestPasswordSetup_GoogleUserNoSend(t *testing.T) {
 	store := &db.MockStore{GotUserByEmail: &models.User{ID: "1", Status: models.StatusActive, AuthMethod: ptrMethod(models.AuthGoogle)}}
 	fm := &fakeMailer{}
-	if code := postSetup(t, store, fm, "a@b.c"); code != http.StatusOK {
-		t.Fatalf("want 200, got %d", code)
+	req := httptest.NewRequest("POST", "/api/auth/request-password-setup", bytes.NewBufferString(`{"email":"a@b.c"}`))
+	rec := httptest.NewRecorder()
+	RequestPasswordSetup(store, fm).ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("want 200, got %d", rec.Code)
 	}
 	if fm.sent != "" {
 		t.Fatalf("google user must not get a password-setup email, got %q", fm.sent)
+	}
+	if !strings.Contains(rec.Body.String(), `"use_google"`) {
+		t.Fatalf("expected use_google status, got %s", rec.Body.String())
+	}
+}
+
+// Unknown emails return the neutral "sent" (no enumeration of registration).
+func TestRequestPasswordSetup_UnknownReturnsNeutral(t *testing.T) {
+	store := &db.MockStore{GotUserByEmail: nil}
+	fm := &fakeMailer{}
+	req := httptest.NewRequest("POST", "/api/auth/request-password-setup", bytes.NewBufferString(`{"email":"x@y.z"}`))
+	rec := httptest.NewRecorder()
+	RequestPasswordSetup(store, fm).ServeHTTP(rec, req)
+	if !strings.Contains(rec.Body.String(), `"sent"`) {
+		t.Fatalf("expected neutral sent status, got %s", rec.Body.String())
 	}
 }
 
