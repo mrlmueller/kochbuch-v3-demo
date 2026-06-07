@@ -108,6 +108,19 @@ export async function clientLogout(): Promise<void> {
   await throwIfError(sessionRes)
 }
 
+// Returns false ONLY when the backend explicitly reports the session is no
+// longer valid (401) — e.g. it was invalidated by a newer login elsewhere
+// (single-session enforcement). Transient/server errors return true so we never
+// log a user out over a network blip.
+export async function clientSessionValid(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API}/api/auth/me`, { credentials: 'include', cache: 'no-store' })
+    return res.status !== 401
+  } catch {
+    return true
+  }
+}
+
 export async function clientCreateUser(email: string, method: 'google' | 'password' = 'google'): Promise<User> {
   const res = await fetch('/api/proxy/admin/users', {
     method: 'POST',

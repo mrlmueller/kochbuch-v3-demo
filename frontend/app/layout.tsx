@@ -4,6 +4,7 @@ import { DM_Serif_Display, Manrope } from 'next/font/google'
 import './globals.css'
 import { TabBar } from '@/components/tab-bar'
 import { DesktopHeader } from '@/components/desktop-header'
+import { SessionGuard } from '@/components/session-guard'
 import { Logo } from '@/components/logo'
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -45,6 +46,11 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning className={`${dmSerifDisplay.variable} ${manrope.variable}`}>
       <body>
+        {/* Logs out a window whose session was invalidated by a newer login
+            elsewhere. Suspense: it reads usePathname(). */}
+        <Suspense fallback={null}>
+          <SessionGuard />
+        </Suspense>
         {/* Desktop header — hidden below 1024px. Suspense lets Next 16's
             Cache Components prerender the static shell of dynamic pages
             without waiting on usePathname() inside the header. */}
