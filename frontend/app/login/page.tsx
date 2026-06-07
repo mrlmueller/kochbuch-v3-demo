@@ -7,7 +7,7 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
-import { clientLogin } from '@/lib/api'
+import { clientLogin, clientSendPasswordSetup } from '@/lib/api'
 
 type Mode = 'login' | 'setup'
 
@@ -113,10 +113,10 @@ export default function LoginPage() {
       setSetupError('Bitte gib eine gültige E-Mail-Adresse ein.'); return
     }
     setSetupLoading(true); setSetupError('')
-    // Always succeed visually: Firebase only delivers if a password account
-    // exists for this email, and we never reveal whether it does (no
-    // account-enumeration). Users who weren't invited simply get no mail.
-    try { await sendPasswordResetEmail(auth, setupEmail.trim()) } catch { /* ignore */ }
+    // Routed through our backend, which sends our own branded mail (from our
+    // domain, linking to /auth/action) only for allowlisted password accounts.
+    // It always returns 200, so we never reveal whether an account exists.
+    try { await clientSendPasswordSetup(setupEmail.trim()) } catch { /* ignore */ }
     setSetupLoading(false)
     setSetupSent(true)
   }

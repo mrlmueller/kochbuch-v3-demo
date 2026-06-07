@@ -1,6 +1,3 @@
-import { sendPasswordResetEmail } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
-
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 // ─── Types ────────────────────────────────────────────
@@ -118,17 +115,19 @@ export async function clientCreateUser(email: string, method: 'google' | 'passwo
     body: JSON.stringify({ email, method }),
   })
   await throwIfError(res)
-  const user = (await res.json()) as User
-  if (method === 'password') {
-    // Fire Firebase's built-in "set your password" email (best-effort).
-    try { await sendPasswordResetEmail(auth, email) } catch {}
-  }
-  return user
+  // For password invites the backend sends the setup email itself.
+  return res.json()
 }
 
-// Re-send the Firebase "set/reset your password" email for a password user.
+// (Re)send the initial password-setup email. Routed through our backend, which
+// sends our own branded mail linking to /auth/action (not Firebase's email).
 export async function clientSendPasswordSetup(email: string): Promise<void> {
-  await sendPasswordResetEmail(auth, email)
+  const res = await fetch(`${API}/api/auth/request-password-setup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  await throwIfError(res)
 }
 
 export async function clientUpdateUser(id: string, patch: { role?: string; status?: string }): Promise<User> {

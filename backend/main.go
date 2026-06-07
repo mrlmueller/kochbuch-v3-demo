@@ -13,6 +13,7 @@ import (
 	"backend/internal/ai"
 	"backend/internal/backup"
 	"backend/internal/db"
+	"backend/internal/email"
 	"backend/internal/handlers"
 	mw "backend/internal/middleware"
 	"backend/internal/models"
@@ -85,6 +86,12 @@ func main() {
 	// method enforcement in Login cannot be raced. Idempotent and non-fatal.
 	go backfillAuthMethods(ctx, store, firebaseAuth)
 
+	// Initial password-setup email (Resend). Resets stay on Firebase's built-in
+	// email; this only carries the first-time setup link to our /auth/action page.
+	emailSender := email.NewResendSender(os.Getenv("RESEND_API_KEY"),
+		"Mein Kochbuch <"+os.Getenv("RESEND_FROM")+">")
+	setupMailer := handlers.NewSetupMailer(firebaseAuth, emailSender, os.Getenv("FRONTEND_URL"))
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -107,6 +114,7 @@ func main() {
 	// Auth (public)
 	r.Post("/api/auth/login", handlers.Login(store, firebaseAuth))
 	r.Post("/api/auth/logout", handlers.Logout(store))
+	r.Post("/api/auth/request-password-setup", handlers.RequestPasswordSetup(store, setupMailer))
 
 	// Protected routes (require valid session cookie)
 	r.Group(func(r chi.Router) {
@@ -141,7 +149,7 @@ func main() {
 			r.Get("/api/admin/ai-stats", handlers.GetAIStats(store))
 			r.Get("/api/admin/users", handlers.ListUsers(store))
 			r.Get("/api/admin/users/{id}", handlers.GetUserDetail(store, aiLimits))
-			r.Post("/api/admin/users", handlers.CreateUser(store, handlers.NewFirebaseProvisioner(firebaseAuth)))
+			r.Post("/api/admin/users", handlers.CreateUser(store, handlers.NewFirebaseProvisioner(firebaseAuth), setupMailer))
 			r.Patch("/api/admin/users/{id}", handlers.UpdateUser(store))
 			r.Patch("/api/admin/users/{id}/ai-limit", handlers.SetUserAILimit(store))
 			r.Delete("/api/admin/users/{id}", handlers.DeleteUser(store, handlers.NewFirebaseProvisioner(firebaseAuth)))

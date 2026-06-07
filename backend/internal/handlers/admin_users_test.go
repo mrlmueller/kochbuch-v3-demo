@@ -33,12 +33,23 @@ func (f *fakeProvisioner) DeleteUserByEmail(_ context.Context, email string) err
 	return f.deleteErr
 }
 
+type fakeMailer struct {
+	sent string
+	err  error
+}
+
+func (m *fakeMailer) SendSetupLink(_ context.Context, email string) error {
+	m.sent = email
+	return m.err
+}
+
 func TestCreateUser_GoogleDefault(t *testing.T) {
 	store := &db.MockStore{CreatedUser: &models.User{ID: "1", Email: "a@b.c"}}
 	fp := &fakeProvisioner{}
+	fm := &fakeMailer{}
 	req := httptest.NewRequest("POST", "/api/admin/users", bytes.NewBufferString(`{"email":"a@b.c"}`))
 	rec := httptest.NewRecorder()
-	CreateUser(store, fp).ServeHTTP(rec, req)
+	CreateUser(store, fp, fm).ServeHTTP(rec, req)
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("want 201, got %d", rec.Code)
 	}
@@ -48,14 +59,18 @@ func TestCreateUser_GoogleDefault(t *testing.T) {
 	if fp.called != "" {
 		t.Fatalf("google invite must not provision firebase, got %q", fp.called)
 	}
+	if fm.sent != "" {
+		t.Fatalf("google invite must not send a setup email, got %q", fm.sent)
+	}
 }
 
 func TestCreateUser_PasswordProvisions(t *testing.T) {
 	store := &db.MockStore{CreatedUser: &models.User{ID: "1", Email: "a@b.c"}}
 	fp := &fakeProvisioner{}
+	fm := &fakeMailer{}
 	req := httptest.NewRequest("POST", "/api/admin/users", bytes.NewBufferString(`{"email":"a@b.c","method":"password"}`))
 	rec := httptest.NewRecorder()
-	CreateUser(store, fp).ServeHTTP(rec, req)
+	CreateUser(store, fp, fm).ServeHTTP(rec, req)
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("want 201, got %d", rec.Code)
 	}
@@ -65,6 +80,9 @@ func TestCreateUser_PasswordProvisions(t *testing.T) {
 	if fp.called != "a@b.c" {
 		t.Fatalf("want firebase provision for a@b.c, got %q", fp.called)
 	}
+	if fm.sent != "a@b.c" {
+		t.Fatalf("want setup email sent to a@b.c, got %q", fm.sent)
+	}
 }
 
 func TestCreateUser_PasswordEmailTaken(t *testing.T) {
@@ -72,7 +90,7 @@ func TestCreateUser_PasswordEmailTaken(t *testing.T) {
 	fp := &fakeProvisioner{err: ErrFirebaseEmailExists}
 	req := httptest.NewRequest("POST", "/api/admin/users", bytes.NewBufferString(`{"email":"a@b.c","method":"password"}`))
 	rec := httptest.NewRecorder()
-	CreateUser(store, fp).ServeHTTP(rec, req)
+	CreateUser(store, fp, &fakeMailer{}).ServeHTTP(rec, req)
 	if rec.Code != http.StatusConflict {
 		t.Fatalf("want 409, got %d", rec.Code)
 	}
@@ -86,7 +104,7 @@ func TestCreateUser_DuplicateAllowlist(t *testing.T) {
 	fp := &fakeProvisioner{}
 	req := httptest.NewRequest("POST", "/api/admin/users", bytes.NewBufferString(`{"email":"a@b.c"}`))
 	rec := httptest.NewRecorder()
-	CreateUser(store, fp).ServeHTTP(rec, req)
+	CreateUser(store, fp, &fakeMailer{}).ServeHTTP(rec, req)
 	if rec.Code != http.StatusConflict {
 		t.Fatalf("want 409, got %d", rec.Code)
 	}
@@ -97,7 +115,7 @@ func TestCreateUser_InvalidMethod(t *testing.T) {
 	fp := &fakeProvisioner{}
 	req := httptest.NewRequest("POST", "/api/admin/users", bytes.NewBufferString(`{"email":"a@b.c","method":"sms"}`))
 	rec := httptest.NewRecorder()
-	CreateUser(store, fp).ServeHTTP(rec, req)
+	CreateUser(store, fp, &fakeMailer{}).ServeHTTP(rec, req)
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("want 400, got %d", rec.Code)
 	}

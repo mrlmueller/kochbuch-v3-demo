@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"backend/internal/db"
@@ -102,7 +103,7 @@ func SetUserAILimit(store db.Store) http.HandlerFunc {
 // Google). "password" additionally provisions a Firebase password account so
 // the user can set a password via the reset email; the email is then locked to
 // the password method by the login enforcement.
-func CreateUser(store db.Store, fb FirebaseProvisioner) http.HandlerFunc {
+func CreateUser(store db.Store, fb FirebaseProvisioner, mailer SetupMailer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			Email  string `json:"email"`
@@ -144,6 +145,15 @@ func CreateUser(store db.Store, fb FirebaseProvisioner) http.HandlerFunc {
 			http.Error(w, `{"error":"db error"}`, http.StatusInternalServerError)
 			return
 		}
+
+		// Send the initial password-setup email server-side (best-effort: the
+		// user is already created, and the admin can use "resend" if it fails).
+		if method == models.AuthPassword {
+			if err := mailer.SendSetupLink(r.Context(), body.Email); err != nil {
+				log.Printf("password-setup email for %s: %v", body.Email, err)
+			}
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(user)
