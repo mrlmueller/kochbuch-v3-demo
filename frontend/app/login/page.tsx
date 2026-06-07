@@ -24,10 +24,14 @@ const T = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Firebase's default password emails come from this address; showing it helps
-// users find the message (especially when it has been filed as spam).
+// Address the password emails come from; showing it helps users find the
+// message (especially when it has been filed as spam). Defaults to Firebase's
+// built-in sender, but set NEXT_PUBLIC_EMAIL_SENDER once a custom domain is
+// configured in the Firebase console ("Domain anpassen"), e.g. noreply@kochbuch-v2.uk.
 const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? ''
-const senderHint = projectId ? `noreply@${projectId}.firebaseapp.com` : 'noreply@…firebaseapp.com'
+const senderHint =
+  process.env.NEXT_PUBLIC_EMAIL_SENDER ||
+  (projectId ? `noreply@${projectId}.firebaseapp.com` : 'noreply@…firebaseapp.com')
 
 export default function LoginPage() {
   const router = useRouter()
