@@ -77,7 +77,7 @@ func resolveUser(ctx context.Context, store db.Store, email, provider string, em
 
 // POST /api/auth/login
 // Body: {"id_token": "<firebase-id-token>"}
-func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
+func Login(store db.Store, firebaseAuth *auth.Client, enforceSingleSession bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			IDToken string `json:"id_token"`
@@ -101,8 +101,9 @@ func Login(store db.Store, firebaseAuth *auth.Client) http.HandlerFunc {
 			return
 		}
 
-		// Single-session enforcement for non-admin
-		if user.Role != models.RoleAdmin {
+		// Single-session enforcement for non-admins. Can be disabled in dev via
+		// ENFORCE_SINGLE_SESSION=false so multiple browsers can stay logged in.
+		if enforceSingleSession && user.Role != models.RoleAdmin {
 			_ = store.DeleteSessionsByUserID(r.Context(), user.ID)
 		}
 

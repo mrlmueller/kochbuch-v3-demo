@@ -112,7 +112,10 @@ func main() {
 	})
 
 	// Auth (public)
-	r.Post("/api/auth/login", handlers.Login(store, firebaseAuth))
+	// Single-session is enforced by default; set ENFORCE_SINGLE_SESSION=false
+	// (e.g. in local dev) to allow the same user in multiple browsers.
+	enforceSingleSession := os.Getenv("ENFORCE_SINGLE_SESSION") != "false"
+	r.Post("/api/auth/login", handlers.Login(store, firebaseAuth, enforceSingleSession))
 	r.Post("/api/auth/logout", handlers.Logout(store))
 	r.Post("/api/auth/request-password-setup", handlers.RequestPasswordSetup(store, setupMailer))
 

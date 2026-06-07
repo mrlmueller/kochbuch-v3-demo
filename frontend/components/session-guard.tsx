@@ -8,10 +8,10 @@ import { clientSessionValid, clientLogout } from '@/lib/api'
 // enforcement). The backend already kills the old session on a new login, but
 // proxy.ts gates on cookie *presence* and pages are cached anonymous SSR, so a
 // stale window keeps browsing until it makes an authenticated call. This guard
-// closes that gap WITHOUT per-request validation: it checks only on mount, when
+// closes that gap WITHOUT per-request validation and WITHOUT any timer: it is
+// purely event-driven — it checks on mount, on navigation (throttled), and when
 // the window regains focus / becomes visible (the moment a user returns to a
-// stale window), and on a slow 60s backstop while visible. Zero cost while idle
-// or hidden.
+// stale window). No work happens while idle, so it cannot affect performance.
 
 const PUBLIC_PREFIXES = ['/login', '/auth/action']
 const MIN_INTERVAL_MS = 30_000
@@ -42,16 +42,14 @@ export function SessionGuard() {
       }
     }
 
-    check(false) // initial (throttled, so rapid navigations don't re-ping)
+    check(false) // initial / on navigation (throttled, so rapid nav doesn't re-ping)
     const onFocus = () => check(true)
     const onVisible = () => { if (document.visibilityState === 'visible') check(true) }
-    const id = window.setInterval(() => check(false), 60_000)
     window.addEventListener('focus', onFocus)
     document.addEventListener('visibilitychange', onVisible)
 
     return () => {
       cancelled = true
-      window.clearInterval(id)
       window.removeEventListener('focus', onFocus)
       document.removeEventListener('visibilitychange', onVisible)
     }
