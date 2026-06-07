@@ -112,9 +112,14 @@ export async function clientLogout(): Promise<void> {
 // longer valid (401) — e.g. it was invalidated by a newer login elsewhere
 // (single-session enforcement). Transient/server errors return true so we never
 // log a user out over a network blip.
+//
+// Goes through the Next proxy (same-origin) so it uses the FIRST-PARTY session
+// cookie. A direct cross-origin call to the backend relies on a third-party
+// cookie, which production browsers block — that returned a false 401 and
+// logged valid users out on reload.
 export async function clientSessionValid(): Promise<boolean> {
   try {
-    const res = await fetch(`${API}/api/auth/me`, { credentials: 'include', cache: 'no-store' })
+    const res = await fetch('/api/proxy/auth/me', { cache: 'no-store' })
     return res.status !== 401
   } catch {
     return true
