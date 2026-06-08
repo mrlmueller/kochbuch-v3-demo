@@ -116,7 +116,9 @@ export default function AuthActionPage() {
     try {
       const cred = await signInWithEmailLink(auth, email.trim(), window.location.href)
       await clientLogin(await cred.user.getIdToken())
-      router.push('/'); router.refresh()
+      // Hard navigation (see login page): the app shell depends on the cookie we
+      // just set; a soft push + refresh refreshed /auth/action instead of leaving.
+      window.location.assign('/')
     } catch {
       setError('Anmeldung fehlgeschlagen. Prüfe die E-Mail-Adresse oder fordere einen neuen Link an.')
       setBusy(false)

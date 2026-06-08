@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import {
   GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -34,7 +33,6 @@ const senderHint =
   (projectId ? `noreply@${projectId}.firebaseapp.com` : 'noreply@…firebaseapp.com')
 
 export default function LoginPage() {
-  const router = useRouter()
   const [mode, setMode] = useState<Mode>('login')
 
   // Login state
@@ -55,8 +53,12 @@ export default function LoginPage() {
 
   const afterFirebase = async (idToken: string) => {
     await clientLogin(idToken)
-    router.push('/')
-    router.refresh()
+    // Hard navigation, not router.push/refresh: the whole app shell (root
+    // layout + cached SSR reads) depends on the `session` cookie we just set, so
+    // we need a fresh request that carries it through proxy.ts. A soft push
+    // followed by router.refresh() refreshed the *current* /login route instead
+    // (preserving `loading` state → button stuck) and never left the page.
+    window.location.assign('/')
   }
 
   // Maps a thrown error to a German message. Returns true if it was a known
