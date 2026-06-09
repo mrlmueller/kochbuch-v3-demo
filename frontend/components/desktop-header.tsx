@@ -37,7 +37,7 @@ export function DesktopHeader() {
     }
     if (e.key === 'Enter' && q.trim()) {
       setFocused(false)
-      router.push(`/suche?q=${encodeURIComponent(q.trim())}`)
+      router.push(`/rezepte?q=${encodeURIComponent(q.trim())}`)
     }
   }
 
@@ -129,7 +129,7 @@ export function DesktopHeader() {
               {results.slice(0, 6).map((recipe, i) => (
                 <Link
                   key={recipe.slug}
-                  href={`/rezepte/${recipe.slug}`}
+                  href={`/rezept/${recipe.slug}`}
                   onClick={() => { setQ(''); setFocused(false) }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
@@ -151,7 +151,7 @@ export function DesktopHeader() {
               ))}
               {results.length > 6 && (
                 <Link
-                  href={`/suche?q=${encodeURIComponent(q.trim())}`}
+                  href={`/rezepte?q=${encodeURIComponent(q.trim())}`}
                   onClick={() => { setQ(''); setFocused(false) }}
                   style={{
                     display: 'block', padding: '10px 14px',
