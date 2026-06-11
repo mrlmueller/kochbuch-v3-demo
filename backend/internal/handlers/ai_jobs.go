@@ -58,7 +58,10 @@ func CreateAIJob(store db.Store, lim AIJobLimits) http.HandlerFunc {
 			return
 		}
 		for _, u := range body.ImageURLs {
-			if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
+			// https only — our images are Cloudinary-hosted (https). Rejecting
+			// http:// (and other schemes) shrinks the SSRF surface of the URL
+			// that downstream image providers will fetch.
+			if !strings.HasPrefix(u, "https://") {
 				jsonError(w, "Ungültige Bild-URL.", http.StatusBadRequest)
 				return
 			}

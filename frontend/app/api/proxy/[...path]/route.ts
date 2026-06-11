@@ -23,16 +23,34 @@ type Context = { params: Promise<{ path: string[] }> }
 
 async function handle(req: NextRequest, ctx: Context): Promise<NextResponse> {
   const { path } = await ctx.params
-  const backendPath = `/api/${path.join('/')}`
 
-  if (!ALLOWED_PREFIXES.some((p) => backendPath.startsWith(p))) {
+  // Reject empty/relative/backslash segments so `..` can't be smuggled in to
+  // escape the allowlist after URL normalization collapses it.
+  if (path.some((seg) => seg === '' || seg === '.' || seg === '..' || seg.includes('\\'))) {
+    return new NextResponse('Not Found', { status: 404 })
+  }
+
+  const backendPath = `/api/${path.join('/')}`
+  const target = new URL(`${API}${backendPath}`)
+
+  // Defense in depth: if URL normalization changed the path at all (e.g. it
+  // collapsed a traversal), the request was malformed — reject it.
+  if (target.pathname !== backendPath) {
+    return new NextResponse('Not Found', { status: 404 })
+  }
+
+  // Match prefixes only at a path boundary so `/api/recipesEVIL` does not match
+  // the `/api/recipes` prefix.
+  const allowed = ALLOWED_PREFIXES.some(
+    (p) => target.pathname === p || target.pathname.startsWith(p + '/'),
+  )
+  if (!allowed) {
     return new NextResponse('Not Found', { status: 404 })
   }
 
   const cookieStore = await cookies()
   const session = cookieStore.get('session')
 
-  const target = new URL(`${API}${backendPath}`)
   req.nextUrl.searchParams.forEach((v, k) => target.searchParams.set(k, v))
 
   const hasBody = ['POST', 'PUT', 'PATCH'].includes(req.method)

@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -47,19 +48,19 @@ func ImageSearch() http.HandlerFunc {
 
 		res, err := client.Get(u.String())
 		if err != nil {
+			log.Printf("image-search: upstream request failed: %v", err)
 			w.WriteHeader(http.StatusBadGateway)
-			json.NewEncoder(w).Encode(map[string]string{"error": "image search failed: " + err.Error()})
+			json.NewEncoder(w).Encode(map[string]string{"error": "Bildsuche fehlgeschlagen."})
 			return
 		}
 		defer res.Body.Close()
 
 		if res.StatusCode != http.StatusOK {
-			body, _ := io.ReadAll(res.Body)
+			// Log the upstream detail server-side; never reflect it to the client.
+			body, _ := io.ReadAll(io.LimitReader(res.Body, 512))
+			log.Printf("image-search: upstream %s: %s", res.Status, string(body))
 			w.WriteHeader(http.StatusBadGateway)
-			json.NewEncoder(w).Encode(map[string]string{
-				"error":  "image search upstream " + res.Status,
-				"detail": string(body),
-			})
+			json.NewEncoder(w).Encode(map[string]string{"error": "Bildsuche fehlgeschlagen."})
 			return
 		}
 
@@ -74,8 +75,9 @@ func ImageSearch() http.HandlerFunc {
 			} `json:"images_results"`
 		}
 		if err := json.NewDecoder(res.Body).Decode(&raw); err != nil {
+			log.Printf("image-search: decode upstream: %v", err)
 			w.WriteHeader(http.StatusBadGateway)
-			json.NewEncoder(w).Encode(map[string]string{"error": "decode upstream: " + err.Error()})
+			json.NewEncoder(w).Encode(map[string]string{"error": "Bildsuche fehlgeschlagen."})
 			return
 		}
 

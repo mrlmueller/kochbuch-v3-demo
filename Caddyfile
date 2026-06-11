@@ -1,3 +1,5 @@
 kochbuch-v2.uk {
+    # HSTS — force HTTPS for two years. Caddy already serves only HTTPS here.
+    header Strict-Transport-Security "max-age=63072000; includeSubDomains"
     reverse_proxy backend:8080
 }

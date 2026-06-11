@@ -33,6 +33,11 @@ type Store interface {
 	DeleteRecipe(ctx context.Context, slug string) error
 	SetRecipeConfirmed(ctx context.Context, slug string, confirmed bool) error
 
+	// ImageURLInUse reports whether any recipe currently references imageURL.
+	// Used before deleting a Cloudinary asset so we never destroy an image that
+	// another recipe still points at (prevents cross-recipe asset deletion).
+	ImageURLInUse(ctx context.Context, imageURL string) (bool, error)
+
 	// Recipe calibration status (admin-only; never in public payloads)
 	ListConfirmedSlugs(ctx context.Context) ([]string, error)
 	IsRecipeConfirmed(ctx context.Context, slug string) (bool, error)

@@ -12,6 +12,7 @@ type MockStore struct {
 	Categories    []models.Category
 	Recipes       []models.RecipeListItem
 	Recipe        *models.Recipe
+	ImageInUse    bool
 	Users         []models.User
 	UserByID      *models.User
 	UserRecipeN   int
@@ -83,6 +84,11 @@ func (m *MockStore) CreateRecipe(_ context.Context, r models.Recipe) (string, er
 
 func (m *MockStore) UpdateRecipe(_ context.Context, _ models.Recipe) error { return m.Err }
 func (m *MockStore) DeleteRecipe(_ context.Context, _ string) error        { return m.Err }
+
+// ImageInUse drives ImageURLInUse in tests; defaults to false (not referenced).
+func (m *MockStore) ImageURLInUse(_ context.Context, _ string) (bool, error) {
+	return m.ImageInUse, m.Err
+}
 
 func (m *MockStore) ListConfirmedSlugs(_ context.Context) ([]string, error) {
 	return m.ConfirmedSlugs, m.Err

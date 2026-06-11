@@ -7,11 +7,12 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    # Expose to host so `go run ./backend` from the host can connect.
-    # In production the backend container talks via the docker network and
-    # doesn't need this — keep it only because this compose is used for dev.
+    # Expose to the host LOOPBACK only so a host-run `go run .` can connect in
+    # dev. Binding 127.0.0.1 (not 0.0.0.0) keeps the database off every other
+    # interface — in production the backend reaches it over the docker network
+    # (DB_HOST=postgres) and nothing external can touch 5432.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

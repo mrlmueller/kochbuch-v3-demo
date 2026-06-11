@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"backend/internal/ai"
 	"backend/internal/backup"
@@ -95,9 +96,18 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	allowedOrigins := []string{"http://localhost:3000"}
-	if origin := os.Getenv("ALLOWED_ORIGIN"); origin != "" {
-		allowedOrigins = append(allowedOrigins, origin)
+	// In production set ALLOWED_ORIGIN (comma-separated allowed). When it is set
+	// we do NOT also trust http://localhost:3000 — that dev origin is only added
+	// as the fallback when ALLOWED_ORIGIN is unset (local development).
+	var allowedOrigins []string
+	if origins := os.Getenv("ALLOWED_ORIGIN"); origins != "" {
+		for _, o := range strings.Split(origins, ",") {
+			if o = strings.TrimSpace(o); o != "" {
+				allowedOrigins = append(allowedOrigins, o)
+			}
+		}
+	} else {
+		allowedOrigins = []string{"http://localhost:3000"}
 	}
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   allowedOrigins,

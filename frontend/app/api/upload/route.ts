@@ -25,7 +25,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let body: { url?: string }
     try { body = await req.json() } catch { return NextResponse.json({ error: 'invalid json' }, { status: 400 }) }
     const remoteUrl = body.url ?? ''
-    if (!/^https?:\/\//.test(remoteUrl)) {
+    // https only — narrows the SSRF surface of the URL Cloudinary will fetch.
+    if (!/^https:\/\//.test(remoteUrl)) {
       return NextResponse.json({ error: 'invalid url' }, { status: 400 })
     }
     return uploadToCloudinary(remoteUrl)

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	"backend/internal/db"
 	"backend/internal/email"
@@ -15,6 +17,40 @@ import (
 
 	"firebase.google.com/go/v4/auth"
 )
+
+// setupRateLimiter throttles password-setup emails per recipient address so the
+// public, unauthenticated endpoint can't be abused to bomb a victim's inbox.
+// Fixed window, in-memory — the backend runs as a single instance.
+type setupRateLimiter struct {
+	mu     sync.Mutex
+	window time.Duration
+	max    int
+	hits   map[string][]time.Time
+}
+
+func newSetupRateLimiter(max int, window time.Duration) *setupRateLimiter {
+	return &setupRateLimiter{window: window, max: max, hits: map[string][]time.Time{}}
+}
+
+// allow records and reports whether another send to key is permitted right now.
+func (l *setupRateLimiter) allow(key string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	now := time.Now()
+	cutoff := now.Add(-l.window)
+	recent := make([]time.Time, 0, len(l.hits[key]))
+	for _, t := range l.hits[key] {
+		if t.After(cutoff) {
+			recent = append(recent, t)
+		}
+	}
+	if len(recent) >= l.max {
+		l.hits[key] = recent
+		return false
+	}
+	l.hits[key] = append(recent, now)
+	return true
+}
 
 // SetupMailer sends the initial password-setup email — our own email (via the
 // transactional provider) carrying a link to the in-app /auth/action handler,
@@ -73,6 +109,10 @@ func buildSetupURL(firebaseLink, frontendURL string) (string, error) {
 //
 // POST /api/auth/request-password-setup  body: {"email":"..."}
 func RequestPasswordSetup(store db.Store, mailer SetupMailer) http.HandlerFunc {
+	// At most 3 setup emails per recipient per 15 minutes. Persists for the
+	// life of the process (closure captured by the returned handler).
+	limiter := newSetupRateLimiter(3, 15*time.Minute)
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			Email string `json:"email"`
@@ -95,7 +135,11 @@ func RequestPasswordSetup(store db.Store, mailer SetupMailer) http.HandlerFunc {
 			status = "use_google"
 			log.Printf("password-setup: %s uses google — advising google sign-in", body.Email)
 		case active && *user.AuthMethod == models.AuthPassword:
-			if err := mailer.SendSetupLink(r.Context(), body.Email); err != nil {
+			// Throttle per recipient so this can't be used to flood an inbox.
+			// Still returns the neutral "sent" so behaviour is indistinguishable.
+			if !limiter.allow(strings.ToLower(strings.TrimSpace(body.Email))) {
+				log.Printf("password-setup: throttled %s (rate limit)", body.Email)
+			} else if err := mailer.SendSetupLink(r.Context(), body.Email); err != nil {
 				log.Printf("password-setup: send to %s FAILED: %v", body.Email, err)
 			} else {
 				log.Printf("password-setup: setup link sent to %s", body.Email)

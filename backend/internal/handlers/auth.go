@@ -15,10 +15,12 @@ import (
 	"firebase.google.com/go/v4/auth"
 )
 
-func generateToken() string {
+func generateToken() (string, error) {
 	b := make([]byte, 32)
-	rand.Read(b)
-	return base64.RawURLEncoding.EncodeToString(b)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
 // normalizeProvider maps a Firebase sign_in_provider claim to our auth_method enum.
@@ -107,7 +109,11 @@ func Login(store db.Store, firebaseAuth *auth.Client, enforceSingleSession bool)
 			_ = store.DeleteSessionsByUserID(r.Context(), user.ID)
 		}
 
-		sessionToken := generateToken()
+		sessionToken, err := generateToken()
+		if err != nil {
+			http.Error(w, `{"error":"server error"}`, http.StatusInternalServerError)
+			return
+		}
 		expires := time.Now().Add(30 * 24 * time.Hour)
 		if err := store.CreateSession(r.Context(), user.ID, sessionToken, expires,
 			r.UserAgent(), r.RemoteAddr); err != nil {

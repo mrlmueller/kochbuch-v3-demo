@@ -87,6 +87,12 @@ func DeleteImageFromURL(ctx context.Context, secureURL string) error {
 	if publicID == "" {
 		return nil
 	}
+	// Defense-in-depth: the app only ever uploads into the "recipes/" folder
+	// (see the upload route). Refuse to destroy anything outside it so a crafted
+	// image_url can never reach unrelated assets in the cloud.
+	if !strings.HasPrefix(publicID, "recipes/") {
+		return nil
+	}
 
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 	// Cloudinary signs the sorted set of params other than api_key/signature.

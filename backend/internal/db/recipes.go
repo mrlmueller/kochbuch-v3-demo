@@ -157,6 +157,15 @@ func (s *PostgresStore) CountUserRecipes(ctx context.Context, userID string) (in
 }
 
 func (s *PostgresStore) CreateRecipe(ctx context.Context, r models.Recipe) (string, error) {
+	// Coerce nil slices to empty arrays: json.Marshal(nil slice) is `null`, and a
+	// JSON null in the ingredients/steps jsonb column breaks the list query's
+	// jsonb_array_elements(...). A recipe with no ingredients must store `[]`.
+	if r.Ingredients == nil {
+		r.Ingredients = []models.Ingredient{}
+	}
+	if r.Steps == nil {
+		r.Steps = []string{}
+	}
 	ingredientsJSON, _ := json.Marshal(r.Ingredients)
 	stepsJSON, _ := json.Marshal(r.Steps)
 
@@ -191,6 +200,12 @@ func (s *PostgresStore) CreateRecipe(ctx context.Context, r models.Recipe) (stri
 }
 
 func (s *PostgresStore) UpdateRecipe(ctx context.Context, r models.Recipe) error {
+	if r.Ingredients == nil {
+		r.Ingredients = []models.Ingredient{}
+	}
+	if r.Steps == nil {
+		r.Steps = []string{}
+	}
 	ingredientsJSON, _ := json.Marshal(r.Ingredients)
 	stepsJSON, _ := json.Marshal(r.Steps)
 	_, err := s.pool.Exec(ctx, `
@@ -207,6 +222,20 @@ func (s *PostgresStore) UpdateRecipe(ctx context.Context, r models.Recipe) error
 func (s *PostgresStore) DeleteRecipe(ctx context.Context, slug string) error {
 	_, err := s.pool.Exec(ctx, `DELETE FROM recipes WHERE slug = $1`, slug)
 	return err
+}
+
+// ImageURLInUse reports whether any recipe row currently references imageURL.
+// Called after an update/delete has committed, so the recipe being modified no
+// longer points at the old URL — a true result therefore means a *different*
+// recipe still uses the image and it must not be destroyed.
+func (s *PostgresStore) ImageURLInUse(ctx context.Context, imageURL string) (bool, error) {
+	if imageURL == "" {
+		return false, nil
+	}
+	var inUse bool
+	err := s.pool.QueryRow(ctx,
+		`SELECT EXISTS (SELECT 1 FROM recipes WHERE image_url = $1)`, imageURL).Scan(&inUse)
+	return inUse, err
 }
 
 // ErrRecipeNotFound is returned by recipe writes that target a slug with no row.

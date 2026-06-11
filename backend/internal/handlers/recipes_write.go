@@ -50,6 +50,10 @@ func CreateRecipe(store db.Store) http.HandlerFunc {
 		// page and the "Meine Rezepte" filter.
 		creator := user.ID
 		recipe.CreatedBy = &creator
+		// Always normalize the slug server-side — never trust the client-supplied
+		// value. slugify() reduces it to [a-z0-9-], so a crafted slug can't carry
+		// path/scheme/control characters into URLs, cache tags, or storage keys.
+		recipe.Slug = slugify(recipe.Slug)
 		if recipe.Slug == "" {
 			recipe.Slug = slugify(recipe.Title)
 		}
@@ -102,7 +106,7 @@ func UpdateRecipe(store db.Store) http.HandlerFunc {
 		_ = store.MarkNutritionOutdated(r.Context(), slug)
 		// If the image was replaced or cleared, clean up the previous one.
 		if existing.ImageURL != "" && existing.ImageURL != recipe.ImageURL {
-			cleanupCloudinaryAsync(slug, existing.ImageURL)
+			cleanupCloudinaryAsync(store, slug, existing.ImageURL)
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}
@@ -111,10 +115,25 @@ func UpdateRecipe(store db.Store) http.HandlerFunc {
 // cleanupCloudinaryAsync fires a Cloudinary destroy in the background so
 // the caller's request isn't blocked by the upstream round-trip. Detached
 // from the request context for the same reason.
-func cleanupCloudinaryAsync(slug, imageURL string) {
+//
+// It first confirms no other recipe still references the image. A user can set
+// their recipe's image_url to any URL, including another recipe's image; without
+// this guard, editing/deleting their own recipe would destroy the shared asset.
+// We fail closed: if the in-use check errors, we skip the delete (an orphaned
+// asset is harmless; deleting an in-use one is not).
+func cleanupCloudinaryAsync(store db.Store, slug, imageURL string) {
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
+		inUse, err := store.ImageURLInUse(ctx, imageURL)
+		if err != nil {
+			log.Printf("cloudinary cleanup %q: skip (in-use check failed: %v)", slug, err)
+			return
+		}
+		if inUse {
+			log.Printf("cloudinary cleanup %q: skip (image still referenced by another recipe)", slug)
+			return
+		}
 		if err := cloudinary.DeleteImageFromURL(ctx, imageURL); err != nil {
 			log.Printf("cloudinary cleanup %q: %v", slug, err)
 		}
@@ -145,7 +164,7 @@ func DeleteRecipe(store db.Store) http.HandlerFunc {
 			return
 		}
 		if existing != nil && existing.ImageURL != "" {
-			cleanupCloudinaryAsync(slug, existing.ImageURL)
+			cleanupCloudinaryAsync(store, slug, existing.ImageURL)
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}

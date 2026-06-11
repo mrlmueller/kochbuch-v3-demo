@@ -28,7 +28,11 @@ func NewFirebaseProvisioner(c *auth.Client) FirebaseProvisioner { return &fbProv
 func (f *fbProvisioner) CreatePasswordUser(ctx context.Context, email string) error {
 	// The random password is a placeholder; the user sets their own via the
 	// Firebase password-reset email triggered client-side after this succeeds.
-	params := (&auth.UserToCreate{}).Email(email).Password(generateToken())
+	pw, err := generateToken()
+	if err != nil {
+		return err
+	}
+	params := (&auth.UserToCreate{}).Email(email).Password(pw)
 	if _, err := f.c.CreateUser(ctx, params); err != nil {
 		if auth.IsEmailAlreadyExists(err) {
 			return ErrFirebaseEmailExists

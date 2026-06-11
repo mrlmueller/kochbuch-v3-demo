@@ -75,6 +75,14 @@ func main() {
 	// 2) Recipes — upsert. owner_id is preserved if the snapshot includes it;
 	//    otherwise it stays NULL (global / admin-owned).
 	for _, r := range snap.Recipes {
+		// Coerce nil -> [] so the jsonb columns never hold a JSON null (which
+		// would break the recipe-list query). Mirrors db.CreateRecipe.
+		if r.Ingredients == nil {
+			r.Ingredients = []models.Ingredient{}
+		}
+		if r.Steps == nil {
+			r.Steps = []string{}
+		}
 		ingredientsJSON, err := json.Marshal(r.Ingredients)
 		if err != nil {
 			log.Fatalf("marshal ingredients %s: %v", r.Slug, err)
