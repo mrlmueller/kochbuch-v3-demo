@@ -523,8 +523,11 @@ export function DetailClient({ recipe, categoryName }: Props) {
       <div className="lg:hidden pb-10">
         <div ref={heroRef} className="relative overflow-hidden" style={{ height: MOBILE_HERO_HEIGHT, background: 'var(--border)' }}>
           <div ref={imgWrapRef} className="absolute inset-0" style={{ transformOrigin: 'top center', willChange: 'transform' }}>
+            {/* sizes matches the desktop hero above so both priority
+                instances resolve to one URL — a single download instead
+                of two (the hidden layout's preload fires regardless). */}
             {recipe.image_url && (
-              <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="100vw" priority blurhash={recipe.image_blurhash} />
+              <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 50vw, 100vw" priority blurhash={recipe.image_blurhash} />
             )}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.6) 100%)' }} />
           </div>

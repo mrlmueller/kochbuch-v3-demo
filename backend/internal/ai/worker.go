@@ -20,6 +20,12 @@ type WorkerOpts struct {
 	Resolve          func(provider, model string) (Extractor, error)
 	ResolveNutrition func(provider, model string) (NutritionEstimator, error)
 	Categories       func(ctx context.Context) ([]string, error)
+	// RevalidateRecipe busts the frontend's cached page for a recipe whose
+	// public payload changed in the background (nutrition jobs finish after
+	// the admin's request, possibly after their tab is closed). Optional;
+	// nil disables. Implementations must be best-effort and non-blocking-ish
+	// (bounded timeout) — a failed revalidation must never fail the job.
+	RevalidateRecipe func(ctx context.Context, slug string)
 }
 
 type WorkerPool struct {
@@ -168,6 +174,12 @@ func (p *WorkerPool) handleNutrition(ctx context.Context, job *models.AIJob) {
 	}); err != nil {
 		_ = p.store.SetAIJobFailed(ctx, job.ID, "store nutrition: "+err.Error())
 		return
+	}
+	// The recipe's public payload (per-serving nutrition) just changed —
+	// bust its cached page. The admin tab also revalidates on poll success,
+	// but it may already be closed when the job finishes.
+	if p.opts.RevalidateRecipe != nil {
+		p.opts.RevalidateRecipe(ctx, *job.RecipeSlug)
 	}
 	_ = p.store.SetAIJobReady(ctx, job.ID,
 		map[string]any{"per_recipe": res.PerRecipe}, res.InputTokens, res.OutputTokens, cost)

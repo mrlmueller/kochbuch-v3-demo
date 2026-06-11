@@ -37,7 +37,8 @@ func collectSnapshot(ctx context.Context, store db.Store) (*Snapshot, error) {
 	// AdminView=true so user-private recipes (owner_id != NULL) are also
 	// captured. Without it, the default visibility filter would only return
 	// global/admin recipes and we'd silently drop user data from backups.
-	list, err := store.GetRecipes(ctx, db.RecipeFilter{Limit: 10_000, AdminView: true})
+	// Limit 0 = unlimited, so a growing catalogue can never truncate a backup.
+	list, err := store.GetRecipes(ctx, db.RecipeFilter{AdminView: true})
 	if err != nil {
 		return nil, fmt.Errorf("list recipes: %w", err)
 	}

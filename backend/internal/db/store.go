@@ -14,7 +14,7 @@ type RecipeFilter struct {
 	CreatorID *string // when set, restrict to recipes whose created_by matches
 	ViewerID  string  // who is asking (used to populate IsMine; "" = anonymous/internal)
 	AdminView bool    // when true, no owner-visibility filter is applied
-	Limit     int
+	Limit     int     // 0 = no limit (full result set); >0 caps the row count
 	Offset    int
 }
 

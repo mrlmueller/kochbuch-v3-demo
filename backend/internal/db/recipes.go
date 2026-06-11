@@ -13,8 +13,12 @@ import (
 )
 
 func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]models.RecipeListItem, error) {
-	if f.Limit == 0 {
-		f.Limit = 200
+	// Limit == 0 (the zero value) means "no limit": we pass NULL and Postgres
+	// treats LIMIT NULL as LIMIT ALL. The catalogue must never silently
+	// truncate, no matter how many recipes are added.
+	var limit any
+	if f.Limit > 0 {
+		limit = f.Limit
 	}
 
 	// Visibility (owner_id semantics — NULL = global, set = private):
@@ -24,7 +28,7 @@ func (s *PostgresStore) GetRecipes(ctx context.Context, f RecipeFilter) ([]model
 	//   ViewerID set                     → owner_id IS NULL OR owner_id = ViewerID
 	//   default                          → owner_id IS NULL
 	var visibility string
-	args := []any{f.Category, f.Query, f.Limit, f.Offset}
+	args := []any{f.Category, f.Query, limit, f.Offset}
 	switch {
 	case f.AdminView:
 		visibility = "TRUE"

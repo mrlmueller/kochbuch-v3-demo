@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/auth/action', '/api/session', '/manifest.webmanifest', '/icon.svg', '/icon1', '/apple-icon']
+// /api/revalidate-recipe must pass the cookie gate: the backend AI worker
+// calls it without a session (authenticated by X-Internal-Token instead).
+// The route handler enforces auth itself — internal token or a session
+// verified against the backend — so letting it through here is safe.
+const PUBLIC_PATHS = ['/login', '/auth/action', '/api/session', '/api/revalidate-recipe', '/manifest.webmanifest', '/icon.svg', '/icon1', '/apple-icon']
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl

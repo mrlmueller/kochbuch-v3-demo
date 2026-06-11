@@ -232,11 +232,40 @@ export function BrowseClient({ categories, initialRecipes }: Props) {
   }, [])
 
   useEffect(() => {
+    // Debounced save: capture the position on every scroll event (cheap) and
+    // write to sessionStorage 200ms after scrolling settles — synchronous
+    // storage writes inside the scroll handler cause jank on low-end devices.
+    //
+    // Navigation safety (this also fixes restore-on-return, which was broken
+    // before): when a card is clicked, the App Router resets the window
+    // scroll while this listener is still attached and the URL still reads
+    // /rezepte — so that framework reset is indistinguishable from a user
+    // scroll at capture time and used to overwrite the saved position with 0.
+    // Two layers defuse it:
+    //   1. write() re-checks the pathname — by the time any pending write
+    //      runs after a navigation, the URL has moved off /rezepte.
+    //   2. debounce (re-arming the timer on every event) guarantees the
+    //      reset's own write can't fire in the brief window before the URL
+    //      updates.
+    let lastY = -1
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const write = () => {
+      if (!window.location.pathname.startsWith('/rezepte')) return
+      try { sessionStorage.setItem('rezepte-scroll-y', String(lastY)) } catch {}
+    }
     const handle = () => {
-      try { sessionStorage.setItem('rezepte-scroll-y', String(Math.round(window.scrollY))) } catch {}
+      lastY = Math.round(window.scrollY)
+      if (timer !== null) clearTimeout(timer)
+      timer = setTimeout(() => { timer = null; write() }, 200)
     }
     window.addEventListener('scroll', handle, { passive: true })
-    return () => window.removeEventListener('scroll', handle)
+    return () => {
+      window.removeEventListener('scroll', handle)
+      if (timer !== null) clearTimeout(timer)
+      // Flush the pending position on unmount (guarded by the pathname check
+      // in write) so the final 200ms of scrolling isn't lost.
+      if (lastY >= 0) write()
+    }
   }, [])
 
   const catMap = useMemo(

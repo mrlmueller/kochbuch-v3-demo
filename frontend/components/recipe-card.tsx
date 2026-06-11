@@ -75,7 +75,11 @@ export function CardCover({ recipe, category, priority }: CardProps) {
     <Link href={`/rezept/${recipe.slug}`} className="no-underline relative block rounded-[22px] overflow-hidden"
       style={{ aspectRatio: '5/6', boxShadow: 'var(--card-shadow)' }}>
       {recipe.image_url ? (
-        <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="50vw" blurhash={recipe.image_blurhash} priority={priority} />
+        // sizes matches the desktop browse card (25vw ≥1024px) so the two
+        // first-card priority preloads on /rezepte dedupe to one URL. This
+        // card only renders below 1024px, where the query yields 50vw — the
+        // same value as before.
+        <BlurImage src={recipe.image_url} alt={recipe.title} fill className="object-cover" sizes="(min-width:1024px) 25vw, 50vw" blurhash={recipe.image_blurhash} priority={priority} />
       ) : (
         <div className="absolute inset-0" style={{ background: 'var(--muted)' }} />
       )}

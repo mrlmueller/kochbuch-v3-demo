@@ -143,7 +143,7 @@ function DesktopHome({ categories, allRecipes, today }: { categories: Category[]
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '64px 40px 0' }}>
           <SectionHead title="Schnell gemacht" subtitle="Unter 25 Minuten" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginTop: 24 }}>
-            {quick.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
+            {quick.map(r => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
           </div>
         </section>
       )}
@@ -153,7 +153,7 @@ function DesktopHome({ categories, allRecipes, today }: { categories: Category[]
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '80px 40px 0' }}>
           <SectionHead title="Herzhaft & sättigend" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, marginTop: 24 }}>
-            {hearty.map((r, i) => <DesktopCardWide key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
+            {hearty.map(r => <DesktopCardWide key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
           </div>
         </section>
       )}
@@ -163,7 +163,7 @@ function DesktopHome({ categories, allRecipes, today }: { categories: Category[]
         <section style={{ maxWidth: 1320, margin: '0 auto', padding: '80px 40px 80px' }}>
           <SectionHead title="Süßes & Snacks" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 24 }}>
-            {sweet.map((r, i) => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} priority={i === 0} />)}
+            {sweet.map(r => <DesktopCard key={r.slug} recipe={r} categoryName={catMap[r.category_slug]?.name ?? ''} />)}
           </div>
         </section>
       )}
@@ -215,8 +215,13 @@ export default async function EntdeckenPage() {
         {featured && (
           <div className="px-5 mb-8">
             <Link href={`/rezept/${featured.slug}`} className="no-underline relative block rounded-[24px] overflow-hidden" style={{ aspectRatio: '4/5', boxShadow: 'var(--card-shadow)' }}>
+              {/* sizes is identical to the desktop hero's on purpose: both
+                  instances then resolve to the same image URL, so the
+                  browser downloads the hero once instead of twice (one
+                  layout is always display:none, but priority preloads
+                  fire regardless). */}
               {featured.image_url ? (
-                <BlurImage src={featured.image_url} alt={featured.title} fill className="object-cover" sizes="calc(100vw - 40px)" priority blurhash={featured.image_blurhash} />
+                <BlurImage src={featured.image_url} alt={featured.title} fill className="object-cover" sizes="(min-width:1024px) 55vw, 100vw" priority blurhash={featured.image_blurhash} />
               ) : (
                 <div className="absolute inset-0" style={{ background: 'var(--border)' }} />
               )}
@@ -250,7 +255,7 @@ export default async function EntdeckenPage() {
               </div>
             </div>
             <div className="scroll-snap-x flex gap-3 px-5">
-              {quick.map((r, i) => <CardCompact key={r.slug} recipe={r} priority={i === 0} />)}
+              {quick.map(r => <CardCompact key={r.slug} recipe={r} />)}
             </div>
           </div>
         )}
@@ -279,7 +284,7 @@ export default async function EntdeckenPage() {
               Herzhaft & sättigend
             </h2>
             <div className="flex flex-col gap-3">
-              {hearty.map((r, i) => <CardList key={r.slug} recipe={r} priority={i === 0} />)}
+              {hearty.map(r => <CardList key={r.slug} recipe={r} />)}
             </div>
           </div>
         )}
@@ -291,7 +296,7 @@ export default async function EntdeckenPage() {
               Süßes & Snacks
             </h2>
             <div className="scroll-snap-x flex gap-3 px-5">
-              {sweet.map((r, i) => <CardCompact key={r.slug} recipe={r} priority={i === 0} />)}
+              {sweet.map(r => <CardCompact key={r.slug} recipe={r} />)}
             </div>
           </div>
         )}

@@ -81,7 +81,13 @@ export async function getRecipes(category: string = ''): Promise<RecipeListItem[
 
 async function _getRecipeCached(slug: string): Promise<Recipe | null> {
   'use cache'
-  cacheTag('recipes', `recipe-${slug}`)
+  // Deliberately NOT tagged 'recipes': that tag is busted on every recipe
+  // write, and tagging detail pages with it meant one save expired every
+  // cached recipe page at once (each next visit a blocking re-render).
+  // Writes that change THIS recipe bust `recipe-<slug>` explicitly (proxy
+  // route + revalidate-recipe endpoint); other recipes' writes don't
+  // change this page's content.
+  cacheTag(`recipe-${slug}`)
   cacheLife('weeks')
   const res = await backendFetchInternal(`/api/recipes/${slug}`)
   if (res.status === 404) return null

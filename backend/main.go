@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -10,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"backend/internal/ai"
 	"backend/internal/backup"
@@ -70,6 +73,8 @@ func main() {
 			}
 			return out, nil
 		},
+		RevalidateRecipe: revalidateRecipeFunc(
+			os.Getenv("FRONTEND_URL"), os.Getenv("INTERNAL_TOKEN")),
 	})
 	go func() {
 		if err := workerPool.Start(ctx); err != nil && !errors.Is(err, context.Canceled) {
@@ -96,6 +101,11 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	// Gzip JSON responses (level 5). The recipe list alone is ~54 KB raw and
+	// travels Vercel ⇄ tunnel ⇄ Caddy on every SSR cache miss and proxy read —
+	// compression cuts that ~80%. Only kicks in when the client sends
+	// Accept-Encoding (fetch/undici do by default).
+	r.Use(middleware.Compress(5))
 	// In production set ALLOWED_ORIGIN (comma-separated allowed). When it is set
 	// we do NOT also trust http://localhost:3000 — that dev origin is only added
 	// as the fallback when ALLOWED_ORIGIN is unset (local development).
@@ -174,9 +184,56 @@ func main() {
 	if addr == "" {
 		addr = ":8080"
 	}
+	// Explicit timeouts so a stalled or malicious client can't hold a
+	// connection (and its goroutine) open forever. WriteTimeout must cover
+	// the slowest handler: the manual backup trigger runs synchronously and
+	// its GitHub push alone may take up to 30s.
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           r,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      90 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
 	log.Printf("server listening on %s", addr)
-	if err := http.ListenAndServe(addr, r); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("server failed: %v", err)
+	}
+}
+
+// revalidateRecipeFunc returns the worker callback that busts the frontend's
+// SSR cache for one recipe (POST {FRONTEND_URL}/api/revalidate-recipe with the
+// shared internal token). Returns nil — disabling revalidation — when either
+// env var is missing, e.g. in local dev. Best-effort: failures are logged,
+// never propagated; the admin tab's own revalidation remains as a fallback.
+func revalidateRecipeFunc(frontendURL, token string) func(context.Context, string) {
+	if frontendURL == "" || token == "" {
+		return nil
+	}
+	endpoint := strings.TrimRight(frontendURL, "/") + "/api/revalidate-recipe"
+	client := &http.Client{Timeout: 10 * time.Second}
+	return func(ctx context.Context, slug string) {
+		body, err := json.Marshal(map[string]string{"slug": slug})
+		if err != nil {
+			return
+		}
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+		if err != nil {
+			log.Printf("revalidate %s: %v", slug, err)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Internal-Token", token)
+		res, err := client.Do(req)
+		if err != nil {
+			log.Printf("revalidate %s: %v", slug, err)
+			return
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			log.Printf("revalidate %s: frontend returned HTTP %d", slug, res.StatusCode)
+		}
 	}
 }
 
