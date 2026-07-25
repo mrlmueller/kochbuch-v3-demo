@@ -21,7 +21,7 @@ func aiRouter(store db.Store, user *models.User) http.Handler {
 	r.Use(injectUser(user))
 	r.Post("/api/ai-jobs", handlers.CreateAIJob(store, handlers.AIJobLimits{
 		PerUserActive: 3, GlobalActive: 50, DailyPerUser: 20,
-		DefaultProvider: "openai", DefaultModel: "gpt-5.4-mini",
+		DefaultProvider: "openai", DefaultModel: "gpt-5.6-luna",
 	}))
 	return r
 }
@@ -32,7 +32,7 @@ func TestCreateAIJob_userCannotOverrideModel(t *testing.T) {
 	body, _ := json.Marshal(map[string]any{
 		"image_urls": []string{"https://example.com/a.jpg"},
 		"provider":   "claude",
-		"model":      "claude-sonnet-4-6",
+		"model":      "claude-sonnet-5",
 	})
 	req := httptest.NewRequest(http.MethodPost, "/api/ai-jobs", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -46,7 +46,7 @@ func TestCreateAIJob_userCannotOverrideModel(t *testing.T) {
 	}
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "openai", resp.Provider)
-	assert.Equal(t, "gpt-5.4-mini", resp.Model)
+	assert.Equal(t, "gpt-5.6-luna", resp.Model)
 }
 
 func TestCreateAIJob_perUserLimit(t *testing.T) {

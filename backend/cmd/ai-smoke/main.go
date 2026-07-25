@@ -33,9 +33,9 @@ func main() {
 
 	keys := []string{
 		"claude:claude-haiku-4-5",
-		"claude:claude-sonnet-4-6",
-		"openai:gpt-5.4-mini",
-		"openai:gpt-5.4-nano",
+		"claude:claude-sonnet-5",
+		"openai:gpt-5.6-luna",
+		"openai:gpt-5.6-terra",
 	}
 
 	for _, key := range keys {

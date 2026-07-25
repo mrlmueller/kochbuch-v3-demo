@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	Register("claude:claude-sonnet-4-6", func() (Extractor, error) { return newClaude("claude-sonnet-4-6"), nil })
+	Register("claude:claude-sonnet-5", func() (Extractor, error) { return newClaude("claude-sonnet-5"), nil })
 	Register("claude:claude-haiku-4-5", func() (Extractor, error) { return newClaude("claude-haiku-4-5"), nil })
 }
 
@@ -68,6 +68,11 @@ func (e *claudeExtractor) Extract(ctx context.Context, req Request) (Result, err
 		}},
 		Tools:      tools,
 		ToolChoice: toolChoice,
+		// Sonnet 5 thinks by default when this is omitted (Sonnet 4.6 did not),
+		// and thinking shares the 2048 MaxTokens budget with the tool call.
+		Thinking: anthropic.ThinkingConfigParamUnion{
+			OfDisabled: &anthropic.ThinkingConfigDisabledParam{},
+		},
 	})
 	if err != nil {
 		return Result{}, err

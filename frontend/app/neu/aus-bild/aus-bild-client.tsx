@@ -10,14 +10,14 @@ let _slotSeq = 0
 const uid = () => `img-${Date.now().toString(36)}-${(_slotSeq += 1)}`
 
 const MODEL_OPTIONS = [
-  { provider: 'claude', model: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6 (Standard)' },
-  { provider: 'openai', model: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
-  { provider: 'openai', model: 'gpt-5.4-nano', label: 'GPT-5.4 nano' },
+  { provider: 'claude', model: 'claude-sonnet-5', label: 'Claude Sonnet 5 (Standard)' },
+  { provider: 'openai', model: 'gpt-5.6-luna', label: 'GPT-5.6 Luna' },
+  { provider: 'openai', model: 'gpt-5.6-terra', label: 'GPT-5.6 Terra' },
   { provider: 'claude', model: 'claude-haiku-4-5', label: 'Claude Haiku 4.5' },
 ]
 
-const ADMIN_DEFAULT_MODEL = 'claude:claude-sonnet-4-6'
-const USER_DEFAULT_MODEL = 'openai:gpt-5.4-mini'
+const ADMIN_DEFAULT_MODEL = 'claude:claude-sonnet-5'
+const USER_DEFAULT_MODEL = 'openai:gpt-5.6-luna'
 const MAX_IMAGES = 6
 
 type SlotStatus = 'uploading' | 'done' | 'error'
@@ -48,7 +48,10 @@ export function AusBildClient({ isAdmin }: { isAdmin: boolean }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem('ai_model_key')
-      if (saved) setModelKey(saved)
+      // Ignore keys saved before a model rename — they no longer resolve server-side.
+      if (saved && MODEL_OPTIONS.some((o) => `${o.provider}:${o.model}` === saved)) {
+        setModelKey(saved)
+      }
     } catch {}
   }, [])
 

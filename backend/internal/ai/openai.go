@@ -8,11 +8,12 @@ import (
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
+	"github.com/openai/openai-go/v3/shared"
 )
 
 func init() {
-	Register("openai:gpt-5.4-mini", func() (Extractor, error) { return newOpenAI("gpt-5.4-mini"), nil })
-	Register("openai:gpt-5.4-nano", func() (Extractor, error) { return newOpenAI("gpt-5.4-nano"), nil })
+	Register("openai:gpt-5.6-terra", func() (Extractor, error) { return newOpenAI("gpt-5.6-terra"), nil })
+	Register("openai:gpt-5.6-luna", func() (Extractor, error) { return newOpenAI("gpt-5.6-luna"), nil })
 }
 
 type openaiExtractor struct {
@@ -69,6 +70,9 @@ func (e *openaiExtractor) Extract(ctx context.Context, req Request) (Result, err
 		ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
 			OfJSONSchema: &openai.ResponseFormatJSONSchemaParam{JSONSchema: schemaParam},
 		},
+		// The 5.6 models default to high reasoning effort and bill reasoning as
+		// output tokens; extraction into a fixed schema does not need it.
+		ReasoningEffort: shared.ReasoningEffortLow,
 	})
 	if err != nil {
 		return Result{}, err

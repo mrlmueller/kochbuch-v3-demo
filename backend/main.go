@@ -57,7 +57,7 @@ func main() {
 		GlobalActive:    intEnv("AI_GLOBAL_QUEUE_LIMIT", 50),
 		DailyPerUser:    intEnv("AI_PER_USER_DAILY_LIMIT", 25),
 		DefaultProvider: getenv("AI_DEFAULT_PROVIDER", "openai"),
-		DefaultModel:    getenv("AI_DEFAULT_MODEL", "gpt-5.4-mini"),
+		DefaultModel:    getenv("AI_DEFAULT_MODEL", "gpt-5.6-luna"),
 	}
 
 	workerPool := ai.NewWorkerPool(store, ai.WorkerOpts{
