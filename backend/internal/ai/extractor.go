@@ -96,7 +96,7 @@ Keine null/undefined. Keine leeren Strings (Ausnahme: image_url ist immer "").
 
 # INHALTLICHE REGELN
 
-Du darfst öäü benutzen, nur nicht im titel, überall sonst darfst du es gerne benutzen!
+Du darfst Umlaute (öäü) und ß überall benutzen, auch im Titel.
 
 ## 1) Titel
 - title: in normalem Deutsch belassen (Umlaute/ß sind OK). KEIN Umschreiben in ae/oe/ue im title.
