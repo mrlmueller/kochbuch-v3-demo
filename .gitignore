@@ -10,6 +10,10 @@ backend/serviceaccount.json
 backend/*adminsdk*.json
 
 /Design-2
-/docs
+# docs/ bleibt ausgeschlossen, außer den Teilen, die zum Repo gehören:
+# den datierten Spezifikationen/Plänen/Messberichten und den README-Bildern.
+/docs/*
+!/docs/superpowers/
+!/docs/img/
 /backend/kochbuch-backend*.exe~
 *~
